@@ -1,0 +1,35 @@
+---
+interface Props { content: string; label?: string; }
+const { content, label = 'Mind map' } = Astro.props;
+---
+<figure class="diagram mindmap" data-markmap data-content={content}>
+  <div class="diagram-toolbar"><span>{label}</span><div class="flex gap-2"><button type="button" data-action="in" aria-label="Zoom in">＋</button><button type="button" data-action="out" aria-label="Zoom out">−</button><button type="button" data-action="fit" aria-label="Fit view">Fit</button><button type="button" data-action="reset" aria-label="Reset view">↺</button><button type="button" data-action="fullscreen" aria-label="Fullscreen">⛶</button></div></div>
+  <svg class="mindmap-canvas" role="img" aria-label={label}></svg>
+  <details class="mindmap-fallback"><summary>{label} text</summary><pre>{content}</pre></details>
+  <noscript><pre>{content}</pre></noscript>
+</figure>
+<script>
+  const figures = [...document.querySelectorAll<HTMLElement>('[data-markmap]')];
+  if (figures.length) {
+    const observer = new IntersectionObserver(async entries => {
+      const visible = entries.filter(entry => entry.isIntersecting);
+      if (!visible.length) return;
+      const [{ Transformer }, { Markmap }] = await Promise.all([import('markmap-lib'), import('markmap-view')]);
+      for (const entry of visible) {
+        observer.unobserve(entry.target);
+        const figure = entry.target as HTMLElement;
+        const svg = figure.querySelector<SVGSVGElement>('svg')!;
+        const root = new Transformer().transform(figure.dataset.content || '').root;
+        const map = Markmap.create(svg, { autoFit: true, duration: 300 }, root);
+        figure.querySelectorAll<HTMLButtonElement>('[data-action]').forEach(button => button.addEventListener('click', () => {
+          const action = button.dataset.action;
+          if (action === 'in') map.rescale(1.25);
+          if (action === 'out') map.rescale(0.8);
+          if (action === 'fit' || action === 'reset') map.fit();
+          if (action === 'fullscreen') { if (document.fullscreenElement) document.exitFullscreen(); else figure.requestFullscreen(); }
+        }));
+      }
+    }, { rootMargin: '200px' });
+    figures.forEach(figure => observer.observe(figure));
+  }
+</script>

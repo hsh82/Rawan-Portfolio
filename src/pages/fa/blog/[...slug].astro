@@ -1,0 +1,7 @@
+---
+import ArticleReader from '../../../components/blog/ArticleReader.astro';
+import { published, articlePath } from '../../../utils/blog';
+export async function getStaticPaths() { return (await published('fa')).map(article => ({ params: { slug: articlePath(article).replace('/fa/blog/', '').replace(/\/$/, '') }, props: { article } })); }
+const { article } = Astro.props;
+---
+<ArticleReader article={article} />

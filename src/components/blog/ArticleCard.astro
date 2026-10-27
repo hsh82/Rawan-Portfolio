@@ -1,0 +1,12 @@
+---
+import type { Article } from '../../utils/blog';
+import { articlePath, formatDate, readingMinutes } from '../../utils/blog';
+import { t, categoryLabel } from '../../utils/i18n';
+interface Props { article: Article; }
+const { article } = Astro.props;
+const { data } = article;
+---
+<article class="article-card" data-search={`${data.title} ${data.description} ${data.category} ${data.tags.join(' ')}`.toLocaleLowerCase()} data-category={data.category} data-tags={data.tags.join('|')} data-date={data.pubDate.toISOString()}>
+  {data.cover && <img src={data.cover.src} alt="" loading="lazy" class="aspect-video w-full object-cover" />}
+  <div class="p-6"><p class="mb-3 text-sm text-primary">{categoryLabel(data.category, data.locale)}{data.subcategory && ` / ${categoryLabel(data.subcategory, data.locale)}`}</p><h3 class="mb-2 text-xl font-semibold"><a href={articlePath(article)} class="stretched-link">{data.title}</a></h3><p class="mb-4 text-sm text-secondary/70 dark:text-white/70">{data.description}</p><div class="flex flex-wrap gap-2 text-xs text-secondary/60 dark:text-white/60"><time datetime={data.pubDate.toISOString()}>{formatDate(data.pubDate, data.locale)}</time><span>·</span><span>{readingMinutes(article.body || '')} {t('blog.minutes', data.locale)}</span></div><div class="mt-3 flex flex-wrap gap-2">{data.tags.map(tag => <span class="tag">{tag}</span>)}</div></div>
+</article>

@@ -1,0 +1,9 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+import BlogIndex from '../../../../components/blog/BlogIndex.astro';
+import { published, articleSegments } from '../../../../utils/blog';
+export async function getStaticPaths() { const articles = await published('fa'); const paths = new Set(articles.flatMap(article => { const parts = articleSegments(article); return parts.map((_, i) => parts.slice(0,i+1).join('/')); })); return [...paths].map(slug => ({ params: { slug }, props: { articles, parts: slug.split('/') } })); }
+const lang = 'fa';
+const { articles, parts } = Astro.props;
+---
+<Layout lang={lang} title={`${parts.at(-1)} | Blog`}><BlogIndex lang={lang} articles={articles} activeCategory={parts} /></Layout>

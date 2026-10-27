@@ -1,0 +1,5 @@
+---
+interface Props { code: string; language?: string; filename?: string; }
+const { code, language = 'text', filename } = Astro.props;
+---
+<div class="labeled-code">{filename && <div class="code-label" dir="ltr">{filename}</div>}<pre data-language={language}><code>{code}</code></pre></div>
