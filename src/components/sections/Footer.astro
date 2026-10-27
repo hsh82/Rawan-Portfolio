@@ -5,7 +5,7 @@ import { portfolio } from '../../utils/portfolio-content';
 const lang = localeOf(Astro.props.lang) as Locale;
 const data = portfolio();
 const currentYear = new Date().getFullYear();
-const profileName = data.profile.name || (lang === 'fa' ? 'قالب کارنامه' : 'Portfolio Template');
+const profileName = data.profile.name || (lang === 'fa' ? 'پورتفولیوی راوان' : 'Rawan Portfolio');
 const iconFor = (label: string) => /linkedin/i.test(label) ? Linkedin : Github;
 const socials = (data.contact.socials || []).map((item: any) => ({ ...item, Icon: iconFor(item.label) }));
 ---

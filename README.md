@@ -1,10 +1,16 @@
-# Padars Portfolio
+# Rawan Portfolio
 
 **A bilingual, AI-maintainable developer portfolio powered by Astro.**
 
-Padars Portfolio is a reusable English/Persian portfolio framework for developers, engineers, designers, and technical teams. It keeps public owner data in `content/`, presentation and behavior in `src/`, and maintenance guidance in repository-local Agent Skills. Normal content changes do not require editing Astro components.
+[![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.md) [![Made with Astro](https://img.shields.io/badge/Made%20with-Astro-ff5d01?logo=astro&logoColor=white)](https://astro.build/) [![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+
+[![Portfolio preview](https://raw.githubusercontent.com/nicremo/astro-multilingual-portfolio-template/main/src/assets/portfolio-preview.png)](https://github.com/nicremo/astro-multilingual-portfolio-template/blob/main/src/assets/portfolio-preview.png)
+
+Rawan Portfolio is a reusable English/Persian portfolio framework for developers, engineers, designers, and technical teams. It keeps public owner data in `content/`, presentation and behavior in `src/`, and maintenance guidance in repository-local Agent Skills. Normal content changes do not require editing Astro components.
 
 The project originated from the [Nicremo Astro multilingual portfolio template](https://github.com/nicremo/astro-multilingual-portfolio-template) and has been extended with structured content loaders, RTL/LTR support, nested MDX publishing, Mermaid and Markmap readers, search, journey/project relationships, and optional bilingual résumé generation. The current repository is maintained by Hamed Sheikhan. Personal résumé data is intentionally absent from this template release.
+
+The upstream project provides the visual starting point, responsive portfolio layout, theme switching, multilingual navigation, and MIT-licensed foundation. This repository keeps those useful ideas while moving owner data into the central `content/` tree and adding an empty-template workflow suitable for reuse.
 
 ## Features
 
@@ -18,6 +24,8 @@ The project originated from the [Nicremo Astro multilingual portfolio template](
 | Search | Pagefind production search index |
 | Résumé | Optional content-driven bilingual PDF generator using Chromium and Vazirmatn |
 | Maintenance | Repository-local Agent Skills, content validation, link checks, CI, Vercel workflows |
+
+The main reusable sections are navigation, hero, values/about, skills and tools, projects, professional journey, contact, blog, and optional résumé output. Empty content is supported by design, so a fresh clone does not display a fictional owner or require placeholder employment data.
 
 ## Technology stack
 
@@ -51,6 +59,10 @@ npm run preview
 ```
 
 The root route redirects to English. `npm run build` generates `dist/` and the Pagefind index. `npm run preview` serves the production output.
+
+## Upstream credits and license
+
+This project is based on the [Astro Multilingual Portfolio Template](https://github.com/nicremo/astro-multilingual-portfolio-template) by Fabian Bitzer. The upstream [MIT license](LICENSE.md), copyright notice, and attribution are retained. See the upstream README for the original template context and visual reference. New features and documentation in this repository are described here and in `design/`.
 
 ## Repository structure
 
@@ -185,7 +197,7 @@ Vercel is a straightforward host for the generated Astro static output. Use one 
 
 ## License and credits
 
-This project preserves the upstream MIT license and attribution in [LICENSE.md](LICENSE.md). It originated from the Nicremo Astro multilingual portfolio template and adds the documented bilingual content, publishing, validation, résumé, and Agent Skill extensions. Review third-party licenses before redistributing new assets or dependencies.
+This project preserves the upstream MIT license and attribution in [LICENSE.md](LICENSE.md). It originated from the Nicremo Astro multilingual portfolio template and adds the documented bilingual content, publishing, validation, résumé, and Agent Skill extensions. Review third-party licenses before redistributing new assets or dependencies. Contributions, issues, and feature requests are welcome through the repository's normal GitHub workflow.
 
 ## Troubleshooting
 

@@ -25,7 +25,7 @@ function read<T>(path: string, schema: z.ZodType<T>, fallback: T): T {
 function list(path: string, schema: z.ZodType<any>) { return read(path, z.array(schema), []); }
 
 export const portfolio = () => ({
-  site: read('site.json', siteSchema, { siteUrl: '', locales: { en: { title: 'Developer Portfolio Template', description: 'A reusable bilingual portfolio.', homeLabel: 'Portfolio' }, fa: { title: 'قالب کارنامه توسعه‌دهنده', description: 'قالبی دوزبانه برای آثار مهندسی.', homeLabel: 'کارنامه' } } }),
+  site: read('site.json', siteSchema, { siteUrl: '', locales: { en: { title: 'Rawan Portfolio', description: 'A reusable bilingual portfolio.', homeLabel: 'Portfolio' }, fa: { title: 'پورتفولیوی راوان', description: 'پورتفولیویی دوزبانه برای آثار حرفه‌ای.', homeLabel: 'کارنامه' } } }),
   profile: read('profile.json', profileSchema, { visible: false, name: '', locales: { en: {}, fa: {} } }),
   contact: read('contact.json', contactSchema, { email: '', phone: '', location: '', socials: [], locales: { en: {}, fa: {} } }),
   projects: list('projects/entries.json', projectSchema),
