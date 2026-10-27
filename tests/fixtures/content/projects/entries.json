@@ -1,0 +1,3 @@
+[
+  { "id": "example-project", "visible": true, "featured": true, "priority": 1, "translationId": "example-project", "maturity": "experimental-open-source", "technologies": ["Astro"], "journeyIds": [], "articleIds": [], "locales": { "en": { "title": "Example project", "description": "A fictional fixture project." }, "fa": { "title": "پروژهٔ نمونه", "description": "پروژهٔ نمونهٔ ساختگی." } } }
+]

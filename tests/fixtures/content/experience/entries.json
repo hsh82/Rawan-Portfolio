@@ -1,0 +1,3 @@
+[
+  { "id": "example-role", "visible": true, "priority": 1, "organization": "Example Studio", "technologies": ["Linux"], "locales": { "en": { "title": "Platform Engineer", "description": "Fictional fixture experience." }, "fa": { "title": "مهندس پلتفرم", "description": "سابقهٔ نمونهٔ ساختگی." } } }
+]

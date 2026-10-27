@@ -1,0 +1,3 @@
+[
+  { "id": "automation", "visible": true, "priority": 1, "category": "scripting", "technologies": ["Shell"], "locales": { "en": { "title": "Automation", "description": "Fictional fixture skill." }, "fa": { "title": "خودکارسازی", "description": "مهارت نمونهٔ ساختگی." } } }
+]

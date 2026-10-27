@@ -1,0 +1,9 @@
+{
+  "visible": true,
+  "name": "Example Owner",
+  "image": "/images/profile/placeholder.svg",
+  "locales": {
+    "en": { "displayName": "Example Owner", "title": "Platform Engineer", "intro": "A fictional fixture profile.", "summary": "Automation · Reliability", "greeting": "Example portfolio", "ctaExperience": "Experience", "ctaProjects": "Projects" },
+    "fa": { "displayName": "صاحب نمونه", "title": "مهندس پلتفرم", "intro": "پروفایل نمونهٔ ساختگی برای آزمون.", "summary": "خودکارسازی · قابلیت اطمینان", "greeting": "کارنامهٔ نمونه", "ctaExperience": "تجربه", "ctaProjects": "پروژه‌ها" }
+  }
+}

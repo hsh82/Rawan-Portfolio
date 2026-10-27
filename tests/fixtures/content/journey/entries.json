@@ -1,0 +1,3 @@
+[
+  { "id": "example-milestone", "visible": true, "priority": 1, "type": "milestone", "current": false, "projectIds": [], "articleIds": [], "organization": "Example Studio", "locales": { "en": { "title": "A fictional milestone", "description": "Fixture-only journey event." }, "fa": { "title": "یک نقطهٔ عطف ساختگی", "description": "رویداد مسیر فقط برای fixture." } } }
+]
