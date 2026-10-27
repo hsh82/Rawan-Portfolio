@@ -1,0 +1,26 @@
+---
+import { published, articlePath } from '../../utils/blog';
+import { localeOf, type Locale } from '../../utils/i18n';
+interface Props { lang?: Locale; translationId?: string; }
+const lang = localeOf(Astro.props.lang || Astro.currentLocale);
+const entries = Astro.props.translationId ? await published() : [];
+const target = (locale: Locale) => {
+  if (Astro.props.translationId) {
+    const entry = entries.find(e => e.data.locale === locale && e.data.translationId === Astro.props.translationId);
+    return entry ? articlePath(entry) : `/${locale}/blog/`;
+  }
+  return Astro.url.pathname.replace(/^\/(en|fa)\//, `/${locale}/`);
+};
+---
+<div class="flex items-center gap-1" aria-label={lang === 'fa' ? 'انتخاب زبان' : 'Choose language'}>
+  {(['en', 'fa'] as Locale[]).map((locale) => {
+    const active = locale === lang;
+    return (
+      <a href={target(locale)} lang={locale} hreflang={locale}
+        class:list={['px-2 py-1 text-[10px] uppercase tracking-[0.14em] font-mono rounded-md transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary', active ? 'bg-primary text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700']}
+        aria-current={active ? 'page' : undefined}>
+        {locale.toUpperCase()}
+      </a>
+    );
+  })}
+</div>

@@ -1,0 +1,9 @@
+---
+import type { Locale } from '../../utils/i18n';
+interface Props { lang?: Locale; }
+const label = Astro.props.lang === 'fa' ? 'تغییر پوسته' : 'Toggle theme';
+---
+<button type="button" class="theme-toggle rounded-lg border px-3 py dark:border-gray-700" aria-label={label}>◐</button>
+<script>
+  document.querySelectorAll<HTMLButtonElement>('.theme-toggle').forEach(button => button.addEventListener('click', () => { const dark = document.documentElement.classList.toggle('dark'); localStorage.setItem('theme', dark ? 'dark' : 'light'); }));
+</script>

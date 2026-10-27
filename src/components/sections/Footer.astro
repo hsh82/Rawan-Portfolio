@@ -1,0 +1,28 @@
+---
+import { Github, Linkedin } from '@lucide/astro';
+import { localeOf, t, type Locale } from '../../utils/i18n';
+import { portfolio } from '../../utils/portfolio-content';
+const lang = localeOf(Astro.props.lang) as Locale;
+const data = portfolio();
+const currentYear = new Date().getFullYear();
+const profileName = data.profile.name || (lang === 'fa' ? 'قالب کارنامه' : 'Portfolio Template');
+const iconFor = (label: string) => /linkedin/i.test(label) ? Linkedin : Github;
+const socials = (data.contact.socials || []).map((item: any) => ({ ...item, Icon: iconFor(item.label) }));
+---
+<footer class="site-footer border-t border-gray-100 bg-white py-8 dark:border-gray-800 dark:bg-neutral-dark">
+  <div class="mx-auto max-w-container px-6">
+    <div class="flex flex-col items-center justify-between gap-5 md:flex-row">
+      <a href={`/${lang}/`} class="font-heading text-lg font-semibold text-secondary transition-colors hover:text-primary dark:text-white" aria-label={lang === 'fa' ? 'صفحهٔ اصلی' : 'Homepage'}>{profileName}</a>
+      <p class="text-center text-sm text-secondary/60 dark:text-white/60">&copy; {currentYear} {profileName}. {t('footer.copyright', lang)}</p>
+      {socials.length > 0 && <nav class="flex items-center gap-5" aria-label={lang === 'fa' ? 'پیوندهای اجتماعی' : 'Social links'}>{socials.map((item: any) => <a href={item.url} target="_blank" rel="noopener noreferrer" aria-label={item.label} class="text-secondary/70 transition-colors hover:text-primary dark:text-white/70 dark:hover:text-primary"><item.Icon size={20} strokeWidth={1.8} /></a>)}</nav>}
+    </div>
+    <div class="mt-6 border-t border-gray-100 pt-6 text-center text-xs text-secondary/60 dark:border-gray-800 dark:text-white/60">
+      <nav class="flex flex-wrap justify-center gap-x-6 gap-y-2" aria-label={lang === 'fa' ? 'پیوندهای پایین صفحه' : 'Footer navigation'}>
+        <a href={`/${lang}/`} class="transition-colors hover:text-primary">{t('nav.home', lang)}</a>
+        <a href={`/${lang}/blog/`} class="transition-colors hover:text-primary">{t('nav.blog', lang)}</a>
+        <a href={`/${lang}/projects/`} class="transition-colors hover:text-primary">{t('nav.projects', lang)}</a>
+        <a href={`/${lang}/journey/`} class="transition-colors hover:text-primary">{t('nav.journey', lang)}</a>
+      </nav>
+    </div>
+  </div>
+</footer>

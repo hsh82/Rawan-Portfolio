@@ -1,0 +1,369 @@
+---
+import ThemeToggle from '../ui/ThemeToggle.astro';
+import LanguageSwitcher from '../ui/LanguageSwitcher.astro';
+import { t, type Locale } from '../../utils/i18n';
+import { portfolio } from '../../utils/portfolio-content';
+interface Props { lang: Locale; translationId?: string; }
+const { lang, translationId } = Astro.props;
+const data = portfolio();
+const hasResume = data.resume.enabled && data.profile.visible;
+const resumeHref = (locale: Locale) => `/resume/${data.resume.filenameSlug}-${locale}.pdf`;
+const currentPath = Astro.url.pathname;
+const isHome = currentPath === `/${lang}/`;
+const isBlog = currentPath.startsWith(`/${lang}/blog/`);
+
+// Homepage tracked sections — real IDs rendered by the homepage sections.
+const pageSections = [
+  { id: 'start', key: 'home', label: t('nav.home', lang) },
+  { id: 'skills', key: 'skills', label: t('nav.skills', lang) },
+  { id: 'about', key: 'about', label: t('nav.about', lang) },
+  { id: 'focus', key: 'focus', label: lang === 'fa' ? 'تمرکز' : 'Focus' },
+  { id: 'experience', key: 'experience', label: t('nav.experience', lang) },
+  { id: 'projects', key: 'projects', label: t('nav.projects', lang) },
+  { id: 'journey', key: 'journey', label: t('nav.journey', lang) },
+  { id: 'contact', key: 'contact', label: t('nav.contact', lang) },
+  { id: 'blog', key: 'blog', label: t('nav.blog', lang) },
+];
+
+// The site has two top-level areas: the homepage and the blog.
+const rightLinks = [
+  { key: 'home', href: `/${lang}/#start`, label: t('nav.home', lang) },
+  { key: 'blog', href: `/${lang}/blog/`, label: t('nav.blog', lang) },
+];
+
+const activeKey = rightLinks.find((link) =>
+  link.key === 'home' ? isHome : isBlog
+)?.key ?? null;
+
+const activeSection = pageSections.find((s) => s.key === activeKey);
+const currentPage = rightLinks.find((link) => link.key === activeKey);
+const currentLabel = isHome
+  ? activeSection?.label ?? pageSections[0]?.label ?? t('nav.home', lang)
+  : currentPage?.label ?? t('nav.home', lang);
+---
+<nav class="sticky top-0 z-[60] border-b border-gray-100 bg-white/95 backdrop-blur dark:border-gray-800 dark:bg-neutral-dark/95" aria-label="Primary navigation">
+  <!-- Header structure is fixed LTR so locale changes never reorder the three zones. -->
+  <div class="mx-auto flex max-w-container items-center gap-4 px-6 py-3 w-full" dir="ltr">
+    <!-- LEFT ZONE — utility controls (language + theme). Never moves. -->
+    <div class="flex items-center gap-2 shrink-0">
+      <LanguageSwitcher lang={lang} translationId={translationId} />
+      <ThemeToggle lang={lang} />
+    </div>
+
+    <!-- CENTER ZONE — compact segmented progress navigation + current-section label.
+         One cohesive control: the strip and label are a single <button>;
+         no separate dropdown button, no chevron, no competing popovers. -->
+    <div class="flex-1 min-w-0 flex items-center justify-center">
+      {isHome && <div id="progress-nav" class="relative inline-flex" aria-label="Section progress">
+        <button
+          type="button"
+          id="progress-control"
+          aria-expanded="false"
+          aria-controls="progress-menu"
+          class="flex items-center gap-3.5 min-w-0 outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
+        >
+          {/* Compact segmented strip — positioned ancestor for the dropdown */}
+          <div class="shrink-0 w-[220px] md:w-[280px] h-[3px] flex gap-[5px] hidden sm:flex">
+            {pageSections.map((section, i) => (
+              <div
+                id={`progress-seg-${section.key}`}
+                data-section={section.key}
+                data-index={i + 1}
+                aria-label={section.label}
+                class="relative h-[3px] rounded-full bg-gray-200 dark:bg-gray-700 shrink-0"
+                style="width: 0px"
+              >
+                <div
+                  id={`progress-fill-${section.key}`}
+                  class="absolute inset-0 h-full bg-primary rounded-full origin-left"
+                  style="transform: scaleX(0)"
+                ></div>
+              </div>
+            ))}
+          </div>
+
+          {/* Current-section label — immediately right of the strip */}
+          <span
+            id="progress-current"
+            class="min-w-[110px] text-right whitespace-nowrap text-[10px] uppercase tracking-[0.14em] font-mono tabular-nums"
+          >
+            <span class="text-primary font-bold">01</span> · <span class="text-gray-700 dark:text-gray-300">{currentLabel}</span>
+          </span>
+        </button>
+        {/* A sibling of the button so menu links remain valid interactive controls. */}
+        <div
+          id="progress-menu"
+          role="menu"
+          aria-orientation="vertical"
+          aria-labelledby="progress-control"
+          class="absolute left-1/2 -translate-x-1/2 top-full w-[228px] sm:left-[110px] md:left-[140px] md:w-[288px] rounded-[16px] border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-dark shadow-lg py-1.5 hidden z-50"
+        >
+          {pageSections.map((section, i) => (
+            <a
+              href={`#${section.id}`}
+              role="menuitem"
+              data-scroll-to={section.id}
+              data-index={i + 1}
+              class="flex items-center justify-between px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
+            >
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-mono tabular-nums text-gray-500 dark:text-gray-400">{String(i + 1).padStart(2, '0')}</span>
+                <span class="font-medium">{section.label}</span>
+              </div>
+              <div class="w-[14px] shrink-0">
+                <div
+                  id={`progress-row-line-${section.key}`}
+                  class="h-[3px] rounded-full bg-gray-200 dark:bg-gray-700 shrink-0"
+                  style="width: 0px"
+                ></div>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>}
+
+      {/* Blog routes show the current top-level area without a progress control. */}
+      <span class={`font-mono text-[10px] uppercase tracking-[0.14em] text-gray-500 dark:text-gray-400 ${isHome ? 'hidden' : ''}`}>{currentLabel}</span>
+    </div>
+
+    <!-- RIGHT ZONE — page navigation + résumé download. Never moves. -->
+    <div class="flex items-center gap-1 shrink-0">
+      <nav class="hidden items-center gap-1 md:flex" aria-label="Page navigation">
+        {rightLinks.map((link) => (
+          <a
+            href={link.href}
+            aria-current={activeKey === link.key ? 'page' : undefined}
+            class="rounded-md px-2.5 py-1.5 text-[12px] transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary"
+          >
+            {link.label}
+          </a>
+        ))}
+        {hasResume && (
+          <a href={resumeHref(lang)} download={`${data.resume.filenameSlug}-${lang}.pdf`} aria-label={lang === 'fa' ? 'دانلود رزومه' : 'Download résumé PDF'} class="flex items-center gap-1.5 rounded-md border border-primary/40 bg-primary/10 px-2.5 py-1.5 text-[10px] uppercase tracking-[0.14em] font-mono text-primary transition-colors duration-150 hover:border-primary hover:bg-primary hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 13 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>
+            {t('nav.resume', lang)}
+          </a>
+        )}
+      </nav>
+
+      <button id="menu-toggle" type="button" aria-controls="mobile-menu" aria-expanded="false" aria-label={lang === 'fa' ? 'فتح القائمة' : 'Open menu'} class="flex h-8 w-8 items-center justify-center rounded-md text-gray-900 dark:text-white transition-colors duration-150 hover:bg-gray-900/[0.06] dark:hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary md:hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu h-[18px] w-[18px]"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<nav id="mobile-menu" class="hidden border-t px-6 py-4 dark:border-gray-800 md:hidden" aria-label={lang === 'fa' ? 'قائمة الهاتف' : 'Mobile navigation'}>
+  <div class="flex flex-col gap-4">
+    {rightLinks.map((link) => (
+      <a href={link.href} aria-current={activeKey === link.key ? 'page' : undefined} class="block px-3 py-2 text-sm rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">{link.label}</a>
+    ))}
+    {hasResume && <a href={resumeHref(lang)} download={`${data.resume.filenameSlug}-${lang}.pdf`} class="block px-3 py-2 text-sm rounded-md border border-primary/40 bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground transition-colors">{t('nav.resume', lang)}</a>}
+    <LanguageSwitcher lang={lang} translationId={translationId} />
+  </div>
+</nav>
+<script>
+  (function () {
+    const header = document.querySelector('nav[aria-label="Primary navigation"]') as HTMLElement | null;
+    const control = document.getElementById('progress-control') as HTMLElement | null;
+    const menu = document.getElementById('progress-menu') as HTMLElement | null;
+    const currentLabelEl = document.getElementById('progress-current') as HTMLElement | null;
+    const keys = ['home', 'skills', 'about', 'focus', 'experience', 'projects', 'journey', 'contact', 'blog'];
+    const idByKey: { [key: string]: string } = { home: 'start', skills: 'skills', about: 'about', focus: 'focus', experience: 'experience', projects: 'projects', journey: 'journey', contact: 'contact', blog: 'blog' };
+    const segEls: { [key: string]: HTMLElement | null } = {};
+    const rowLineEls: { [key: string]: HTMLElement | null } = {};
+    keys.forEach((k) => {
+      segEls[k] = document.getElementById(`progress-seg-${k}`);
+      rowLineEls[k] = document.getElementById(`progress-row-line-${k}`);
+    });
+
+    // --- Sticky offset custom property (unchanged) ---------------------------
+    function updateOffset() {
+      if (header) document.documentElement.style.setProperty('--nav-offset', `${header.offsetHeight}px`);
+    }
+    updateOffset();
+    window.addEventListener('resize', updateOffset);
+
+    if (control && menu && currentLabelEl) {
+    // --- Section geometry: boundaries + proportional segment widths ----------
+    let scrollable = 1;
+    let docHeight = 1;
+    let boundaries: number[] = [];
+    function measure() {
+      const doc = document.documentElement;
+      const body = document.body;
+      docHeight = Math.max(doc.scrollHeight, body ? body.scrollHeight : 0);
+      scrollable = Math.max(docHeight - window.innerHeight, 1);
+      boundaries = keys.map((k) => {
+        const el = document.getElementById(idByKey[k]);
+        const r = el ? el.getBoundingClientRect() : null;
+        return Math.max(0, r ? r.top + window.scrollY : 0);
+      });
+      applySegmentWidths();
+      updateProgress();
+    }
+    measure();
+    window.addEventListener('load', measure);
+    window.addEventListener('resize', measure);
+
+    // Proportional segment widths from measured section scroll ranges.
+    function applySegmentWidths() {
+      const stripWidth = window.innerWidth >= 768 ? 280 : 220;
+      const gap = 5;
+      const available = stripWidth - gap * (keys.length - 1);
+      const lengths = keys.map((_k, i) => {
+        const start = boundaries[i];
+        const end = i + 1 < keys.length ? boundaries[i + 1] : docHeight;
+        return Math.max(1, end - start);
+      });
+      const totalLength = lengths.reduce((a, b) => a + b, 0) || 1;
+      let widths = lengths.map((len) => (len / totalLength) * available);
+      const minW = 6;
+      widths = widths.map((w) => Math.max(w, minW));
+      let sum = widths.reduce((a, b) => a + b, 0);
+      if (sum > available) {
+        const scale = available / sum;
+        widths = widths.map((w) => Math.max(w * scale, minW));
+      }
+      keys.forEach((k, i) => {
+        const el = segEls[k];
+        if (el) el.style.width = `${Math.round(widths[i] * 10) / 10}px`;
+        const line = rowLineEls[k];
+        if (line) line.style.width = `${Math.round(Math.min(widths[i], 16) * 10) / 10}px`;
+      });
+      updateProgress();
+    }
+
+    // --- Whole-page progress + per-segment fills + active label -------------
+    let ticking = false;
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => { updateProgress(); ticking = false; });
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    function updateProgress() {
+      const scrollY = window.scrollY;
+      const innerH = window.innerHeight;
+      const navOffset = parseInt(document.documentElement.style.getPropertyValue('--nav-offset') || '112', 10);
+      const progress = scrollable > 0 ? Math.min(100, Math.max(0, (scrollY / scrollable) * 100)) : 0;
+
+      // Per-segment fill derived from global progress vs each segment interval.
+      keys.forEach((k, i) => {
+        const start = boundaries[i];
+        const end = i + 1 < keys.length ? boundaries[i + 1] : docHeight;
+        const segStartPct = Math.min(100, Math.max(0, (start / scrollable) * 100));
+        const segEndPct = Math.min(100, Math.max(0, (end / scrollable) * 100));
+        let fill = 0;
+        if (progress >= segEndPct) {
+          fill = 1;
+        } else if (progress > segStartPct && segEndPct > segStartPct) {
+          fill = (progress - segStartPct) / (segEndPct - segStartPct);
+        }
+        fill = Math.min(1, Math.max(0, fill));
+        const fillEl = document.getElementById(`progress-fill-${k}`);
+        if (fillEl) fillEl.style.transform = `scaleX(${fill.toFixed(3)})`;
+      });
+
+      // Active section = section whose range contains the viewport center band.
+      const viewCenter = scrollY + innerH / 2;
+      let active = '';
+      keys.forEach((k, i) => {
+        const start = boundaries[i] - navOffset - innerH * 0.15;
+        const end = boundaries[i + 1] ?? (scrollable + window.innerHeight);
+        if (viewCenter >= start && viewCenter < end) active = k;
+      });
+
+      // Current-section label: two-digit index + localized title.
+      if (currentLabelEl && active) {
+        const idx = keys.indexOf(active) + 1;
+        const segEl = segEls[active];
+        const sLabel = segEl?.getAttribute('aria-label') ?? active;
+        currentLabelEl.innerHTML = `<span class="text-primary font-bold">${String(idx).padStart(2, '0')}</span> · <span class="text-gray-700 dark:text-gray-300">${sLabel}</span>`;
+      }
+
+      // Emphasize the current dropdown row.
+      if (menu) {
+        menu.querySelectorAll<HTMLElement>('[data-scroll-to]').forEach((link) => {
+          const isActive = link.getAttribute('data-scroll-to') === idByKey[active];
+          if (isActive) {
+            link.classList.add('font-bold', 'text-primary', 'bg-gray-50', 'dark:bg-gray-800/50');
+            link.classList.remove('text-gray-700', 'dark:text-gray-300');
+          } else {
+            link.classList.remove('font-bold', 'text-primary', 'bg-gray-50', 'dark:bg-gray-800/50');
+            link.classList.add('text-gray-700', 'dark:text-gray-300');
+          }
+        });
+      }
+    }
+
+    // --- Dropdown: open on hover/focus of the single control -----------------
+    let hoverTimer: ReturnType<typeof setTimeout> | null = null;
+    function openMenu() { control?.setAttribute('aria-expanded', 'true'); menu?.classList.remove('hidden'); }
+    function closeMenu() { control?.setAttribute('aria-expanded', 'false'); menu?.classList.add('hidden'); }
+    function scheduleOpen() { if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; } hoverTimer = setTimeout(openMenu, 120); }
+    function scheduleClose() { if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; } hoverTimer = setTimeout(closeMenu, 120); }
+
+    control?.addEventListener('mouseenter', scheduleOpen);
+    control?.addEventListener('mouseleave', scheduleClose);
+    control?.addEventListener('focus', () => { if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; } openMenu(); });
+    control?.addEventListener('blur', scheduleClose);
+    menu?.addEventListener('mouseenter', () => { if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; } });
+    menu?.addEventListener('mouseleave', scheduleClose);
+    menu?.addEventListener('focusin', () => { if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; } });
+    menu?.addEventListener('focusout', (event) => {
+      const next = event.relatedTarget as Node | null;
+      if (next && (menu.contains(next) || control?.contains(next))) return;
+      scheduleClose();
+    });
+    let touchMenuWasOpen = false;
+    control?.addEventListener('pointerdown', () => {
+      if (window.matchMedia('(hover: none)').matches) touchMenuWasOpen = control.getAttribute('aria-expanded') === 'true';
+    });
+    control?.addEventListener('click', () => {
+      if (!window.matchMedia('(hover: none)').matches) return;
+      if (touchMenuWasOpen) closeMenu();
+      else openMenu();
+    });
+
+    document.addEventListener('click', (e) => {
+      const target = e.target as Element | null;
+      if (control && menu && target && !control.contains(target) && !menu.contains(target)) closeMenu();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && control?.getAttribute('aria-expanded') === 'true') {
+        e.preventDefault();
+        closeMenu();
+        control.focus();
+      }
+    });
+
+    // --- Section navigation: click item -> smooth scroll ---------------------
+    menu?.querySelectorAll<HTMLElement>('[data-scroll-to]').forEach((link) => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const id = link.getAttribute('data-scroll-to') || '';
+        const el = document.getElementById(id);
+        const offset = parseInt(document.documentElement.style.getPropertyValue('--nav-offset') || '112', 10);
+        if (el) {
+          const top = Math.max(0, el.offsetTop - offset - 8);
+          const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+          window.scrollTo({ top, behavior });
+          history.pushState(null, '', '#' + id);
+          updateProgress();
+        }
+        closeMenu();
+      });
+    });
+    }
+
+    // --- Mobile menu ---------------------------------------------------------
+    const button = document.querySelector('#menu-toggle') as HTMLElement | null;
+    const mm = document.querySelector('#mobile-menu') as HTMLElement | null;
+    button?.addEventListener('click', () => { const o = button.getAttribute('aria-expanded') !== 'true'; button.setAttribute('aria-expanded', String(o)); mm?.classList.toggle('hidden', !o); });
+    mm?.querySelectorAll('a').forEach((link) => (link as HTMLElement).addEventListener('click', () => { mm?.classList.add('hidden'); button?.setAttribute('aria-expanded', 'false'); }));
+    document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && button?.getAttribute('aria-expanded') === 'true') { mm?.classList.add('hidden'); button?.setAttribute('aria-expanded', 'false'); button.focus(); } });
+  })();
+</script>

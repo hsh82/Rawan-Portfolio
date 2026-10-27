@@ -1,0 +1,54 @@
+---
+import Navbar from '../components/layout/Navbar.astro';
+import Footer from '../components/sections/Footer.astro';
+import '../styles/global.css';
+import '@fontsource/vazirmatn/400.css';
+import '@fontsource/vazirmatn/500.css';
+import '@fontsource/vazirmatn/600.css';
+import '@fontsource/vazirmatn/700.css';
+import '@fontsource/vazirmatn/800.css';
+import 'katex/dist/katex.min.css';
+import { localeOf, t, type Locale } from '../utils/i18n';
+import { portfolio } from '../utils/portfolio-content';
+import favicon from '../assets/favicon.png';
+interface Props { title?: string; description?: string; lang?: Locale; translationId?: string; alternates?: Partial<Record<Locale, string>>; type?: 'website' | 'article'; image?: string; published?: Date; updated?: Date; }
+const lang = localeOf(Astro.props.lang || Astro.currentLocale);
+const siteCopy: any = portfolio().site.locales[lang];
+const { title = siteCopy.title, description = siteCopy.description, type = 'website', image, published, updated } = Astro.props;
+const base = Astro.site || new URL('https://example.invalid/');
+const canonical = new URL(Astro.url.pathname, base).href;
+const alternates = Astro.props.alternates || { en: Astro.url.pathname.replace(/^\/(en|fa)\//, '/en/'), fa: Astro.url.pathname.replace(/^\/(en|fa)\//, '/fa/') };
+---
+<!doctype html>
+<html lang={lang} dir={lang === 'fa' ? 'rtl' : 'ltr'}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#0D1117" />
+    <title>{title}</title>
+    <link rel="icon" type="image/png" href={favicon.src} />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" type="application/rss+xml" title={t('blog.title', lang)} href={`/${lang}/rss.xml`} />
+    {Object.entries(alternates).map(([locale, path]) => <link rel="alternate" hreflang={locale} href={new URL(path!, base).href} />)}
+    {alternates.en && <link rel="alternate" hreflang="x-default" href={new URL(alternates.en, base).href} />}
+    <meta property="og:type" content={type} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:locale" content={lang === 'fa' ? 'fa_IR' : 'en_US'} />
+    {image && <meta property="og:image" content={new URL(image, base).href} />}
+    <meta name="twitter:card" content={image ? 'summary_large_image' : 'summary'} />
+    {published && <meta property="article:published_time" content={published.toISOString()} />}
+    {updated && <meta property="article:modified_time" content={updated.toISOString()} />}
+    <script is:inline>try{const stored=localStorage.getItem('theme');if(stored==='dark'||(!stored&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')}catch{}</script>
+  </head>
+  <body class="bg-white text-secondary dark:bg-neutral-dark dark:text-white transition-colors duration-300">
+    <a class="skip-link" href="#main-content">{lang === 'fa' ? 'رفتن به محتوا' : 'Skip to content'}</a>
+    <div class="flex min-h-screen flex-col">
+      <Navbar lang={lang} translationId={Astro.props.translationId} />
+      <main id="main-content" class="min-w-0 flex-grow"><slot /></main>
+      <Footer lang={lang} />
+    </div>
+  </body>
+</html>
