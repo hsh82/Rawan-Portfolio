@@ -1,0 +1,27 @@
+{
+  "visible": false,
+  "name": "",
+  "image": "/images/profile/placeholder.svg",
+  "locales": {
+    "en": {
+      "greeting": "Your professional portfolio",
+      "displayName": "Portfolio Owner",
+      "title": "Add your professional title",
+      "intro": "Add a concise introduction in content/profile.json.",
+      "summary": "Add your focus areas here.",
+      "description": "",
+      "ctaExperience": "Explore experience",
+      "ctaProjects": "View projects"
+    },
+    "fa": {
+      "greeting": "کارنامهٔ حرفه‌ای شما",
+      "displayName": "صاحب کارنامه",
+      "title": "عنوان حرفه‌ای خود را اضافه کنید",
+      "intro": "معرفی کوتاه خود را در content/profile.json اضافه کنید.",
+      "summary": "حوزه‌های تمرکز خود را اینجا اضافه کنید.",
+      "description": "",
+      "ctaExperience": "مشاهدهٔ تجربه",
+      "ctaProjects": "مشاهدهٔ پروژه‌ها"
+    }
+  }
+}

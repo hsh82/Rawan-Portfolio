@@ -1,0 +1,31 @@
+---
+import Button from '../ui/Buttons.astro';
+import { portfolio } from '../../utils/portfolio-content';
+
+interface Props {
+  lang: string | undefined;
+}
+
+const { lang } = Astro.props;
+const site: any = portfolio().site.locales[lang === 'fa' ? 'fa' : 'en'];
+---
+
+<section id="blog" class="tracked-section py-16 md:py-24 bg-neutral-bg dark:bg-neutral-dark/60 text-center">
+  <div class="max-w-container mx-auto px-6">
+    <div data-aos="fade-up">
+      <h2 class="font-heading text-h2 text-secondary dark:text-white mb-6">
+        {site.footerCta?.title}
+      </h2>
+      <p class="text-secondary/70 dark:text-white/70 max-w-2xl mx-auto mb-8">
+        {site.footerCta?.description}
+      </p>
+
+      <Button
+        text={site.footerCta?.button}
+        href={`/${lang === 'fa' ? 'fa' : 'en'}/blog/`}
+        variant="primary"
+        size="lg"
+      />
+    </div>
+  </div>
+</section>

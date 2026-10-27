@@ -1,0 +1,33 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Hero from '../../components/sections/Hero.astro';
+import Values from '../../components/sections/Values.astro';
+import FocusAreas from '../../components/sections/FocusAreas.astro';
+import Skills from '../../components/sections/Skills.astro';
+import FooterCTA from '../../components/sections/FooterCTA.astro';
+import JourneyTimeline from '../../components/platform/JourneyTimeline.astro';
+import ExperienceList from '../../components/platform/ExperienceList.astro';
+import ProjectGrid from '../../components/platform/ProjectGrid.astro';
+import ContactPanel from '../../components/platform/ContactPanel.astro';
+
+import { t } from '../../utils/i18n'; // Corrected path
+import { portfolio } from '../../utils/portfolio-content';
+
+const lang = Astro.currentLocale;
+
+// Use translated strings from en.json via the t() helper
+const pageTitle = portfolio().site.locales.en.title;
+const pageDescription = portfolio().site.locales.en.description;
+---
+
+<Layout title={pageTitle} description={pageDescription}>
+  <Hero lang={lang} />
+  <Skills lang={lang} />
+  <Values lang={lang} />
+  <FocusAreas lang={lang} />
+  <section id="experience" class="tracked-section py-16 md:py-24"><div class="mx-auto max-w-container px-6"><h2 class="mb-10 font-heading text-h2">{t('nav.experience', lang)}</h2><ExperienceList lang={lang} /></div></section>
+  <section id="projects" class="tracked-section py-16 md:py-24 bg-neutral-bg dark:bg-neutral-dark/60"><div class="mx-auto max-w-container px-6"><h2 class="mb-10 font-heading text-h2">{t('nav.projects', lang)}</h2><ProjectGrid lang={lang} /></div></section>
+  <section id="journey" class="tracked-section py-16 md:py-24"><div class="mx-auto max-w-container px-6"><h2 class="mb-10 font-heading text-h2">{t('nav.journey', lang)}</h2><JourneyTimeline lang={lang} limit={3} /></div></section>
+  <div id="contact" class="tracked-section py-16 md:py-24 bg-neutral-bg dark:bg-neutral-dark/60"><div class="mx-auto max-w-3xl px-6"><ContactPanel lang={lang} /></div></div>
+  <FooterCTA lang={lang} />
+</Layout>

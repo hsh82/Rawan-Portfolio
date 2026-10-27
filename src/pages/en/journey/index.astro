@@ -1,0 +1,8 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import JourneyTimeline from '../../../components/platform/JourneyTimeline.astro';
+import { t } from '../../../utils/i18n';
+const lang = Astro.currentLocale;
+---
+<Layout title={t('nav.journey', lang)} description={t('nav.journey', lang)}><section class="tracked-section py-16 md:py-24"><div class="mx-auto max-w-container px-6"><p class="eyebrow">{lang === 'fa' ? 'مسیر حرفه‌ای' : 'Professional journey'}</p><h1 class="font-heading text-h1 mb-12">{t('nav.journey', lang)}</h1><JourneyTimeline lang={lang} /></div></section></Layout>
+---

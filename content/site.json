@@ -1,0 +1,17 @@
+{
+  "siteUrl": "",
+  "locales": {
+    "en": {
+      "title": "Portfolio Template",
+      "description": "A bilingual, content-driven developer portfolio template.",
+      "homeLabel": "Home",
+      "footerCta": { "title": "Keep building", "description": "Add your articles and project notes to create a useful technical portfolio.", "button": "Browse the blog" }
+    },
+    "fa": {
+      "title": "قالب کارنامهٔ حرفه‌ای",
+      "description": "قالبی دوزبانه و محتوامحور برای ساخت کارنامهٔ حرفه‌ای توسعه‌دهندگان.",
+      "homeLabel": "خانه",
+      "footerCta": { "title": "به ساختن ادامه دهید", "description": "مقاله‌ها و یادداشت‌های پروژهٔ خود را اضافه کنید تا کارنامه‌ای فنی بسازید.", "button": "مشاهدهٔ وبلاگ" }
+    }
+  }
+}

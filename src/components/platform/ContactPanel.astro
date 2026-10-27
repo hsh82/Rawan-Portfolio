@@ -1,0 +1,20 @@
+---
+import type { Locale } from '../../utils/i18n';
+import { localizedValue, portfolio } from '../../utils/portfolio-content';
+import { Download, Github, Linkedin, Mail, Phone } from '@lucide/astro';
+import EmptyState from './EmptyState.astro';
+const lang = Astro.props.lang as Locale;
+const contact: any = portfolio().contact;
+const copy = localizedValue(contact.locales, lang);
+const data = portfolio();
+const resumeEnabled = data.resume.enabled;
+const resumeHref = `/resume/${data.resume.filenameSlug}-${lang}.pdf`;
+const iconFor = (label: string) => /github/i.test(label) ? Github : /linkedin/i.test(label) ? Linkedin : Github;
+const configuredContacts = [
+  ...(contact.email ? [{ href: `mailto:${contact.email}`, title: lang === 'fa' ? 'ایمیل' : 'Email', detail: contact.email, Icon: Mail }] : []),
+  ...(contact.phone ? [{ href: `tel:${contact.phone}`, title: lang === 'fa' ? 'تلفن' : 'Phone', detail: contact.phone, Icon: Phone }] : []),
+  ...contact.socials.map((item: any) => ({ href: item.url, title: item.label, detail: lang === 'fa' ? 'لینک تأییدشده' : 'Verified link', Icon: iconFor(item.label), external: true })),
+  ...(resumeEnabled ? [{ href: resumeHref, title: lang === 'fa' ? 'دریافت رزومه' : 'Download résumé', detail: `PDF · ${lang === 'fa' ? 'قابل جست‌وجو' : 'searchable'}`, Icon: Download, download: `${data.resume.filenameSlug}-${lang}.pdf` }] : []),
+];
+---
+<section class="contact-panel contact-panel-v5"><div class="contact-panel-intro"><p class="eyebrow text-blue-200">{lang === 'fa' ? 'ارتباط' : 'Let’s connect'}</p><h1 class="font-heading text-h1">{copy.title || (lang === 'fa' ? 'در ارتباط باشیم' : 'Let’s connect')}</h1><p class="mt-4 text-lg text-white/75">{copy.intro}</p></div>{configuredContacts.length ? <div class="contact-cards">{configuredContacts.map((item: any) => <a class="contact-card" href={item.href} rel={item.external ? 'noopener noreferrer' : undefined} target={item.external ? '_blank' : undefined} download={item.download || undefined}><span class="contact-card-icon"><item.Icon size={21} strokeWidth={1.8} /></span><span class="contact-card-content"><strong>{item.title}</strong><small dir="auto">{item.detail}</small></span></a>)}</div> : <EmptyState title={lang === 'fa' ? 'راه‌های ارتباطی' : 'Contact methods'} description={lang === 'fa' ? 'راه‌های ارتباطی خود را در content/contact.json اضافه کنید.' : 'Add your contact methods to content/contact.json.'} />}</section>

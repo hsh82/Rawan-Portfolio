@@ -1,0 +1,8 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import ProjectGrid from '../../../components/platform/ProjectGrid.astro';
+import { t } from '../../../utils/i18n';
+const lang = Astro.currentLocale;
+---
+<Layout title={t('nav.projects', lang)} description={t('nav.projects', lang)}><section class="tracked-section py-16 md:py-24"><div class="mx-auto max-w-container px-6"><p class="eyebrow">{lang === 'fa' ? 'نمونه‌کارها' : 'Selected work'}</p><h1 class="font-heading text-h1 mb-12">{t('nav.projects', lang)}</h1><ProjectGrid lang={lang} /></div></section></Layout>
+---

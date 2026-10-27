@@ -1,0 +1,74 @@
+---
+// Removed Button import to create a custom non-animated button
+import { portfolio, localizedValue } from '../../utils/portfolio-content';
+
+const lang = Astro.currentLocale;
+const profile = localizedValue(portfolio().profile.locales, lang === 'fa' ? 'fa' : 'en');
+const profileImage = portfolio().profile.image || '/images/profile/placeholder.svg';
+---
+
+<section id="start" class="tracked-section pt-28 pb-16 md:pt-36 md:pb-24">
+  <div class="max-w-container mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-gutter">
+    <div class="md:col-span-7 flex flex-col justify-center">
+      <span class="font-mono text-primary text-sm mb-4">{profile.greeting}</span>
+      <h1 class="font-heading text-h1 text-secondary dark:text-white mb-4">
+        {profile.displayName} — {profile.title}
+      </h1>
+      <p class="text-lg md:text-xl text-secondary/80 dark:text-white/80 mb-6 max-w-2xl">
+        {profile.intro}
+      </p>
+      <p class="text-secondary/70 dark:text-white/70 mb-8">
+        {profile.summary}
+      </p>
+
+      <div class="flex flex-wrap gap-3 mt-8">
+        <a
+          href="#experience"
+          class="inline-flex items-center justify-center rounded-lg font-medium text-base py-2 px-6 border border-primary text-primary hover:bg-primary/10 bg-transparent"
+        >
+          {profile.ctaExperience}
+        </a>
+        <a
+          href="#projects"
+          class="inline-flex items-center justify-center rounded-lg font-medium text-base py-2 px-6 bg-primary text-primary-foreground hover:opacity-90"
+        >
+          {profile.ctaProjects}
+        </a>
+      </div>
+    </div>
+
+    <div class="md:col-span-5 mt-12 md:mt-0">
+      <div class="relative w-full max-w-md mx-auto">
+        <div class="absolute -top-6 -right-6 -z-10 w-64 h-64 md:w-80 md:h-80 rounded-3xl bg-gradient-to-br from-primary/10 to-orange-400/10"></div>
+        <img
+          src={profileImage}
+          alt={lang === 'fa' ? 'تصویر نمایهٔ نمونه' : 'Portfolio profile placeholder'}
+          class="w-full rounded-2xl shadow-lg"
+          width="500"
+          height="600"
+          loading="eager"
+          fetchpriority="high"
+          onerror="this.onerror=null;this.src='/images/profile/placeholder.svg'"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll Down Indicator -->
+  <div id="scroll-indicator" class="absolute bottom-8 left-1/2 -translate-x-1/2 opacity-100 animate-bounce cursor-pointer" onclick="document.getElementById('experience')?.scrollIntoView({ behavior: 'smooth' });">
+    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary dark:text-highlightBlue">
+      <path d="M12 5v14"></path>
+      <path d="m19 12-7 7-7-7"></path>
+    </svg>
+  </div>
+</section>
+
+<style>
+  /* Ensure the section is relative for absolute positioning of the indicator */
+  section#start {
+    position: relative;
+    min-height: 100vh; /* Ensure hero takes full viewport height to make scroll indicator meaningful */
+  }
+</style>
+
+<!-- Removed GSAP animation script as requested -->

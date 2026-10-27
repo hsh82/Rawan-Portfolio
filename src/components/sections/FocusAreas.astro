@@ -1,0 +1,16 @@
+---
+import type { Locale } from '../../utils/i18n';
+import { portfolio } from '../../utils/portfolio-content';
+import { ShieldCheck, GitMerge, ServerCog } from '@lucide/astro';
+import EmptyState from '../platform/EmptyState.astro';
+const lang = Astro.props.lang as Locale;
+const profile: any = portfolio().profile;
+const areas = profile.focus?.[lang] || profile.focus?.en || [];
+const icons: any[] = [ShieldCheck, GitMerge, ServerCog];
+---
+<section id="focus" class="tracked-section py-16 md:py-24">
+  <div class="mx-auto max-w-container px-6">
+    <div class="mb-10 text-center"><p class="eyebrow">{lang === 'fa' ? 'تمرکز حرفه‌ای' : 'Professional focus'}</p><h2 class="font-heading text-h2">{lang === 'fa' ? 'چیزهایی که روی آن‌ها کار می‌کنم' : 'What I focus on'}</h2></div>
+    {areas.length ? <div class="grid gap-6 md:grid-cols-3">{areas.map((area: any, index: number) => { const Icon = icons[index] || ServerCog; return <article class="focus-card"><div class="focus-icon"><Icon size={24} strokeWidth={1.8} /></div><h3>{area.title}</h3><p>{area.description}</p></article>; })}</div> : <EmptyState title={lang === 'fa' ? 'تمرکز حرفه‌ای' : 'Professional focus'} description={lang === 'fa' ? 'حوزه‌های تمرکز خود را در content/profile.json اضافه کنید.' : 'Add your focus areas to content/profile.json.'} />}
+  </div>
+</section>

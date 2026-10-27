@@ -1,0 +1,15 @@
+---
+import type { Locale } from '../../utils/i18n';
+import { localizedValue, portfolio, publicItems } from '../../utils/portfolio-content';
+import EmptyState from './EmptyState.astro';
+const lang = Astro.props.lang as Locale;
+const data: any = portfolio();
+const enabled = data.resume.enabled && data.profile.visible;
+const profile = localizedValue(data.profile.locales, lang);
+const experience: any[] = publicItems(data.experience || []);
+const education: any[] = publicItems(data.education || []);
+const certifications: any[] = publicItems(data.certifications || []);
+const skills: any[] = publicItems(data.skills || []);
+const sections: Array<[string, any[]]> = [[lang === 'fa' ? 'تجربه' : 'Experience', experience], [lang === 'fa' ? 'تحصیلات' : 'Education', education], [lang === 'fa' ? 'گواهی‌ها' : 'Certifications', certifications], [lang === 'fa' ? 'مهارت‌ها' : 'Skills', skills]];
+---
+{enabled ? <article class="resume-document"><header><h1>{profile.title}</h1><p>{profile.intro}</p></header>{sections.map(([title, items]) => items.length ? <section class="resume-section"><h2>{title}</h2>{items.map((item: any) => { const copy = localizedValue(item.locales, lang); return <article><h3>{copy.title}</h3><p>{copy.description || copy.summary}</p></article> })}</section> : null)}</article> : <EmptyState title={lang === 'fa' ? 'رزومه' : 'Résumé'} description={lang === 'fa' ? 'پس از افزودن پروفایل تأییدشده و فعال‌کردن رزومه در content/resume/config.json، نمای رزومه و PDF در دسترس خواهند بود.' : 'Add a verified profile and enable content/resume/config.json to make the résumé view and PDF available.'} />}

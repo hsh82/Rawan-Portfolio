@@ -1,0 +1,10 @@
+{
+  "email": "",
+  "phone": "",
+  "location": "",
+  "socials": [],
+  "locales": {
+    "en": { "title": "Let’s connect", "intro": "Add your preferred contact methods in content/contact.json." },
+    "fa": { "title": "در ارتباط باشیم", "intro": "راه‌های ارتباطی خود را در content/contact.json اضافه کنید." }
+  }
+}

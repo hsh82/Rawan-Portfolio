@@ -1,0 +1,9 @@
+{
+  "enabled": false,
+  "filenameSlug": "resume",
+  "portrait": true,
+  "locales": ["en", "fa"],
+  "include": { "experience": true, "education": true, "certifications": true, "skills": true, "projects": true, "journey": false },
+  "projectIds": [],
+  "journeyIds": []
+}

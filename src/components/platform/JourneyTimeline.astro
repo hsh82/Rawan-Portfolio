@@ -1,0 +1,10 @@
+---
+import type { Locale } from '../../utils/i18n';
+import { formatDate } from '../../utils/blog';
+import { localizedValue, publicItems, portfolio } from '../../utils/portfolio-content';
+import EmptyState from './EmptyState.astro';
+const lang = Astro.props.lang as Locale;
+const allItems: any[] = publicItems(portfolio().journey as any[]).sort((a, b) => a.priority - b.priority);
+const items = Astro.props.limit ? allItems.slice(0, Astro.props.limit) : allItems;
+---
+{items.length ? <ol class="journey-timeline journey-timeline-v5">{items.map((item: any, index: number) => { const copy = localizedValue(item.locales, lang); return <li class={index % 2 ? 'journey-item journey-item-reverse' : 'journey-item'}><div class="timeline-marker" aria-hidden="true"></div><article class="journey-card">{item.startDate && <time>{formatDate(item.startDate, lang)}{item.current ? ` — ${lang === 'fa' ? 'اکنون' : 'Present'}` : item.endDate ? ` — ${formatDate(item.endDate, lang)}` : ''}</time>}<h2>{copy.title}</h2>{item.organization && <p class="text-primary">{item.organization}</p>}<p>{copy.description}</p>{item.technologies.length > 0 && <div class="mt-3 flex flex-wrap gap-2">{item.technologies.map((technology: string) => <span class="tag">{technology}</span>)}</div>}</article></li> })}</ol> : <EmptyState title={lang === 'fa' ? 'مسیر حرفه‌ای' : 'Journey'} description={lang === 'fa' ? 'با افزودن رویدادهای تأییدشده به content/journey/entries.json، خط زمانی این بخش به‌روزرسانی می‌شود.' : 'Add verified events to content/journey/entries.json to populate this timeline.'} />}
