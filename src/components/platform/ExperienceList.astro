@@ -1,8 +1,9 @@
 ---
 import type { Locale } from '../../utils/i18n';
 import { localizedValue, portfolio, publicItems } from '../../utils/portfolio-content';
+import EmptyState from './EmptyState.astro';
 
 const lang = Astro.props.lang as Locale;
 const entries: any[] = publicItems(portfolio().experience as any[]);
 ---
-<div class="grid gap-6 md:grid-cols-2">{entries.map((entry: any) => { const copy = localizedValue(entry.locales, lang); return <article class="rounded-xl border border-gray-100 p-7 shadow-sm dark:border-gray-800"><h2 class="text-xl font-semibold">{copy.title}</h2>{entry.organization && <p class="mt-1 text-primary">{entry.organization}</p>}<p class="mt-4 text-secondary/80 dark:text-white/80">{copy.summary || copy.description}</p>{copy.description && copy.summary && <p class="mt-3 text-sm text-secondary/60 dark:text-white/60">{copy.description}</p>}{entry.technologies.length > 0 && <div class="mt-5 flex flex-wrap gap-2">{entry.technologies.map((technology: string) => <span class="tag">{technology}</span>)}</div>}</article>; })}</div>
+{entries.length ? <div class="grid gap-6 md:grid-cols-2">{entries.map((entry: any) => { const copy = localizedValue(entry.locales, lang); return <article class="rounded-xl border border-gray-100 p-7 shadow-sm dark:border-gray-800"><h2 class="text-xl font-semibold">{copy.title}</h2>{entry.organization && <p class="mt-1 text-primary">{entry.organization}</p>}<p class="mt-4 text-secondary/80 dark:text-white/80">{copy.summary || copy.description}</p>{copy.description && copy.summary && <p class="mt-3 text-sm text-secondary/60 dark:text-white/60">{copy.description}</p>}{entry.technologies.length > 0 && <div class="mt-5 flex flex-wrap gap-2">{entry.technologies.map((technology: string) => <span class="tag">{technology}</span>)}</div>}</article>; })}</div> : <EmptyState title={lang === 'fa' ? 'سوابق حرفه‌ای' : 'Experience'} description={lang === 'fa' ? 'سوابق تأییدشدهٔ خود را به content/experience/entries.json اضافه کنید.' : 'Add verified experience to content/experience/entries.json.'} />}

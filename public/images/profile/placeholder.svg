@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 760" role="img" aria-labelledby="title desc">
+  <title id="title">Neutral profile placeholder</title><desc id="desc">Abstract neutral portrait placeholder for a portfolio template.</desc>
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#eaf2fb"/><stop offset="1" stop-color="#c7dcf5"/></linearGradient></defs>
+  <rect width="640" height="760" rx="40" fill="url(#bg)"/><circle cx="320" cy="270" r="120" fill="#102039" opacity=".9"/><path d="M125 650c18-150 97-225 195-225s177 75 195 225" fill="#102039" opacity=".9"/><circle cx="274" cy="260" r="12" fill="#eaf2fb"/><circle cx="366" cy="260" r="12" fill="#eaf2fb"/><path d="M275 335c30 20 60 20 90 0" fill="none" stroke="#eaf2fb" stroke-width="10" stroke-linecap="round" opacity=".8"/><path d="M90 690h460" stroke="#0A84FF" stroke-width="10" stroke-linecap="round" opacity=".8"/>
+</svg>
