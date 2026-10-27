@@ -1,0 +1,5 @@
+design/
+.agents/
+tests/fixtures/
+*.log
+content/content.md

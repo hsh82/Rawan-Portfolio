@@ -1,0 +1,7 @@
+design/
+.agents/
+content/content.md
+public/resume/*.pdf
+node_modules/
+dist/
+.git/

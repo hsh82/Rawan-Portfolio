@@ -1,0 +1,48 @@
+{
+  "name": "portfolio-website",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "npm run resume:generate && astro build && pagefind --site dist",
+    "preview": "astro preview",
+    "astro": "astro",
+    "check": "astro check",
+    "test:static": "node scripts/verify-build.mjs",
+    "content:validate": "node scripts/content-validate.mjs",
+    "content:check-links": "node scripts/content-check-links.mjs",
+    "content:new": "node scripts/content-new.mjs",
+    "resume:generate": "node scripts/resume-generate.mjs",
+    "test": "npm run content:validate && npm run content:check-links && npm run test:static"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^4.3.14",
+    "@astrojs/preact": "^4.1.1",
+    "@astrojs/sitemap": "^3.4.0",
+    "@astrojs/tailwind": "^6.0.2",
+    "@fontsource/vazirmatn": "^5.3.0",
+    "@lucide/astro": "^0.544.0",
+    "@preact/compat": "^18.3.1",
+    "aos": "^2.3.4",
+    "astro": "^5.7.13",
+    "gsap": "^3.13.0",
+    "markmap-lib": "^0.18.12",
+    "markmap-view": "^0.18.12",
+    "mermaid": "^11.17.2",
+    "pagefind": "^1.5.2",
+    "preact": "^10.27.2",
+    "rehype-katex": "^7.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-math": "^6.0.0",
+    "tailwindcss": "^3.4.17"
+  },
+  "overrides": {
+    "react": "npm:@preact/compat@latest",
+    "react-dom": "npm:@preact/compat@latest"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "typescript": "^5.9.3"
+  }
+}

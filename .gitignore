@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+.npm/
+.yarn/
+.pnpm-store/
+
+# Astro and generated output
+.astro/
+dist/
+.vercel/
+.output/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+*.p12
+
+# Logs, caches, and test output
+*.log
+coverage/
+test-results/
+playwright-report/
+screenshots/
+browser-cache/
+.cache/
+.tmp/
+tmp/
+
+# Generated résumé PDFs; source data and generator remain tracked
+public/resume/*.pdf
+
+# Local private editorial material and scratch exports
+content/content.md
+design/reports/local-*
+design/reports/private-*
+*.local.md
+
+# Editors and operating systems
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/extensions.json
+*.swp
+*.swo
+*~
