@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
@@ -7,13 +9,18 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 
+const siteContent = JSON.parse(readFileSync(resolve('content/site.json'), 'utf8'));
+// English is the safe default when content/site.json omits defaultLocale.
+const configuredLocale = siteContent?.defaultLocale;
+const defaultLocale = configuredLocale === 'fa' ? 'fa' : 'en';
+
 export default defineConfig({
   site: process.env.SITE_URL || 'https://example.invalid/',
   output: 'static',
   trailingSlash: 'always',
 
   i18n: {
-    defaultLocale: 'en',
+    defaultLocale,
     locales: ['en', 'fa'],
     routing: {
       prefixDefaultLocale: true,

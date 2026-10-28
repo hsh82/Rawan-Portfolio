@@ -1,5 +1,6 @@
 {
   "siteUrl": "",
+  "defaultLocale": "fa",
   "locales": {
     "en": {
       "title": "Rawan Portfolio",

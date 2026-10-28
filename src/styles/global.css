@@ -473,7 +473,7 @@ html[dir="rtl"] .journey-timeline li { padding: 0 1rem 2.5rem 0; }
 .dark .project-filter.is-active, .dark .project-filter:hover { border-color: #0A84FF; color: white; }
 .project-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
 .project-grid--featured { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.project-card { display: flex; min-width: 0; min-height: 100%; flex-direction: column; overflow: hidden; border: 1px solid #dbe5f0; border-radius: 1.15rem; background: white; box-shadow: 0 6px 22px #1020390b; transition: border-color .2s, box-shadow .2s, transform .2s; }
+.project-card { position: relative; display: flex; min-width: 0; min-height: 100%; flex-direction: column; overflow: hidden; border: 1px solid #dbe5f0; border-radius: 1.15rem; background: white; box-shadow: 0 6px 22px #1020390b; transition: border-color .2s, box-shadow .2s, transform .2s; }
 .project-card:hover { transform: translateY(-3px); border-color: #0A84FF66; box-shadow: 0 18px 38px #10203916; }
 .dark .project-card { border-color: #34445c; background: #131b27; }
 .project-card[hidden] { display: none; }
@@ -496,7 +496,7 @@ html[dir="rtl"] .journey-timeline li { padding: 0 1rem 2.5rem 0; }
 .project-tech-list { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: 1rem; }
 .project-tech-list li { display: inline-flex; align-items: center; gap: .35rem; border-radius: .45rem; background: #f1f5f9; padding: .35rem .55rem; color: #475569; font-size: .75rem; }
 .dark .project-tech-list li { background: #202c3e; color: #cbd5e1; }
-.project-card__actions { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: .8rem; margin-top: auto; padding-top: 1.25rem; }
+.project-card__actions { position: relative; z-index: 2; display: flex; flex-wrap: wrap; gap: .8rem; margin-top: auto; padding-top: 1.25rem; }
 .project-action { position: relative; z-index: 1; color: #475569; font-size: .85rem; font-weight: 600; }
 .project-action:hover { color: #0A84FF; text-decoration: underline; }.project-action--primary { color: #0A84FF; }
 .project-detail { width: min(74rem, calc(100% - 3rem)); margin-inline: auto; padding-block: 4rem 6rem; }

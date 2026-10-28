@@ -1,6 +1,6 @@
 # Routing
 
-`/` redirects to `/en/`. The localized areas are `/{locale}/` for the portfolio, `/{locale}/projects/` for the project index and case studies, and `/{locale}/blog/` for editorial articles. Blog category archives use `/{locale}/blog/category/{category...}/`; article URLs preserve their content folders under `/{locale}/blog/{folder...}/{slug}/`.
+`/` redirects to the locale configured by `content/site.json` (`defaultLocale`), which is also supplied to Astro’s i18n configuration. The localized areas are `/{locale}/` for the portfolio, `/{locale}/projects/` for the project index and case studies, and `/{locale}/blog/` for editorial articles. Blog category archives use `/{locale}/blog/category/{category...}/`; article URLs preserve their content folders under `/{locale}/blog/{folder...}/{slug}/`.
 
 Journey, projects, contact, and résumé are homepage sections at `#journey`, `#projects`, `#contact`, and `#resume`. The Projects index is also a localized route. A visible project receives `/{locale}/projects/{id}/` only when its canonical record has a bilingual case study. Hidden review and backlog records generate no route. The homepage progress navigator is rendered only on the homepage and follows Home → About → Skills → Focus → Experience → Projects → Journey → Contact → Blog.
 
