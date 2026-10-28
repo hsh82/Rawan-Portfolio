@@ -40,7 +40,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run content:validate && npm run content:check-links && npm run check
-      - run: npx vercel@latest pull --yes --environment=production --git-branch=${{ inputs.ref }} --token="$VERCEL_TOKEN"
+      - run: npx vercel@latest pull --yes --environment=production --token="$VERCEL_TOKEN"
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
