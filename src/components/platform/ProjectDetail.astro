@@ -1,0 +1,53 @@
+---
+import type { Locale } from '../../utils/i18n';
+import { localizedValue, portfolio, publicItems, publicMediaPath } from '../../utils/portfolio-content';
+import { technologyIcon } from '../../utils/skill-icons';
+import ProjectVisual from './ProjectVisual.astro';
+
+interface Props { lang: Locale; project: any; }
+const { lang, project } = Astro.props;
+const data = portfolio();
+const copy = localizedValue(project.locales, lang);
+const study = project.caseStudy?.[lang];
+const diagram = project.diagram?.[lang];
+const skills = data.skills.filter((skill: any) => project.relatedSkillIds.includes(skill.id));
+const related = publicItems(data.projects as any[]).filter((item: any) => project.relatedProjectIds.includes(item.id));
+const categories: Record<string, { en: string; fa: string }> = {
+  'devops-delivery': { en: 'DevOps & Delivery', fa: 'DevOps و تحویل' },
+  'infrastructure-automation': { en: 'Infrastructure & Automation', fa: 'زیرساخت و خودکارسازی' },
+  'networking-security': { en: 'Networking & Security', fa: 'شبکه و امنیت' },
+  'software-open-source': { en: 'Software & Open Source', fa: 'نرم‌افزار و متن‌باز' },
+};
+const maturity: Record<string, { en: string; fa: string }> = {
+  organizational: { en: 'Implemented organizational initiative', fa: 'اقدام سازمانی پیاده‌سازی‌شده' },
+  'internal-pilot': { en: 'Internal pilot', fa: 'پایلوت داخلی' },
+  'internal-utility': { en: 'Internal utility', fa: 'ابزار داخلی' },
+};
+const text = (map: Record<string, { en: string; fa: string }>, key: string) => map[key]?.[lang] || key;
+const articleHref = `/${lang}/blog/projects/${project.id}/overview/`;
+---
+
+<article class="project-detail">
+  <header class="project-detail__hero">
+    <div>
+      <a class="project-back" href={`/${lang}/projects/`}>{lang === 'fa' ? '→ بازگشت به پروژه‌ها' : '← Back to projects'}</a>
+      <div class="project-detail__badges"><span>{text(categories, project.category)}</span><span>{text(maturity, project.maturity)}</span></div>
+      <h1>{copy.title}</h1>
+      <p class="project-detail__intro">{study.intro}</p>
+      <p class="project-detail__role"><strong>{lang === 'fa' ? 'نقش:' : 'Role:'}</strong> {project.role[lang]}</p>
+    </div>
+    <ProjectVisual category={project.category} lang={lang} image={publicMediaPath(project.image)} imageAlt={project.imageAlt?.[lang]} />
+  </header>
+
+  <section class="project-detail__section"><p class="eyebrow">{lang === 'fa' ? 'زمینه' : 'Context'}</p><h2>{lang === 'fa' ? 'مسئله و زمینهٔ عملیاتی' : 'Problem and operating context'}</h2><p>{study.context}</p></section>
+  <section class="project-detail__section"><p class="eyebrow">{lang === 'fa' ? 'مسئولیت' : 'Contribution'}</p><h2>{lang === 'fa' ? 'مشارکت مستقیم من' : 'My direct contribution'}</h2><ul class="project-detail__list">{study.contribution.map((item: string) => <li>{item}</li>)}</ul></section>
+  {diagram && <ProjectVisual category={project.category} lang={lang} diagram={diagram} />}
+  <section class="project-detail__section"><p class="eyebrow">{lang === 'fa' ? 'طراحی' : 'Approach'}</p><h2>{lang === 'fa' ? 'تصمیم‌های مهندسی' : 'Engineering decisions'}</h2><div class="project-decisions">{study.approach.map((item: any) => <article><h3>{item.title}</h3><p>{item.description}</p></article>)}</div></section>
+  <section class="project-detail__split"><div><p class="eyebrow">{lang === 'fa' ? 'نتیجه' : 'Outcome'}</p><h2>{lang === 'fa' ? 'آنچه تغییر کرد' : 'What changed'}</h2><p>{study.outcome}</p></div><aside><p class="eyebrow">{lang === 'fa' ? 'وضعیت' : 'Status'}</p><h2>{lang === 'fa' ? 'محدودیت‌ها' : 'Limits'}</h2><p>{study.limitations}</p></aside></section>
+  <section class="project-detail__section"><p class="eyebrow">{lang === 'fa' ? 'فناوری' : 'Technology'}</p><h2>{lang === 'fa' ? 'ابزارهای اصلی' : 'Core technologies'}</h2><ul class="project-tech-list project-tech-list--large">{project.technologies.map((technology: string) => { const Icon = technologyIcon(technology); return <li><Icon size={17} strokeWidth={1.8} aria-hidden="true" />{technology}</li>; })}</ul></section>
+  <section class="project-detail__section project-evidence"><p class="eyebrow">{lang === 'fa' ? 'شواهد و اعتبار' : 'Evidence and credit'}</p><h2>{lang === 'fa' ? 'مرز ادعا' : 'Claim boundary'}</h2><p>{study.evidence}</p></section>
+  <p class="project-detail__article-link"><a href={articleHref}>{lang === 'fa' ? 'خواندن مقالهٔ پروژه در وبلاگ ←' : 'Read the project article in the weblog →'}</a></p>
+  {study.lessons?.length > 0 && <section class="project-detail__section"><p class="eyebrow">{lang === 'fa' ? 'آموخته‌ها' : 'Lessons'}</p><h2>{lang === 'fa' ? 'تصمیم‌هایی که ماندگار شدند' : 'Decisions worth carrying forward'}</h2><ul class="project-detail__list">{study.lessons.map((item: string) => <li>{item}</li>)}</ul></section>}
+  {skills.length > 0 && <section class="project-detail__section"><h2>{lang === 'fa' ? 'مهارت‌های مرتبط' : 'Related skills'}</h2><div class="project-related-links">{skills.map((skill: any) => <a href={`/${lang}/#skills`}>{localizedValue(skill.locales, lang).title}</a>)}</div></section>}
+  {related.length > 0 && <nav class="project-detail__section" aria-label={lang === 'fa' ? 'پروژه‌های مرتبط' : 'Related projects'}><h2>{lang === 'fa' ? 'پروژه‌های مرتبط' : 'Related projects'}</h2><div class="project-related-links">{related.map((item: any) => <a href={item.caseStudy ? `/${lang}/projects/${item.id}/` : `/${lang}/projects/`}>{localizedValue(item.locales, lang).title}</a>)}</div></nav>}
+</article>

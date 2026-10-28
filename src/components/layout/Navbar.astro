@@ -11,12 +11,13 @@ const resumeHref = (locale: Locale) => `/resume/${data.resume.filenameSlug}-${lo
 const currentPath = Astro.url.pathname;
 const isHome = currentPath === `/${lang}/`;
 const isBlog = currentPath.startsWith(`/${lang}/blog/`);
+const isProjects = currentPath.startsWith(`/${lang}/projects/`);
 
 // Homepage tracked sections — real IDs rendered by the homepage sections.
 const pageSections = [
   { id: 'start', key: 'home', label: t('nav.home', lang) },
-  { id: 'skills', key: 'skills', label: t('nav.skills', lang) },
   { id: 'about', key: 'about', label: t('nav.about', lang) },
+  { id: 'skills', key: 'skills', label: t('nav.skills', lang) },
   { id: 'focus', key: 'focus', label: lang === 'fa' ? 'تمرکز' : 'Focus' },
   { id: 'experience', key: 'experience', label: t('nav.experience', lang) },
   { id: 'projects', key: 'projects', label: t('nav.projects', lang) },
@@ -39,7 +40,7 @@ const activeSection = pageSections.find((s) => s.key === activeKey);
 const currentPage = rightLinks.find((link) => link.key === activeKey);
 const currentLabel = isHome
   ? activeSection?.label ?? pageSections[0]?.label ?? t('nav.home', lang)
-  : currentPage?.label ?? t('nav.home', lang);
+  : isProjects ? t('nav.projects', lang) : currentPage?.label ?? t('nav.home', lang);
 ---
 <nav class="sticky top-0 z-[60] border-b border-gray-100 bg-white/95 backdrop-blur dark:border-gray-800 dark:bg-neutral-dark/95" aria-label="Primary navigation">
   <!-- Header structure is fixed LTR so locale changes never reorder the three zones. -->
@@ -168,7 +169,7 @@ const currentLabel = isHome
     const control = document.getElementById('progress-control') as HTMLElement | null;
     const menu = document.getElementById('progress-menu') as HTMLElement | null;
     const currentLabelEl = document.getElementById('progress-current') as HTMLElement | null;
-    const keys = ['home', 'skills', 'about', 'focus', 'experience', 'projects', 'journey', 'contact', 'blog'];
+    const keys = ['home', 'about', 'skills', 'focus', 'experience', 'projects', 'journey', 'contact', 'blog'];
     const idByKey: { [key: string]: string } = { home: 'start', skills: 'skills', about: 'about', focus: 'focus', experience: 'experience', projects: 'projects', journey: 'journey', contact: 'contact', blog: 'blog' };
     const segEls: { [key: string]: HTMLElement | null } = {};
     const rowLineEls: { [key: string]: HTMLElement | null } = {};

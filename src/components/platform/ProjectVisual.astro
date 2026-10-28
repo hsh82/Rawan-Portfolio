@@ -1,0 +1,41 @@
+---
+import { Braces, GitMerge, Palette, ServerCog, ShieldCheck } from '@lucide/astro';
+import type { Locale } from '../../utils/i18n';
+
+interface Props {
+  category: string;
+  lang: Locale;
+  image?: string;
+  imageAlt?: string;
+  diagram?: { title: string; steps: string[] };
+  compact?: boolean;
+}
+
+const { category, image, imageAlt = '', diagram, compact = false } = Astro.props;
+const icons: Record<string, any> = {
+  'devops-delivery': GitMerge,
+  'infrastructure-automation': ServerCog,
+  'networking-security': ShieldCheck,
+  'software-open-source': Braces,
+  'design-creative': Palette,
+};
+const Icon = icons[category] || Braces;
+---
+
+{diagram && !compact ? (
+  <figure class="project-flow" aria-labelledby="project-flow-title">
+    <figcaption id="project-flow-title">{diagram.title}</figcaption>
+    <ol>
+      {diagram.steps.map((step, index) => <li><span>{String(index + 1).padStart(2, '0')}</span><strong>{step}</strong></li>)}
+    </ol>
+  </figure>
+) : image ? (
+  <div class="project-cover project-cover--image"><img src={image} alt={imageAlt} loading="lazy" /></div>
+) : (
+  <div class={`project-cover project-cover--${category}`} aria-hidden="true">
+    <span class="project-cover__orbit"></span>
+    <span class="project-cover__icon"><Icon size={compact ? 30 : 42} strokeWidth={1.5} /></span>
+    <span class="project-cover__line project-cover__line--one"></span>
+    <span class="project-cover__line project-cover__line--two"></span>
+  </div>
+)}

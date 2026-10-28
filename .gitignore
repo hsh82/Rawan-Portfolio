@@ -33,6 +33,9 @@ tmp/
 # Generated résumé PDFs; source data and generator remain tracked
 public/resume/*.pdf
 
+# Generated public mirror; canonical portfolio media lives in content/media/
+public/media/
+
 # Local private editorial material and scratch exports
 content/content.md
 design/reports/local-*

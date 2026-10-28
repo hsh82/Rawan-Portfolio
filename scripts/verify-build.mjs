@@ -28,6 +28,16 @@ for (const locale of ['en', 'fa']) {
     if (!html.includes(`lang="${locale}"`)) throw new Error(`Incorrect localized route: ${locale}/${route}`);
     if (!sitemap.includes(`/${locale}/${route}/`)) throw new Error(`Localized route missing from sitemap: ${locale}/${route}`);
   }
+  const projectIds = ['rahban-access-gateway', 'cicd-release-platform', 'infrastructure-as-code-vmware', 'utils-devops-python'];
+  for (const id of projectIds) {
+    const route = `/${locale}/projects/${id}/`;
+    const output = join(dist, locale, 'projects', id, 'index.html');
+    if (!existsSync(output) || !sitemap.includes(route)) throw new Error(`Project case study missing: ${route}`);
+  }
+  for (const hidden of ['frappe-draw-rtl', 'creative-design-collection', 'frappe-platform-explorations']) {
+    const route = `/${locale}/projects/${hidden}/`;
+    if (existsSync(join(dist, locale, 'projects', hidden, 'index.html')) || sitemap.includes(route)) throw new Error(`Private project leaked: ${route}`);
+  }
   const contactRoute = join(dist, locale, 'contact', 'index.html');
   if (!existsSync(contactRoute) || !readFileSync(contactRoute, 'utf8').includes(`#contact`)) throw new Error(`Missing contact compatibility route: ${locale}/contact`);
   if (sitemap.includes(`/${locale}/contact/`)) throw new Error(`Contact compatibility route leaked into sitemap: ${locale}/contact`);

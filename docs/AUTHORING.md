@@ -1,6 +1,6 @@
 # Article author guide
 
-Create a `.mdx` file at `content/blog/en/devops/docker/new-topic.mdx`:
+Create a `.mdx` file at `content/blog/en/projects/<project-id>/new-topic.mdx`:
 
 ```mdx
 ---
@@ -8,8 +8,8 @@ title: "New topic"
 description: "A concise summary."
 slug: new-topic
 locale: en
-category: devops
-subcategory: docker
+category: projects
+subcategory: <project-id>
 tags: [Docker, Example]
 pubDate: 2026-10-27
 updatedDate: 2026-10-27

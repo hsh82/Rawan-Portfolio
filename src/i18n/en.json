@@ -18,8 +18,8 @@
     "privacyPolicy": "Privacy Policy"
   },
   "blog": {
-    "title": "Engineering notes",
-    "intro": "Sample technical articles and documentation, organized by topic.",
+    "title": "Project journal",
+    "intro": "Evidence-based project write-ups, engineering notes, and selected technical documentation.",
     "featured": "Featured",
     "all": "All articles",
     "search": "Search articles",
@@ -42,7 +42,7 @@
     "share": "Copy link",
     "copied": "Copied",
     "back": "Back to blog",
-    "sample": "Sample content",
+    "sample": "Project reading",
     "noResults": "No articles match your filters.",
     "page": "Page",
     "of": "of",
@@ -62,7 +62,20 @@
       "docker": "Docker",
       "kubernetes": "Kubernetes",
       "delivery": "Delivery",
-      "terraform": "Terraform"
+      "terraform": "Terraform",
+      "rahban-access-gateway": "Rahban access gateway",
+      "cicd-release-platform": "CI/CD delivery",
+      "infrastructure-as-code-vmware": "VMware & IaC",
+      "utils-devops-python": "Utils_Devops",
+      "segmented-network-opnsense": "Segmented network",
+      "wireguard-vpn-gateway": "WireGuard gateway",
+      "playwright-quality-gates": "Playwright quality gates",
+      "private-devops-platform": "Private DevOps platform",
+      "internal-dns-tls-access": "Internal DNS & TLS",
+      "cross-platform-container-deployment": "Cross-platform containers",
+      "internal-engineering-platforms": "Engineering platforms",
+      "camran-cashback-mvp": "Camran MVP",
+      "multi-stage-windows-docker": "Windows Docker sample"
     }
   }
 }

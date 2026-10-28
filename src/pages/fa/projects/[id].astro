@@ -1,0 +1,13 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import ProjectDetail from '../../../components/platform/ProjectDetail.astro';
+import { localizedValue, portfolio } from '../../../utils/portfolio-content';
+
+export function getStaticPaths() {
+  return portfolio().projects.filter(project => project.visible && project.caseStudy).map(project => ({ params: { id: project.id }, props: { project } }));
+}
+const { project } = Astro.props;
+const lang = 'fa';
+const copy = localizedValue(project.locales, lang);
+---
+<Layout lang="fa" title={`${copy.title} · حامد شیخان`} description={copy.description} translationId={project.translationId} alternates={{ en: `/en/projects/${project.id}/`, fa: `/fa/projects/${project.id}/` }}><ProjectDetail lang="fa" project={project} /></Layout>

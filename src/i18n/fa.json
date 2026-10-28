@@ -18,8 +18,8 @@
     "privacyPolicy": "حریم خصوصی"
   },
   "blog": {
-    "title": "یادداشت‌های مهندسی",
-    "intro": "مقاله‌ها و مستندات فنی نمونه، دسته‌بندی‌شده بر اساس موضوع.",
+    "title": "دفترچهٔ پروژه‌ها",
+    "intro": "شرح‌های مبتنی بر شواهد از پروژه‌ها، یادداشت‌های مهندسی و مستندات فنی منتخب.",
     "featured": "برگزیده",
     "all": "همه مقاله‌ها",
     "search": "جست‌وجوی مقاله‌ها",
@@ -42,7 +42,7 @@
     "share": "رونوشت پیوند",
     "copied": "رونوشت شد",
     "back": "بازگشت به وبلاگ",
-    "sample": "محتوای نمونه",
+    "sample": "مطالعهٔ پروژه‌ها",
     "noResults": "مقاله‌ای با این فیلترها پیدا نشد.",
     "page": "صفحه",
     "of": "از",
@@ -62,7 +62,20 @@
       "docker": "داکر",
       "kubernetes": "کوبرنتیز",
       "delivery": "تحویل نرم‌افزار",
-      "terraform": "Terraform"
+      "terraform": "Terraform",
+      "rahban-access-gateway": "درگاه رهبان",
+      "cicd-release-platform": "تحویل CI/CD",
+      "infrastructure-as-code-vmware": "VMware و IaC",
+      "utils-devops-python": "Utils_Devops",
+      "segmented-network-opnsense": "شبکهٔ تفکیک‌شده",
+      "wireguard-vpn-gateway": "درگاه WireGuard",
+      "playwright-quality-gates": "کنترل کیفیت Playwright",
+      "private-devops-platform": "پلتفرم خصوصی DevOps",
+      "internal-dns-tls-access": "DNS داخلی و TLS",
+      "cross-platform-container-deployment": "کانتینرهای چندبستر",
+      "internal-engineering-platforms": "پلتفرم‌های مهندسی",
+      "camran-cashback-mvp": "نمونهٔ کامران",
+      "multi-stage-windows-docker": "نمونهٔ Windows Docker"
     }
   }
 }

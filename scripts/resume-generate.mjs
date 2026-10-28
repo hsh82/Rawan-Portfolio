@@ -27,11 +27,18 @@ const chrome = process.env.CHROME_BIN || 'google-chrome';
 const font400 = resolve(root, 'node_modules/@fontsource/vazirmatn/files/vazirmatn-arabic-400-normal.woff2');
 const font700 = resolve(root, 'node_modules/@fontsource/vazirmatn/files/vazirmatn-arabic-700-normal.woff2');
 
-function assetDataUri(publicPath) {
-  if (!publicPath || !publicPath.startsWith('/')) return '';
-  const file = resolve(root, 'public', publicPath.slice(1));
+function assetDataUri(assetPath) {
+  if (!assetPath) return '';
+  const file = assetPath.startsWith('media/')
+    ? resolve(contentRoot, assetPath)
+    : assetPath.startsWith('/media/')
+      ? resolve(contentRoot, assetPath.slice(1))
+      : assetPath.startsWith('/')
+        ? resolve(root, 'public', assetPath.slice(1))
+        : resolve(contentRoot, assetPath);
   if (!existsSync(file)) return '';
-  const mime = extname(file).toLowerCase() === '.svg' ? 'image/svg+xml' : 'image/png';
+  const extension = extname(file).toLowerCase();
+  const mime = extension === '.svg' ? 'image/svg+xml' : extension === '.jpg' || extension === '.jpeg' ? 'image/jpeg' : 'image/png';
   return `data:${mime};base64,${readFileSync(file).toString('base64')}`;
 }
 
@@ -89,9 +96,10 @@ for (const locale of config.locales || ['en', 'fa']) {
   const legacyPdf = resolve(output, `${locale}.pdf`);
   const html = `<!doctype html><html lang="${locale}" dir="${locale === 'fa' ? 'rtl' : 'ltr'}"><head><meta charset="utf-8"><title>${escape(name)} — ${escape(title)}</title><style>
 @font-face{font-family:Vazirmatn;src:url('file://${font400}') format('woff2');font-weight:400}@font-face{font-family:Vazirmatn;src:url('file://${font700}') format('woff2');font-weight:700}
+.skill-row{break-inside:avoid;page-break-inside:avoid}
 @page{size:A4;margin:14mm 16mm 17mm}*{box-sizing:border-box}html{font-family:Vazirmatn,sans-serif}body{margin:0;color:#102039;background:#fff;font-size:9.5pt;line-height:1.55}a{color:#0969c8;text-decoration:none;overflow-wrap:anywhere}.resume-header{display:grid;grid-template-columns:1fr ${portrait ? '31mm' : '1fr'};gap:8mm;align-items:center;border-bottom:2px solid #0A84FF;padding-bottom:5mm}.identity h1{font-size:25pt;line-height:1.15;margin:0;color:#102039;font-weight:700}.identity .title{font-size:12pt;color:#0A84FF;font-weight:700;margin-top:1.5mm}.summary{max-width:78ch;margin:4mm 0 0;color:#334155}.portrait{width:31mm;height:37mm;object-fit:cover;border-radius:4mm;border:1px solid #cbd5e1;background:#eaf2fb}.contact{display:flex;flex-wrap:wrap;gap:1.5mm 3mm;margin-top:4mm;font-size:8.3pt;direction:ltr;justify-content:flex-start}.contact-separator{color:#94a3b8}.resume-section{break-inside:auto;margin-top:5mm}.resume-section h2{font-size:13pt;color:#0A84FF;border-bottom:1px solid #b8cbe0;padding-bottom:1.5mm;margin:0 0 3mm;font-weight:700}.entry{break-inside:avoid;margin:0 0 3.5mm}.entry h3,.skill-row h3{font-size:10.5pt;line-height:1.35;margin:0 0 1mm;font-weight:700;color:#102039}.entry p{margin:0 0 1mm}.entry ul{margin:1mm 0 0;padding-inline-start:5mm}.entry li{margin:.6mm 0}.muted{color:#475569}.skill-row{display:grid;grid-template-columns:38mm 1fr;gap:4mm;padding:1.2mm 0;border-bottom:1px solid #e5edf5}.skill-row p{margin:0;color:#334155}.resume-footer{position:fixed;bottom:-10mm;left:0;right:0;border-top:1px solid #cbd5e1;padding-top:2mm;color:#64748b;font-size:7.5pt;display:flex;justify-content:space-between;direction:ltr}.page-count:after{content:counter(page) ' / ' counter(pages)}.ltr{direction:ltr;unicode-bidi:isolate}@media print{a{color:#0969c8}}
 </style></head><body><header class="resume-header"><div class="identity"><h1>${escape(name)}</h1><div class="title">${escape(title)}</div><p class="summary">${escape(copy.intro || copy.summary || '')}</p><div class="contact">${contactHtml}</div></div>${portrait ? `<img class="portrait" src="${portrait}" alt="${escape(name)}" />` : ''}</header>${section(locale === 'fa' ? 'خلاصه حرفه‌ای' : 'Professional summary', copy.summary ? `<p>${escape(copy.summary)}</p>` : '')}${section(locale === 'fa' ? 'سوابق شغلی' : 'Professional experience', experienceHtml)}${section(locale === 'fa' ? 'مهارت‌های فنی' : 'Technical skills', skillsHtml)}${section(locale === 'fa' ? 'پروژه‌های منتخب' : 'Selected projects', projectsHtml)}${section(locale === 'fa' ? 'تحصیلات' : 'Education', educationHtml)}${section(locale === 'fa' ? 'گواهی‌نامه‌ها' : 'Certifications', certificationHtml)}<footer class="resume-footer"><span>${escape(name)}</span><span>${site.siteUrl ? escape(site.siteUrl.replace(/^https?:\/\//, '')) : ''}</span><span class="page-count"></span></footer><script>document.fonts.ready.then(()=>document.body.dataset.ready='true')</script></body></html>`;
-  writeFileSync(source, html.replace('bottom:-10mm', 'bottom:-1mm').replace('direction:ltr}.page-count', 'direction:ltr;background:#fff}.page-count').replace('<span class="page-count"></span>', '<span></span>'));
+  writeFileSync(source, html.replace('margin:14mm 16mm 17mm', 'margin:14mm 16mm 27mm').replace('bottom:-10mm', 'bottom:-1mm').replace('direction:ltr}.page-count', 'direction:ltr;background:#fff}.page-count').replace('<span class="page-count"></span>', '<span></span>'));
   const args = ['--headless', '--disable-gpu', '--disable-extensions', '--run-all-compositor-stages-before-draw', '--virtual-time-budget=1000', '--no-pdf-header-footer', `--print-to-pdf=${pdf}`, `file://${source}`];
   if (process.env.CHROME_NO_SANDBOX === '1') args.splice(1, 0, '--no-sandbox');
   const result = spawnSync(chrome, args, { stdio: 'inherit' });

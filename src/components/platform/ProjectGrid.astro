@@ -1,16 +1,75 @@
 ---
 import type { Locale } from '../../utils/i18n';
-import { localizedValue, publicItems, portfolio } from '../../utils/portfolio-content';
-import { articlePath, published } from '../../utils/blog';
+import { localizedValue, publicItems, portfolio, publicMediaPath } from '../../utils/portfolio-content';
+import { technologyIcon } from '../../utils/skill-icons';
 import EmptyState from './EmptyState.astro';
-const lang = Astro.props.lang as Locale;
-const projects: any[] = publicItems(portfolio().projects as any[]).filter((project: any) => project.featured);
-const articles = await published(lang);
-const maturityLabel = (maturity: string) => ({
-  organizational: lang === 'fa' ? 'فعالیت سازمانی' : 'Organizational initiative',
-  'internal-pilot': lang === 'fa' ? 'پایلوت داخلی' : 'Internal pilot',
-  'academic-mvp': lang === 'fa' ? 'نمونهٔ آموزشی' : 'Educational MVP',
-  'experimental-open-source': lang === 'fa' ? 'آزمایشی / متن‌باز' : 'Experimental / open source',
-}[maturity] || maturity);
+import ProjectVisual from './ProjectVisual.astro';
+
+interface Props { lang: Locale; featuredOnly?: boolean; showFilters?: boolean; }
+const { lang, featuredOnly = false, showFilters = false } = Astro.props;
+const all = publicItems(portfolio().projects as any[]);
+const projects = featuredOnly ? all.filter((project: any) => project.featured) : all;
+const categories: Record<string, { en: string; fa: string }> = {
+  'devops-delivery': { en: 'DevOps & Delivery', fa: 'DevOps و تحویل' },
+  'infrastructure-automation': { en: 'Infrastructure & Automation', fa: 'زیرساخت و خودکارسازی' },
+  'networking-security': { en: 'Networking & Security', fa: 'شبکه و امنیت' },
+  'software-open-source': { en: 'Software & Open Source', fa: 'نرم‌افزار و متن‌باز' },
+  'design-creative': { en: 'Design & Creative', fa: 'طراحی و خلاقیت' },
+};
+const maturity: Record<string, { en: string; fa: string }> = {
+  organizational: { en: 'Implemented initiative', fa: 'پیاده‌سازی سازمانی' },
+  'internal-pilot': { en: 'Internal pilot', fa: 'پایلوت داخلی' },
+  'internal-utility': { en: 'Internal utility', fa: 'ابزار داخلی' },
+  'academic-mvp': { en: 'Educational MVP', fa: 'نمونهٔ آموزشی' },
+  'sample-repository': { en: 'Public sample', fa: 'نمونهٔ عمومی' },
+};
+const label = (map: Record<string, { en: string; fa: string }>, key: string) => map[key]?.[lang] || key;
+const usedCategories = Object.keys(categories).filter(category => projects.some((project: any) => project.category === category || project.secondaryCategories?.includes(category)));
 ---
-{projects.length ? <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">{projects.map((project: any) => { const copy = localizedValue(project.locales, lang); const projectArticles = articles.filter(article => article.data.category === 'projects' && article.data.subcategory === project.id); return <article class="article-card p-6">{project.image && <img src={project.image} alt="" loading="lazy" />}<div class="mb-3 flex flex-wrap items-center gap-2"><span class="tag">{maturityLabel(project.maturity)}</span>{project.featured && <span class="text-xs uppercase tracking-wide text-primary">{lang === 'fa' ? 'منتخب' : 'Featured'}</span>}</div><h2 class="text-xl font-semibold">{copy.title}</h2><p class="mt-3 text-secondary/70 dark:text-white/70">{copy.description || copy.summary}</p><div class="mt-4 flex flex-wrap gap-2">{project.technologies.map((technology: string) => <span class="tag">{technology}</span>)}</div><div class="mt-5 flex flex-wrap gap-4">{project.repository && <a href={project.repository} rel="noopener noreferrer" target="_blank">GitHub</a>}{project.externalUrl && <a href={project.externalUrl} rel="noopener noreferrer" target="_blank">{lang === 'fa' ? 'مشاهده' : 'View'}</a>}</div>{projectArticles.length > 0 && <nav class="mt-5 border-t pt-4" aria-label={lang === 'fa' ? 'مقاله‌های پروژه' : 'Project articles'}><ul class="space-y-2">{projectArticles.map(article => <li><a href={articlePath(article)}>{article.data.title}</a></li>)}</ul></nav>}</article> })}</div> : <EmptyState title={lang === 'fa' ? 'پروژه‌ها' : 'Projects'} description={lang === 'fa' ? 'با افزودن مطالعات موردی به content/projects/entries.json، پروژه‌ها اینجا نمایش داده می‌شوند.' : 'Add case studies to content/projects/entries.json to display projects here.'} />}
+
+{showFilters && projects.length > 0 && (
+  <div class="project-filters" role="group" aria-label={lang === 'fa' ? 'فیلتر دسته‌بندی پروژه‌ها' : 'Filter projects by category'}>
+    <button type="button" class="project-filter is-active" data-project-filter="all" aria-pressed="true">{lang === 'fa' ? 'همه' : 'All'}</button>
+    {usedCategories.map(category => <button type="button" class="project-filter" data-project-filter={category} aria-pressed="false">{label(categories, category)}</button>)}
+  </div>
+)}
+
+{projects.length ? (
+  <div class={`project-grid ${featuredOnly ? 'project-grid--featured' : ''}`} data-project-grid>
+    {projects.map((project: any) => {
+      const copy = localizedValue(project.locales, lang);
+      const role = project.role?.[lang];
+      const articleHref = `/${lang}/blog/projects/${project.id}/overview/`;
+      return (
+        <article class="project-card" data-project-card data-categories={[project.category, ...(project.secondaryCategories || [])].join(' ')}>
+          <ProjectVisual category={project.category} lang={lang} compact image={publicMediaPath(project.image)} imageAlt={project.imageAlt?.[lang]} />
+          <div class="project-card__body">
+            <div class="project-card__meta"><span>{label(categories, project.category)}</span><span>{label(maturity, project.maturity)}</span></div>
+            <h2><a href={articleHref} class="stretched-link">{copy.title}</a></h2>
+            {role && <p class="project-card__role">{role}</p>}
+            <p class="project-card__description">{copy.description || copy.summary}</p>
+            <ul class="project-tech-list" aria-label={lang === 'fa' ? 'فناوری‌ها' : 'Technologies'}>
+              {project.technologies.slice(0, 5).map((technology: string) => { const Icon = technologyIcon(technology); return <li><Icon size={15} strokeWidth={1.8} aria-hidden="true" />{technology}</li>; })}
+            </ul>
+            <div class="project-card__actions">
+              <a class="project-action project-action--primary" href={articleHref}>{lang === 'fa' ? 'خواندن پروژه' : 'Read project'} <span aria-hidden="true">{lang === 'fa' ? '←' : '→'}</span></a>
+              {project.caseStudy && <a class="project-action" href={`/${lang}/projects/${project.id}/`}>{lang === 'fa' ? 'خلاصهٔ مطالعهٔ موردی' : 'Case-study summary'} <span aria-hidden="true">{lang === 'fa' ? '←' : '→'}</span></a>}
+              {project.repository && <a class="project-action" href={project.repository} target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>}
+              {project.externalUrl && <a class="project-action" href={project.externalUrl} target="_blank" rel="noopener noreferrer">{lang === 'fa' ? 'نمایش زنده' : 'Live demo'} <span aria-hidden="true">↗</span></a>}
+            </div>
+          </div>
+        </article>
+      );
+    })}
+  </div>
+) : <EmptyState title={lang === 'fa' ? 'پروژه‌ها' : 'Projects'} description={lang === 'fa' ? 'پروژهٔ عمومی برای نمایش وجود ندارد.' : 'There are no public projects to display.'} />}
+
+{showFilters && <script>
+  document.querySelectorAll('[data-project-filter]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const filter = button.getAttribute('data-project-filter');
+      document.querySelectorAll('[data-project-filter]').forEach((item) => { item.classList.toggle('is-active', item === button); item.setAttribute('aria-pressed', String(item === button)); });
+      document.querySelectorAll('[data-project-card]').forEach((card) => { const categories = card.getAttribute('data-categories')?.split(' ') || []; (card as HTMLElement).hidden = filter !== 'all' && !categories.includes(filter || ''); });
+    });
+  });
+</script>}

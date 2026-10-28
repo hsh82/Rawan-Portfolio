@@ -2,7 +2,7 @@
 import Layout from '../../../layouts/Layout.astro';
 import ProjectGrid from '../../../components/platform/ProjectGrid.astro';
 import { t } from '../../../utils/i18n';
-const lang = Astro.currentLocale;
+const lang = 'fa' as const;
 ---
-<Layout title={t('nav.projects', lang)} description={t('nav.projects', lang)}><section class="tracked-section py-16 md:py-24"><div class="mx-auto max-w-container px-6"><p class="eyebrow">نمونه‌کارها</p><h1 class="font-heading text-h1 mb-12">{t('nav.projects', lang)}</h1><ProjectGrid lang={lang} /></div></section></Layout>
+<Layout title={`پروژه‌ها · ${t('nav.home', lang)}`} description="پروژه‌های مستند حامد شیخان در DevOps، زیرساخت، شبکه و نرم‌افزار."><section class="tracked-section py-16 md:py-24"><div class="mx-auto max-w-container px-6"><p class="eyebrow">کارهای مهندسی منتخب</p><h1 class="font-heading text-h1 mt-3">پروژه‌ها</h1><p class="mt-5 mb-10 max-w-3xl text-lg text-secondary/70 dark:text-white/70">مطالعات موردی و معرفی‌های فشرده با تمرکز بر مسئله، مشارکت مستقیم، تصمیم‌های مهندسی و بیان صادقانهٔ بلوغ هر کار.</p><ProjectGrid lang={lang} showFilters /></div></section></Layout>
 ---

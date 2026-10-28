@@ -3,12 +3,12 @@ import { resolve } from 'node:path';
 
 const [kind, locale, folder, slug] = process.argv.slice(2);
 if (kind !== 'blog' || !['en', 'fa'].includes(locale) || !folder || !slug) {
-  console.error('Usage: npm run content:new -- blog <en|fa> <category/subcategory> <slug>');
+  console.error('Usage: npm run content:new -- blog <en|fa> projects/<project-id> <slug>');
   process.exit(1);
 }
 const folderParts = folder.split('/');
 if (folderParts.some(part => !/^[a-z0-9-]+$/.test(part)) || !/^[a-z0-9-]+$/.test(slug)) throw new Error('Folder segments and slug must use lowercase letters, numbers, and hyphens.');
-if (folderParts.length < 2) throw new Error('Articles need at least a category and subcategory folder.');
+if (folderParts.length !== 2 || folderParts[0] !== 'projects') throw new Error('Articles must use projects/<project-id> as their folder.');
 const dir = resolve(process.cwd(), 'content/blog', locale, ...folderParts);
 const file = resolve(dir, `${slug}.mdx`);
 if (existsSync(file)) throw new Error(`Already exists: ${file}`);

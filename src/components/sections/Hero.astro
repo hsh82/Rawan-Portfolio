@@ -1,19 +1,22 @@
 ---
 // Removed Button import to create a custom non-animated button
-import { portfolio, localizedValue } from '../../utils/portfolio-content';
+import { portfolio, localizedValue, publicMediaPath } from '../../utils/portfolio-content';
 
 const lang = Astro.currentLocale;
-const profile = localizedValue(portfolio().profile.locales, lang === 'fa' ? 'fa' : 'en');
-const profileImage = portfolio().profile.image || '/images/profile/placeholder.svg';
+const profileData = portfolio().profile;
+const profile = localizedValue(profileData.locales, lang === 'fa' ? 'fa' : 'en');
+const profileImage = publicMediaPath(profileData.image);
+const profileImageAlt = profileData.imageAlt?.[lang === 'fa' ? 'fa' : 'en'] || profile.displayName;
 ---
 
 <section id="start" class="tracked-section pt-28 pb-16 md:pt-36 md:pb-24">
   <div class="max-w-container mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-gutter">
     <div class="md:col-span-7 flex flex-col justify-center">
       <span class="font-mono text-primary text-sm mb-4">{profile.greeting}</span>
-      <h1 class="font-heading text-h1 text-secondary dark:text-white mb-4">
-        {profile.displayName} — {profile.title}
+      <h1 class="font-heading text-h1 text-secondary dark:text-white mb-2">
+        {profile.displayName}
       </h1>
+      <p class="font-heading text-xl md:text-2xl font-medium text-primary mb-5">{profile.title}</p>
       <p class="text-lg md:text-xl text-secondary/80 dark:text-white/80 mb-6 max-w-2xl">
         {profile.intro}
       </p>
@@ -42,25 +45,24 @@ const profileImage = portfolio().profile.image || '/images/profile/placeholder.s
         <div class="absolute -top-6 -right-6 -z-10 w-64 h-64 md:w-80 md:h-80 rounded-3xl bg-gradient-to-br from-primary/10 to-orange-400/10"></div>
         <img
           src={profileImage}
-          alt={lang === 'fa' ? 'تصویر نمایهٔ نمونه' : 'Portfolio profile placeholder'}
+          alt={profileImageAlt}
           class="w-full rounded-2xl shadow-lg"
           width="500"
           height="600"
           loading="eager"
           fetchpriority="high"
-          onerror="this.onerror=null;this.src='/images/profile/placeholder.svg'"
         />
       </div>
     </div>
   </div>
 
   <!-- Scroll Down Indicator -->
-  <div id="scroll-indicator" class="absolute bottom-8 left-1/2 -translate-x-1/2 opacity-100 animate-bounce cursor-pointer" onclick="document.getElementById('experience')?.scrollIntoView({ behavior: 'smooth' });">
+  <a href="#about" aria-label={lang === 'fa' ? 'رفتن به بخش دربارهٔ من' : 'Go to About me'} id="scroll-indicator" class="absolute bottom-8 left-1/2 -translate-x-1/2 opacity-100 animate-bounce cursor-pointer">
     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary dark:text-highlightBlue">
       <path d="M12 5v14"></path>
       <path d="m19 12-7 7-7-7"></path>
     </svg>
-  </div>
+  </a>
 </section>
 
 <style>

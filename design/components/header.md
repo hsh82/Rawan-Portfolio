@@ -123,7 +123,7 @@ One flex row of segment tracks, each with a local fill derived from global progr
 
 ## Right-side navigation + résumé
 - Links: Home and Blog — resolve via localized routes. Homepage section navigation is in the progress dropdown. Active area is marked with `aria-current="page"`.
-- Résumé: distinct download button at the far right (`/resume/${lang}.pdf`, `download` attribute). Hidden when `resume.enabled` or `profile.visible` is false. The localized résumé routes also redirect directly to the generated PDF.
+- Résumé: distinct download button at the far right (`/resume/${filenameSlug}-${lang}.pdf`, `download` attribute). Hidden when `resume.enabled` or `profile.visible` is false. The localized résumé routes also redirect directly to the generated PDF.
 
 ## Mobile / tablet
 - Below `sm` (600px): the segment strip is hidden; the center shows only the current-section label (which still opens the dropdown on tap). Left zone keeps language + theme; right zone link group replaced by a menu button.
