@@ -4,11 +4,13 @@
 
 [![مجوز MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.md) [![ساخته‌شده با Astro](https://img.shields.io/badge/Made%20with-Astro-ff5d01?logo=astro&logoColor=white)](https://astro.build/) [![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 
-[![پیش‌نمایش قالب](https://raw.githubusercontent.com/nicremo/astro-multilingual-portfolio-template/main/src/assets/portfolio-preview.png)](https://github.com/nicremo/astro-multilingual-portfolio-template/blob/main/src/assets/portfolio-preview.png)
+[![پیش‌نمایش پورتفولیو](public/images/portfolio-preview.jpg)](public/images/portfolio-preview.jpg)
 
 این پروژه یک چارچوب قابل استفادهٔ مجدد برای ساخت وب‌سایت شخصی توسعه‌دهندگان، مهندسان، طراحان و تیم‌های فنی است. سایت از مسیرهای انگلیسی و فارسی، چیدمان راست‌به‌چپ و چپ‌به‌راست، حالت روشن و تاریک، وبلاگ MDX و محتوای متمرکز در پوشهٔ `content/` پشتیبانی می‌کند.
 
 این پروژه بر پایهٔ [Astro Multilingual Portfolio Template](https://github.com/nicremo/astro-multilingual-portfolio-template) اثر Fabian Bitzer شکل گرفته است. طراحی اولیه، ساختار واکنش‌گرا، تغییر پوسته، ناوبری چندزبانه و مجوز MIT پروژهٔ مادر حفظ شده و قابلیت‌های محتوایی، انتشار فنی، اعتبارسنجی، رزومه و مهارت‌های Agent به آن افزوده شده‌اند.
+
+تصویر پیش‌نمایش ابتدای این README نسخهٔ مرجع این انتشار است و در مسیر `public/images/portfolio-preview.jpg` نگهداری می‌شود تا GitHub و نسخهٔ محلی مخزن از یک تصویر استفاده کنند.
 
 English documentation: [README.md](README.md)
 
@@ -74,7 +76,7 @@ tests/fixtures/      نمونه‌های ساختگی ایزوله برای آز
 
 1. عنوان، توضیح و آدرس سایت را در `content/site.json` تنظیم کنید.
 2. در `content/profile.json` مقدار `visible` را فعال کرده و نام، عنوان، معرفی و خلاصهٔ فارسی و انگلیسی را اضافه کنید.
-3. تصویر جایگزین را با تصویر خود عوض کنید و مسیر `profile.image` را به فایل داخل `public/` تغییر دهید.
+3. تصویر جایگزین را با تصویر خود عوض کنید و مسیر `profile.image` را به فایل داخل `content/media/`، مانند `media/profile/profile.svg`، تغییر دهید. پوشهٔ `public/media/` هنگام توسعه و build به‌صورت خودکار ساخته می‌شود.
 4. ایمیل، تلفن، مکان و لینک‌های اجتماعی تأییدشده را در `content/contact.json` وارد کنید.
 5. مهارت‌ها را در `content/skills/entries.json` و سوابق را در فایل‌های `experience`، `education` و `certifications` اضافه کنید.
 6. نقاط عطف مهم را در `content/journey/entries.json` و پروژه‌ها را در `content/projects/entries.json` ثبت کنید.
@@ -182,7 +184,7 @@ Terraform را به مهارت‌های زیرساخت اضافه کن.
 
 - خطای اعتبارسنجی: فیلدهای لازم و وجود هر دو زبان را با `src/utils/portfolio-content.ts` مقایسه کنید.
 - لینک مقاله خراب: مسیر داخلی را بررسی و `npm run content:check-links` را اجرا کنید.
-- تصویر نمایش داده نمی‌شود: فایل باید زیر `public/` باشد و مسیر با `/` شروع شود.
+- تصویر نمایش داده نمی‌شود: فایل مالک باید زیر `content/media/` باشد، مسیر با `media/` شروع شود و `npm run media:publish` اجرا شده باشد. تصویر پیش‌نمایش README عمداً در `public/images/` قرار دارد تا GitHub آن را مستقیم نمایش دهد.
 - رزومه تولید نمی‌شود: پروفایل را قابل نمایش و résumé را فعال کنید و نصب Chromium را بررسی کنید.
 - مشکل RTL: صفحهٔ فارسی را جداگانه بررسی کنید و URL و code span را LTR نگه دارید.
 - خطای Vercel: ابتدا `npm ci` و `npm run build` را محلی اجرا و Secretها را بررسی کنید.

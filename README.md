@@ -4,13 +4,15 @@
 
 [![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.md) [![Made with Astro](https://img.shields.io/badge/Made%20with-Astro-ff5d01?logo=astro&logoColor=white)](https://astro.build/) [![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 
-[![Portfolio preview](https://raw.githubusercontent.com/nicremo/astro-multilingual-portfolio-template/main/src/assets/portfolio-preview.png)](https://github.com/nicremo/astro-multilingual-portfolio-template/blob/main/src/assets/portfolio-preview.png)
+[![Portfolio preview](public/images/portfolio-preview.jpg)](public/images/portfolio-preview.jpg)
 
 Rawan Portfolio is a reusable English/Persian portfolio framework for developers, engineers, designers, and technical teams. It keeps public owner data in `content/`, presentation and behavior in `src/`, and maintenance guidance in repository-local Agent Skills. Normal content changes do not require editing Astro components.
 
-The project originated from the [Nicremo Astro multilingual portfolio template](https://github.com/nicremo/astro-multilingual-portfolio-template) and has been extended with structured content loaders, RTL/LTR support, nested MDX publishing, Mermaid and Markmap readers, search, journey/project relationships, and optional bilingual résumé generation. The current repository is maintained by Hamed Sheikhan. Personal résumé data is intentionally absent from this template release.
+The project originated from the [Nicremo Astro multilingual portfolio template](https://github.com/nicremo/astro-multilingual-portfolio-template) and has been extended with structured content loaders, RTL/LTR support, nested MDX publishing, Mermaid and Markmap readers, search, journey/project relationships, and optional bilingual résumé generation. The reusable `main` branch stays owner-neutral; personal content is maintained on a separate content branch.
 
 The upstream project provides the visual starting point, responsive portfolio layout, theme switching, multilingual navigation, and MIT-licensed foundation. This repository keeps those useful ideas while moving owner data into the central `content/` tree and adding an empty-template workflow suitable for reuse.
+
+The repository preview above is the maintained visual reference for this release. It is stored at `public/images/portfolio-preview.jpg` so GitHub, local documentation, and cloned checkouts use the same image.
 
 ## Features
 
@@ -80,7 +82,7 @@ tests/fixtures/      Isolated fictional examples; never loaded by production
 
 1. Edit `content/site.json` with the site URL and English/Persian title and description.
 2. Set `visible: true` and add localized `displayName`, `title`, `intro`, `summary`, and CTA text in `content/profile.json`.
-3. Replace `content/media/profile/placeholder.svg` and update `profile.image` to a public path such as `/images/profile/avatar.webp`.
+3. Replace `content/media/profile/placeholder.svg` and update `profile.image` to a content-relative path such as `media/profile/profile.svg`. The generated `public/media/` mirror is created during development and builds.
 4. Add verified email, phone, location, and `{ label, url }` social links in `content/contact.json`.
 5. Add skill records to `content/skills/entries.json`.
 6. Add employment or education records to their corresponding `entries.json` files.
@@ -203,7 +205,7 @@ This project preserves the upstream MIT license and attribution in [LICENSE.md](
 
 - **Validation errors:** compare the record with the schema in `src/utils/portfolio-content.ts`; check required `en`/`fa` objects and stable IDs.
 - **Broken article links:** use repository-relative article paths and run `npm run content:check-links`.
-- **Missing images:** confirm the file is under `public/` and the content path starts with `/`.
+- **Missing images:** confirm authored media is under `content/media/`, the content path starts with `media/`, and `npm run media:publish` has run. The README preview is the intentional exception and remains under `public/images/` for GitHub rendering.
 - **Résumé not available:** set `profile.visible` and `resume.enabled` to `true`, provide sufficient records, and install Chromium.
 - **Chromium cannot start:** set `CHROME_BIN` or use the supported local sandbox configuration; do not commit generated PDFs as a workaround.
 - **RTL issues:** inspect the Persian route, keep URLs and code spans direction-isolated, and use the shared layout rather than custom document direction.
