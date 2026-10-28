@@ -75,7 +75,7 @@ for (const locale of config.locales || ['en', 'fa']) {
   const copy = profileCopy(locale);
   const name = copy.displayName || profile.name || '';
   const title = copy.title || '';
-  const portrait = config.portrait !== false ? assetDataUri(profile.image) : '';
+  const portrait = config.portrait !== false ? assetDataUri(profile.resumeImage || profile.image) : '';
   const contactHtml = contactItems().join('<span class="contact-separator">·</span>');
   const experienceHtml = (config.include?.experience !== false ? experience : []).map(item => {
     const itemCopy = local(item, locale);

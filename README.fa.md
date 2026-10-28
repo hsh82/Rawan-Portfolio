@@ -76,7 +76,7 @@ tests/fixtures/      نمونه‌های ساختگی ایزوله برای آز
 
 1. عنوان، توضیح و آدرس سایت را در `content/site.json` تنظیم کنید.
 2. در `content/profile.json` مقدار `visible` را فعال کرده و نام، عنوان، معرفی و خلاصهٔ فارسی و انگلیسی را اضافه کنید.
-3. تصویر جایگزین را با تصویر خود عوض کنید و مسیر `profile.image` را به فایل داخل `content/media/`، مانند `media/profile/profile.svg`، تغییر دهید. پوشهٔ `public/media/` هنگام توسعه و build به‌صورت خودکار ساخته می‌شود.
+3. تصویر جایگزین را با تصویر خود عوض کنید و مسیر `profile.image` را به تصویر اصلی سایت، مانند `media/profile/profile.svg`، تغییر دهید. اگر تصویر جداگانه‌ای برای رزومه لازم است، `resumeImage` را اضافه کنید؛ در غیر این صورت رزومه از `profile.image` استفاده می‌کند.
 4. ایمیل، تلفن، مکان و لینک‌های اجتماعی تأییدشده را در `content/contact.json` وارد کنید.
 5. مهارت‌ها را در `content/skills/entries.json` و سوابق را در فایل‌های `experience`، `education` و `certifications` اضافه کنید.
 6. نقاط عطف مهم را در `content/journey/entries.json` و پروژه‌ها را در `content/projects/entries.json` ثبت کنید.

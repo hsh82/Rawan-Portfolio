@@ -61,6 +61,10 @@ if (profile.image) {
   if (!existsSync(imageFile)) throw new Error(`Missing profile image: ${profile.image}`);
   if (profile.visible && (!profile.imageAlt?.en || !profile.imageAlt?.fa)) throw new Error('Visible profile image needs English and Persian alt text');
 }
-if (resume.portrait !== false && !profile.image) throw new Error('Résumé portrait is enabled but profile.image is missing');
+if (profile.resumeImage) {
+  if (!profile.resumeImage.startsWith('media/')) throw new Error('profile.resumeImage must reference the canonical content/media/ tree');
+  if (!existsSync(resolve(root, profile.resumeImage))) throw new Error(`Missing résumé profile image: ${profile.resumeImage}`);
+}
+if (resume.portrait !== false && !(profile.resumeImage || profile.image)) throw new Error('Résumé portrait is enabled but no profile image is configured');
 for (const file of ['site.json', 'contact.json']) read(file, {});
 console.log(`Content valid: ${projects.length} projects, ${journey.length} journey entries.`);

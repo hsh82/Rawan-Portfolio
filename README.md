@@ -82,7 +82,7 @@ tests/fixtures/      Isolated fictional examples; never loaded by production
 
 1. Edit `content/site.json` with the site URL and English/Persian title and description.
 2. Set `visible: true` and add localized `displayName`, `title`, `intro`, `summary`, and CTA text in `content/profile.json`.
-3. Replace `content/media/profile/placeholder.svg` and update `profile.image` to a content-relative path such as `media/profile/profile.svg`. The generated `public/media/` mirror is created during development and builds.
+3. Replace `content/media/profile/placeholder.svg` and update `profile.image` to the main-site portrait path, such as `media/profile/profile.svg`. Add optional `resumeImage` when the résumé should use a different portrait; otherwise the résumé falls back to `profile.image`.
 4. Add verified email, phone, location, and `{ label, url }` social links in `content/contact.json`.
 5. Add skill records to `content/skills/entries.json`.
 6. Add employment or education records to their corresponding `entries.json` files.
