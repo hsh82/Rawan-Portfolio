@@ -54,9 +54,12 @@ for (const event of journey) {
 const profile = read('profile.json', {});
 const resume = read('resume/config.json', {});
 if (profile.image) {
-  if (!profile.image.startsWith('media/')) throw new Error('profile.image must reference the canonical content/media/ tree');
-  if (!existsSync(resolve(root, profile.image))) throw new Error(`Missing profile image: content/${profile.image}`);
-  if (!profile.imageAlt?.en || !profile.imageAlt?.fa) throw new Error('Profile image needs English and Persian alt text');
+  if (profile.visible && !profile.image.startsWith('media/')) throw new Error('Visible profile.image must reference the canonical content/media/ tree');
+  const imageFile = profile.image.startsWith('media/')
+    ? resolve(root, profile.image)
+    : resolve(process.cwd(), 'public', profile.image.replace(/^\//, ''));
+  if (!existsSync(imageFile)) throw new Error(`Missing profile image: ${profile.image}`);
+  if (profile.visible && (!profile.imageAlt?.en || !profile.imageAlt?.fa)) throw new Error('Visible profile image needs English and Persian alt text');
 }
 if (resume.portrait !== false && !profile.image) throw new Error('Résumé portrait is enabled but profile.image is missing');
 for (const file of ['site.json', 'contact.json']) read(file, {});
