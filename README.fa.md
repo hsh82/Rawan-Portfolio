@@ -174,7 +174,7 @@ Terraform را به مهارت‌های زیرساخت اضافه کن.
 
 ## استقرار با Vercel
 
-می‌توانید مخزن را مستقیماً به Vercel متصل کنید یا از گردش‌کار GitHub Actions استفاده کنید. در روش Git integration، فرمان build را `npm run build` و خروجی را `dist` قرار دهید. در روش Actions، متغیرهای `VERCEL_TOKEN`، `VERCEL_ORG_ID` و `VERCEL_PROJECT_ID` را به‌صورت Secret تنظیم کنید. برای یک شاخه، هر دو روش را هم‌زمان فعال نکنید مگر اینکه استقرار تکراری هدف شما باشد.
+می‌توانید مخزن را مستقیماً به Vercel متصل کنید یا از دو گردش‌کار دستی GitHub Actions استفاده کنید. از تب Actions، یکی از `Vercel Preview` یا `Vercel Production` را انتخاب و سپس شاخهٔ `main` یا هر شاخهٔ `content/*` را وارد کنید؛ هیچ pushای به‌صورت خودکار deploy نمی‌شود. متغیرهای `VERCEL_TOKEN`، `VERCEL_ORG_ID` و `VERCEL_PROJECT_ID` را به‌صورت Secret تنظیم کنید و برای مقصد production محیط GitHub را محافظت کنید. اگر این گردش‌کارها مسیر استقرار هستند، استقرار خودکار Git در Vercel را خاموش کنید.
 
 ## مجوز و اعتباردهی
 

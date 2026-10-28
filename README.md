@@ -183,7 +183,7 @@ Vercel is a straightforward host for the generated Astro static output. Use one 
 
 **Option A — Vercel Git integration.** Import the repository, use `npm run build`, and publish `dist`. Configure the production branch in Vercel and disable the workflow deployment if Git integration is used.
 
-**Option B — GitHub Actions.** The repository includes preview and production workflows using the Vercel CLI. Add `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID` as repository/environment secrets, configure the Vercel project, and protect the production environment. Preview runs on non-main pushes; production runs on `main`. Never commit tokens, generated `.vercel` files, or local environment files. Do not enable both approaches for the same branch unless duplicate deployments are intentional.
+**Option B — GitHub Actions.** The repository includes two manual Vercel workflows. From the Actions tab, choose `Vercel Preview` or `Vercel Production`, then enter `main` or a `content/*` branch; no Git push deploys automatically. Add `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID` as repository/environment secrets, configure the Vercel project, and protect the production environment. Never commit tokens, generated `.vercel` files, or local environment files. Disable Vercel Git auto-deployments if these workflows are the deployment path.
 
 ## Development and validation
 
@@ -209,4 +209,4 @@ This project preserves the upstream MIT license and attribution in [LICENSE.md](
 - **Résumé not available:** set `profile.visible` and `resume.enabled` to `true`, provide sufficient records, and install Chromium.
 - **Chromium cannot start:** set `CHROME_BIN` or use the supported local sandbox configuration; do not commit generated PDFs as a workaround.
 - **RTL issues:** inspect the Persian route, keep URLs and code spans direction-isolated, and use the shared layout rather than custom document direction.
-- **Vercel failures:** reproduce with `npm ci` and `npm run build`, confirm the three Vercel secrets, and ensure only one deployment mechanism is active.
+- **Vercel failures:** reproduce with `npm ci` and `npm run build`, confirm `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID`, verify the selected branch is `main` or `content/*`, and ensure Vercel Git auto-deployments are disabled.
