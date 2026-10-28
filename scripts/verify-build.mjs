@@ -3,6 +3,8 @@ import { join, relative } from 'node:path';
 const root = new URL('../', import.meta.url).pathname;
 const dist = join(root, 'dist');
 const content = join(root, 'content/blog');
+const projectsFile = join(root, 'content/projects/entries.json');
+const projects = existsSync(projectsFile) ? JSON.parse(readFileSync(projectsFile, 'utf8')) : [];
 const walk = dir => readdirSync(dir, { withFileTypes: true }).flatMap(entry => entry.isDirectory() ? walk(join(dir, entry.name)) : [join(dir, entry.name)]);
 const files = existsSync(content) ? walk(content).filter(file => /\.mdx?$/.test(file)) : [];
 const sitemap = readFileSync(join(dist, 'sitemap-0.xml'), 'utf8');
@@ -28,13 +30,13 @@ for (const locale of ['en', 'fa']) {
     if (!html.includes(`lang="${locale}"`)) throw new Error(`Incorrect localized route: ${locale}/${route}`);
     if (!sitemap.includes(`/${locale}/${route}/`)) throw new Error(`Localized route missing from sitemap: ${locale}/${route}`);
   }
-  const projectIds = ['rahban-access-gateway', 'cicd-release-platform', 'infrastructure-as-code-vmware', 'utils-devops-python'];
+  const projectIds = projects.filter(project => project.visible && project.caseStudy).map(project => project.id);
   for (const id of projectIds) {
     const route = `/${locale}/projects/${id}/`;
     const output = join(dist, locale, 'projects', id, 'index.html');
     if (!existsSync(output) || !sitemap.includes(route)) throw new Error(`Project case study missing: ${route}`);
   }
-  for (const hidden of ['frappe-draw-rtl', 'creative-design-collection', 'frappe-platform-explorations']) {
+  for (const hidden of projects.filter(project => !project.visible).map(project => project.id)) {
     const route = `/${locale}/projects/${hidden}/`;
     if (existsSync(join(dist, locale, 'projects', hidden, 'index.html')) || sitemap.includes(route)) throw new Error(`Private project leaked: ${route}`);
   }
