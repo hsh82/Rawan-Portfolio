@@ -1,1 +1,68 @@
-[]
+[
+  {
+    "id": "cicd-quality",
+    "visible": true,
+    "category": "cicd",
+    "locales": {
+      "en": { "title": "DevOps & Delivery", "description": "Engineering repeatable paths from source change to tested, observable, and recoverable release.", "summary": "GitLab CI/CD, runners, quality gates, end-to-end testing, health checks, and rollback." },
+      "fa": { "title": "DevOps و تحویل نرم‌افزار", "description": "مهندسی مسیرهای تکرارپذیر از تغییر کد تا انتشار آزموده‌شده، قابل‌مشاهده و قابل‌بازیابی.", "summary": "GitLab CI/CD، runner، کنترل کیفیت، آزمون end-to-end، health check و بازگشت نسخه." }
+    },
+    "technologies": ["GitLab CI/CD", "GitLab Runner", "Git", "Playwright", "Quality Gates", "Health Checks", "Rollback"],
+    "priority": 60
+  },
+  {
+    "id": "containers-delivery",
+    "visible": true,
+    "category": "containers",
+    "locales": {
+      "en": { "title": "Containers & Artifacts", "description": "Standardized container builds, service packaging, internal artifacts, and deployment-facing proxy configuration.", "summary": "Docker, Compose, Buildx, Harbor, Nexus, and Nginx." },
+      "fa": { "title": "کانتینرها و آرتیفکت‌ها", "description": "استانداردسازی ساخت کانتینر، بسته‌بندی سرویس، آرتیفکت‌های داخلی و پیکربندی پراکسی در مسیر استقرار.", "summary": "Docker، Compose، Buildx، Harbor، Nexus و Nginx." }
+    },
+    "technologies": ["Docker", "Docker Compose", "Docker Buildx", "Harbor", "Nexus", "Nginx"],
+    "priority": 50
+  },
+  {
+    "id": "infrastructure-virtualization",
+    "visible": true,
+    "category": "infrastructure",
+    "locales": {
+      "en": { "title": "Infrastructure & IaC", "description": "Reproducible virtual infrastructure, provisioning, and configuration with maintainability built into the workflow.", "summary": "Linux, VMware ESXi, vCenter, Terraform, Ansible, and Bash." },
+      "fa": { "title": "زیرساخت و IaC", "description": "زیرساخت مجازی، تأمین و پیکربندی بازتولیدپذیر با توجه به نگهداری‌پذیری فرایند.", "summary": "Linux، VMware ESXi، vCenter، Terraform، Ansible و Bash." }
+    },
+    "technologies": ["Linux", "VMware ESXi", "vCenter", "Terraform", "Ansible", "Bash"],
+    "priority": 40
+  },
+  {
+    "id": "network-secure-access",
+    "visible": true,
+    "category": "network",
+    "locales": {
+      "en": { "title": "Networking & Secure Access", "description": "Segmented service connectivity, encrypted remote access, internal name resolution, and controlled traffic paths.", "summary": "OPNsense, VLAN, WireGuard, VPN gateways, Nginx, DNS, and TLS/HTTPS." },
+      "fa": { "title": "شبکه و دسترسی امن", "description": "ارتباطات بخش‌بندی‌شدهٔ سرویس‌ها، دسترسی راه‌دور رمزنگاری‌شده، نام‌یابی داخلی و مسیرهای کنترل‌شدهٔ ترافیک.", "summary": "OPNsense، VLAN، WireGuard، VPN Gateway، Nginx، DNS و TLS/HTTPS." }
+    },
+    "technologies": ["OPNsense", "VLAN", "WireGuard", "VPN Gateway", "Nginx", "DNS", "TLS/HTTPS"],
+    "priority": 30
+  },
+  {
+    "id": "scripting-documentation",
+    "visible": true,
+    "category": "scripting",
+    "locales": {
+      "en": { "title": "Automation & Platform Operations", "description": "Reusable operational tooling and practical integration of the services engineering teams depend on.", "summary": "Python, Bash, identity tooling, collaboration platforms, and technical documentation." },
+      "fa": { "title": "خودکارسازی و عملیات پلتفرم", "description": "ابزارهای عملیاتی قابل‌استفادهٔ مجدد و یکپارچه‌سازی کاربردی سرویس‌های موردنیاز تیم‌های مهندسی.", "summary": "Python، Bash، ابزارهای هویت، پلتفرم‌های همکاری و مستندسازی فنی." }
+    },
+    "technologies": ["Python", "Bash", "Keycloak", "HashiCorp Vault", "Jira", "Confluence"],
+    "priority": 20
+  },
+  {
+    "id": "software-design",
+    "visible": true,
+    "category": "design",
+    "locales": {
+      "en": { "title": "Visual Design & Media", "description": "A substantive earlier practice in visual identity, editorial and promotional design, video, motion, and web content.", "summary": "Adobe creative tools, WordPress, and Elementor." },
+      "fa": { "title": "طراحی بصری و رسانه", "description": "پیشینه‌ای جدی در هویت بصری، طراحی نشریه و تبلیغات، ویدئو، موشن و محتوای وب.", "summary": "ابزارهای Adobe، WordPress و Elementor." }
+    },
+    "technologies": ["Photoshop", "Illustrator", "InDesign", "Premiere Pro", "After Effects", "Audition", "WordPress", "Elementor"],
+    "priority": 10
+  }
+]

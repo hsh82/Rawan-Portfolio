@@ -1,0 +1,33 @@
+{
+  "id": "creative-design-collection",
+  "kind": "overview",
+  "translationId": "project-creative-design-collection",
+  "slug": "overview",
+  "category": "projects",
+  "projectCategory": "design-creative",
+  "status": "draft",
+  "visible": false,
+  "featured": false,
+  "publication": "requires-review",
+  "maturity": "creative-collection",
+  "secondaryCategories": [],
+  "role": {
+    "en": "Designer",
+    "fa": "طراح"
+  },
+  "technologies": [
+    "Photoshop",
+    "Illustrator",
+    "InDesign",
+    "After Effects"
+  ],
+  "journeyIds": [
+    "visual-design-foundation"
+  ],
+  "relatedSkillIds": [
+    "software-design"
+  ],
+  "relatedProjectIds": [],
+  "articleIds": [],
+  "priority": 40
+}

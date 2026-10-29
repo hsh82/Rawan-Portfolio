@@ -1,1 +1,60 @@
-[]
+[
+  {
+    "id": "devops-engineer",
+    "visible": true,
+    "locales": {
+      "en": {
+        "title": "DevOps Engineer",
+        "summary": "Primary hands-on implementation responsibility for DevOps and infrastructure initiatives spanning reliable delivery, virtualization, infrastructure automation, network segmentation, and secure service access.",
+        "description": "Full-time role with approximately 18 months of experience as of October 2026. Exact employment dates and current status are intentionally omitted pending confirmation.",
+        "bullets": [
+          "Designed and implemented GitLab CI/CD workflows for container builds, testing, artifact publication, automated deployment, health checks, and rollback.",
+          "Standardized Docker-based delivery across Windows and Linux services and established internal artifact and package workflows with Harbor and Nexus.",
+          "Built VMware ESXi and vCenter infrastructure and developed repeatable provisioning and configuration practices with Terraform and Ansible.",
+          "Designed segmented network and access paths using OPNsense, VLANs, WireGuard, VPN gateways, Nginx, internal DNS, and HTTPS.",
+          "Developed the reusable Python Utils_Devops library to consolidate recurring deployment and infrastructure operations.",
+          "Extended the RustGuac foundation into the Rahban internal access pilot, including Keycloak and vCenter integration, machine and identity workflows, interface improvements, and containerized deployment.",
+          "Deployed and maintained internal engineering platforms and introduced Playwright end-to-end checks and practical Linux, Docker, and testing knowledge sharing."
+        ]
+      },
+      "fa": {
+        "title": "مهندس DevOps",
+        "summary": "مسئولیت اصلی پیاده‌سازی فنی اقدامات DevOps و زیرساخت، شامل تحویل قابل‌اتکای نرم‌افزار، مجازی‌سازی، خودکارسازی زیرساخت، بخش‌بندی شبکه و دسترسی امن به سرویس‌ها.",
+        "description": "نقش تمام‌وقت با حدود ۱۸ ماه تجربه تا اکتبر ۲۰۲۶. تاریخ دقیق شروع و وضعیت فعلی همکاری تا زمان تأیید عمداً ذکر نشده است.",
+        "bullets": [
+          "طراحی و پیاده‌سازی چرخه‌های GitLab CI/CD برای ساخت کانتینر، آزمون، انتشار آرتیفکت، استقرار خودکار، health check و بازگشت نسخه.",
+          "استانداردسازی تحویل مبتنی بر Docker در سرویس‌های Windows و Linux و ایجاد فرایندهای داخلی آرتیفکت و بسته با Harbor و Nexus.",
+          "راه‌اندازی زیرساخت VMware ESXi و vCenter و توسعهٔ فرایندهای تکرارپذیر تأمین و پیکربندی با Terraform و Ansible.",
+          "طراحی مسیرهای تفکیک‌شدهٔ شبکه و دسترسی با OPNsense، VLAN، WireGuard، VPN Gateway، Nginx، DNS داخلی و HTTPS.",
+          "توسعهٔ کتابخانهٔ قابل‌استفادهٔ مجدد Utils_Devops با Python برای یکپارچه‌سازی عملیات تکراری استقرار و زیرساخت.",
+          "توسعهٔ پایلوت داخلی رهبان بر پایهٔ RustGuac، شامل یکپارچه‌سازی Keycloak و vCenter، فرایندهای هویت و ماشین، بهبود رابط و استقرار کانتینری.",
+          "استقرار و نگهداری پلتفرم‌های داخلی مهندسی و افزودن آزمون‌های end-to-end با Playwright، همراه با انتقال دانش کاربردی Linux، Docker و آزمون."
+        ]
+      }
+    },
+    "organization": "Weinno",
+    "technologies": ["GitLab CI/CD", "Docker", "Harbor", "Nexus", "VMware ESXi", "vCenter", "Terraform", "Ansible", "OPNsense", "WireGuard", "Nginx", "Python", "Playwright"],
+    "priority": 20
+  },
+  {
+    "id": "graphic-design-visual-communication",
+    "visible": true,
+    "locales": {
+      "en": {
+        "title": "Graphic Designer & Visual Content Creator",
+        "summary": "Earlier independent, self-taught practice spanning visual identity, logos, print and promotional materials, editorial layouts, digital content, video editing, and motion graphics.",
+        "description": "Exact dates and client arrangements are intentionally omitted pending confirmation; DevOps is the current primary professional direction.",
+        "bullets": ["Developed visual identities and publication-ready print, digital, promotional, video, and motion assets with Adobe creative tools and WordPress."]
+      },
+      "fa": {
+        "title": "طراح گرافیک و تولیدکنندهٔ محتوای بصری",
+        "summary": "فعالیت مستقل و خودآموختهٔ پیشین در هویت بصری، لوگو، اقلام چاپی و تبلیغاتی، صفحه‌آرایی، محتوای دیجیتال، تدوین و موشن‌گرافیک.",
+        "description": "تاریخ دقیق و نوع همکاری با مشتریان تا زمان تأیید ذکر نشده است؛ مسیر حرفه‌ای اصلی اکنون DevOps است.",
+        "bullets": ["توسعهٔ هویت بصری و آماده‌سازی خروجی‌های چاپی، دیجیتال، تبلیغاتی، ویدئویی و موشن با ابزارهای Adobe و WordPress."]
+      }
+    },
+    "organization": "Independent",
+    "technologies": ["Photoshop", "Illustrator", "InDesign", "Premiere Pro", "After Effects", "Audition", "WordPress", "Elementor"],
+    "priority": 10
+  }
+]

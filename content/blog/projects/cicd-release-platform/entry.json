@@ -1,0 +1,128 @@
+{
+  "id": "cicd-release-platform",
+  "kind": "overview",
+  "translationId": "project-cicd-release-platform",
+  "slug": "overview",
+  "category": "projects",
+  "projectCategory": "devops-delivery",
+  "status": "published",
+  "visible": true,
+  "featured": true,
+  "publication": "public-sanitized",
+  "maturity": "organizational",
+  "secondaryCategories": [
+    "infrastructure-automation"
+  ],
+  "role": {
+    "en": "Pipeline and delivery implementation",
+    "fa": "طراحی و پیاده‌سازی مسیر تحویل"
+  },
+  "technologies": [
+    "GitLab CI/CD",
+    "Docker",
+    "Docker Compose",
+    "Harbor",
+    "Nexus",
+    "Nginx"
+  ],
+  "journeyIds": [
+    "transition-to-devops"
+  ],
+  "relatedSkillIds": [
+    "cicd-quality",
+    "containers-delivery",
+    "scripting-documentation"
+  ],
+  "relatedProjectIds": [
+    "playwright-quality-gates",
+    "private-devops-platform"
+  ],
+  "articleIds": [],
+  "caseStudy": {
+    "en": {
+      "intro": "A reusable delivery system replaced application-specific manual release steps with a clearer path from source change to verified deployment.",
+      "context": "Manual deployments, environment differences, and one-off scripts made releases difficult to repeat and recovery harder to reason about.",
+      "contribution": [
+        "Designed and implemented GitLab pipelines, Dockerfiles, release scripts, health checks, and rollback paths.",
+        "Separated build and runtime concerns and introduced versioned artifacts in private registries.",
+        "Documented reusable conventions shared by development and operations."
+      ],
+      "approach": [
+        {
+          "title": "One traceable path",
+          "description": "Connected build, test, artifact publication, deployment, verification, and recovery as explicit stages."
+        },
+        {
+          "title": "Immutable artifacts",
+          "description": "Promoted versioned images instead of rebuilding differently in every target environment."
+        },
+        {
+          "title": "Verify completion",
+          "description": "Used health checks and failure handling so deployment success was observed rather than assumed."
+        }
+      ],
+      "outcome": "Delivery became more repeatable, less dependent on manual coordination, and easier to inspect when a release failed.",
+      "limitations": "This represents an initiative across multiple applications, not a claim that every service reached identical automation or maturity.",
+      "evidence": "Based on the project dossier and owner confirmation of primary implementation. Employer pipelines, customer identities, configuration, and metrics remain private.",
+      "lessons": [
+        "Rollback belongs in delivery design, not after the first incident.",
+        "Shared conventions must still expose application-specific constraints."
+      ]
+    },
+    "fa": {
+      "intro": "یک سامانهٔ تحویل قابل‌استفادهٔ مجدد، مراحل دستی و پراکندهٔ انتشار را به مسیری روشن از تغییر کد تا استقرار ارزیابی‌شده تبدیل کرد.",
+      "context": "استقرار دستی، تفاوت محیط‌ها و اسکریپت‌های موردی، تکرار انتشار و تحلیل بازیابی را دشوار می‌کرد.",
+      "contribution": [
+        "طراحی و پیاده‌سازی pipelineهای GitLab، Dockerfileها، اسکریپت‌های انتشار، health check و rollback.",
+        "تفکیک ساخت از اجرا و استفاده از آرتیفکت‌های نسخه‌دار در رجیستری داخلی.",
+        "مستندسازی قراردادهای مشترک میان توسعه و عملیات."
+      ],
+      "approach": [
+        {
+          "title": "یک مسیر قابل ردیابی",
+          "description": "ساخت، آزمون، انتشار آرتیفکت، استقرار، ارزیابی و بازیابی به مراحل صریح متصل شدند."
+        },
+        {
+          "title": "آرتیفکت تغییرناپذیر",
+          "description": "به‌جای ساخت متفاوت در هر محیط، ایمیج نسخه‌دار جابه‌جا شد."
+        },
+        {
+          "title": "ارزیابی پایان کار",
+          "description": "health check و مدیریت شکست، موفقیت استقرار را از فرض به وضعیت مشاهده‌شده تبدیل کرد."
+        }
+      ],
+      "outcome": "تحویل تکرارپذیرتر، کم‌وابسته‌تر به هماهنگی دستی و در زمان شکست قابل بررسی‌تر شد.",
+      "limitations": "این مطالعه یک اقدام در چند برنامه است و ادعا نمی‌کند همهٔ سرویس‌ها به سطح یکسانی از خودکارسازی رسیده‌اند.",
+      "evidence": "بر پرونده و تأیید مالک دربارهٔ پیاده‌سازی اصلی استوار است. pipelineها، مشتریان، پیکربندی‌ها و شاخص‌های داخلی خصوصی می‌مانند.",
+      "lessons": [
+        "rollback باید بخشی از طراحی تحویل باشد.",
+        "قراردادهای مشترک باید محدودیت‌های خاص هر برنامه را آشکار نگه دارند."
+      ]
+    }
+  },
+  "diagram": {
+    "en": {
+      "title": "Release path",
+      "steps": [
+        "Source change",
+        "Build and test",
+        "Versioned artifact",
+        "Deploy",
+        "Health verification",
+        "Rollback"
+      ]
+    },
+    "fa": {
+      "title": "مسیر انتشار",
+      "steps": [
+        "تغییر کد",
+        "ساخت و آزمون",
+        "آرتیفکت نسخه‌دار",
+        "استقرار",
+        "ارزیابی سلامت",
+        "بازگشت نسخه"
+      ]
+    }
+  },
+  "priority": 150
+}

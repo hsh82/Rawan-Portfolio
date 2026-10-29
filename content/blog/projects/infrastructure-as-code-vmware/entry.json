@@ -1,0 +1,122 @@
+{
+  "id": "infrastructure-as-code-vmware",
+  "kind": "overview",
+  "translationId": "project-infrastructure-as-code-vmware",
+  "slug": "overview",
+  "category": "projects",
+  "projectCategory": "infrastructure-automation",
+  "status": "published",
+  "visible": true,
+  "featured": true,
+  "publication": "public-sanitized",
+  "maturity": "organizational",
+  "secondaryCategories": [],
+  "role": {
+    "en": "Infrastructure setup and IaC implementation",
+    "fa": "راه‌اندازی زیرساخت و پیاده‌سازی IaC"
+  },
+  "technologies": [
+    "VMware ESXi",
+    "vCenter",
+    "Terraform",
+    "Ansible",
+    "Linux"
+  ],
+  "journeyIds": [
+    "infrastructure-and-secure-access"
+  ],
+  "relatedSkillIds": [
+    "infrastructure-virtualization",
+    "scripting-documentation"
+  ],
+  "relatedProjectIds": [
+    "segmented-network-opnsense",
+    "rahban-access-gateway"
+  ],
+  "articleIds": [],
+  "caseStudy": {
+    "en": {
+      "intro": "A virtualization foundation and infrastructure-as-code workflow moved recurring server work toward a consistent, documented operating model.",
+      "context": "As the environment grew, manual VM provisioning and configuration made results dependent on individual steps and memory.",
+      "contribution": [
+        "Installed and configured the VMware ESXi and vCenter foundation.",
+        "Developed Terraform definitions for provisioning and Ansible automation for configuration.",
+        "Separated infrastructure intent, machine creation, and operating-system preparation into understandable stages."
+      ],
+      "approach": [
+        {
+          "title": "Establish the control plane",
+          "description": "Created the VMware foundation before layering automation onto it."
+        },
+        {
+          "title": "Provision, then configure",
+          "description": "Used Terraform for resource lifecycle and Ansible for system state."
+        },
+        {
+          "title": "Evolve coverage honestly",
+          "description": "Applied IaC where verified without claiming every system was managed as code."
+        }
+      ],
+      "outcome": "The work established a more standardized foundation for creating and maintaining virtual machines and reduced dependence on undocumented manual sequences.",
+      "limitations": "IaC coverage continued to evolve; this does not claim complete automation of every resource or service.",
+      "evidence": "A sanitized summary of the dossier and owner confirmation. Inventories, hostnames, addresses, topology, and employer configuration are excluded.",
+      "lessons": [
+        "The platform beneath automation must be stable first.",
+        "Clear provisioning and configuration boundaries improve ownership and failure analysis."
+      ]
+    },
+    "fa": {
+      "intro": "بستر مجازی‌سازی و مسیر زیرساخت به‌عنوان کد، کارهای تکراری سرور را به مدلی منسجم‌تر و مستندتر نزدیک کرد.",
+      "context": "با رشد محیط، تأمین و پیکربندی دستی ماشین‌ها نتیجه را به مراحل فردی و حافظهٔ اشخاص وابسته می‌کرد.",
+      "contribution": [
+        "نصب و پیکربندی پایهٔ VMware ESXi و vCenter.",
+        "توسعهٔ تعریف‌های Terraform برای تأمین منابع و خودکارسازی Ansible برای پیکربندی.",
+        "تفکیک قصد زیرساخت، ساخت ماشین و آماده‌سازی سیستم‌عامل در فرایند."
+      ],
+      "approach": [
+        {
+          "title": "ایجاد لایهٔ کنترل",
+          "description": "پیش از افزودن خودکارسازی، پایهٔ VMware ایجاد شد."
+        },
+        {
+          "title": "تأمین، سپس پیکربندی",
+          "description": "Terraform چرخهٔ منابع و Ansible وضعیت سیستم را مدیریت کرد."
+        },
+        {
+          "title": "گسترش صادقانهٔ پوشش",
+          "description": "IaC بدون ادعای مدیریت کامل همهٔ سامانه‌ها با کد به کار رفت."
+        }
+      ],
+      "outcome": "این کار پایه‌ای استانداردتر برای ایجاد و نگهداری ماشین‌های مجازی فراهم کرد و وابستگی به مراحل ثبت‌نشده را کاهش داد.",
+      "limitations": "پوشش IaC در حال تکامل بود و ادعای خودکارسازی کامل همهٔ منابع وجود ندارد.",
+      "evidence": "خلاصه‌ای امن از پرونده و تأیید مالک است؛ inventory، نام میزبان، نشانی، توپولوژی و پیکربندی حذف شده‌اند.",
+      "lessons": [
+        "پیش از خودکارسازی باید بستر زیرین را تثبیت کرد.",
+        "مرز روشن میان تأمین و پیکربندی، مالکیت و تحلیل خطا را ساده‌تر می‌کند."
+      ]
+    }
+  },
+  "diagram": {
+    "en": {
+      "title": "Infrastructure workflow",
+      "steps": [
+        "Versioned definitions",
+        "Terraform",
+        "vCenter and ESXi",
+        "Virtual machines",
+        "Ansible"
+      ]
+    },
+    "fa": {
+      "title": "فرایند زیرساخت",
+      "steps": [
+        "تعریف‌های نسخه‌دار",
+        "Terraform",
+        "vCenter و ESXi",
+        "ماشین‌های مجازی",
+        "Ansible"
+      ]
+    }
+  },
+  "priority": 140
+}

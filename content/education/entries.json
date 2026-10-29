@@ -1,1 +1,21 @@
-[]
+[
+  {
+    "id": "computer-engineering-masters-level-yazd",
+    "visible": true,
+    "locales": {
+      "en": {
+        "title": "Master’s-level Computer Engineering",
+        "summary": "Graduate-level study in Computer Engineering at Yazd University. Enrollment or graduation status and dates are intentionally not stated until confirmed.",
+        "description": "Academic work included software-development exploration and the Camran educational MVP; it is not presented as a production financial platform."
+      },
+      "fa": {
+        "title": "تحصیل در مقطع کارشناسی ارشد مهندسی کامپیوتر",
+        "summary": "تحصیل در سطح کارشناسی ارشد مهندسی کامپیوتر در دانشگاه یزد. وضعیت دانشجویی یا فارغ‌التحصیلی و تاریخ‌ها تا زمان تأیید عمداً ذکر نشده‌اند.",
+        "description": "فعالیت دانشگاهی شامل تجربهٔ توسعهٔ نرم‌افزار و نمونهٔ آموزشی کامران بوده است؛ این نمونه به‌عنوان سامانهٔ مالی عملیاتی معرفی نمی‌شود."
+      }
+    },
+    "organization": "Yazd University",
+    "technologies": ["Computer Engineering", "Software Development"],
+    "priority": 10
+  }
+]

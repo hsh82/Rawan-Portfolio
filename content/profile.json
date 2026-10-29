@@ -1,5 +1,10 @@
 {
-  "visible": false,
-  "name": "",
-  "image": "/images/profile/placeholder.svg"
+  "visible": true,
+  "name": "Hamed Sheikhan",
+  "image": "media/profile/profile-portrait.svg",
+  "resumeImage": "media/profile/profile.svg",
+  "imageAlt": {
+    "en": "Profile illustration for Hamed Sheikhan",
+    "fa": "تصویر جایگزین نمایهٔ حامد شیخان"
+  }
 }

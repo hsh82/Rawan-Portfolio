@@ -1,0 +1,37 @@
+{
+  "id": "segmented-network-opnsense",
+  "kind": "overview",
+  "translationId": "project-segmented-network-opnsense",
+  "slug": "overview",
+  "category": "projects",
+  "projectCategory": "networking-security",
+  "status": "published",
+  "visible": true,
+  "featured": false,
+  "publication": "public-sanitized",
+  "maturity": "organizational",
+  "secondaryCategories": [
+    "infrastructure-automation"
+  ],
+  "role": {
+    "en": "Network design and implementation",
+    "fa": "طراحی و پیاده‌سازی شبکه"
+  },
+  "technologies": [
+    "OPNsense",
+    "VLAN",
+    "DNS",
+    "TLS/HTTPS"
+  ],
+  "journeyIds": [
+    "infrastructure-and-secure-access"
+  ],
+  "relatedSkillIds": [
+    "network-secure-access"
+  ],
+  "relatedProjectIds": [
+    "wireguard-vpn-gateway"
+  ],
+  "articleIds": [],
+  "priority": 90
+}

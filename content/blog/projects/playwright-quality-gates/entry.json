@@ -1,0 +1,36 @@
+{
+  "id": "playwright-quality-gates",
+  "kind": "overview",
+  "translationId": "project-playwright-quality-gates",
+  "slug": "overview",
+  "category": "projects",
+  "projectCategory": "devops-delivery",
+  "status": "published",
+  "visible": true,
+  "featured": false,
+  "publication": "public-sanitized",
+  "maturity": "organizational",
+  "secondaryCategories": [],
+  "role": {
+    "en": "Environment and quality-gate implementation",
+    "fa": "پیاده‌سازی محیط و کنترل کیفیت"
+  },
+  "technologies": [
+    "Playwright",
+    "Docker Compose",
+    "GitLab CI/CD",
+    "Quality Gates"
+  ],
+  "journeyIds": [
+    "transition-to-devops"
+  ],
+  "relatedSkillIds": [
+    "cicd-quality",
+    "containers-delivery"
+  ],
+  "relatedProjectIds": [
+    "cicd-release-platform"
+  ],
+  "articleIds": [],
+  "priority": 80
+}

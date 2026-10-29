@@ -1,0 +1,38 @@
+{
+  "id": "private-devops-platform",
+  "kind": "overview",
+  "translationId": "project-private-devops-platform",
+  "slug": "overview",
+  "category": "projects",
+  "projectCategory": "devops-delivery",
+  "status": "published",
+  "visible": true,
+  "featured": false,
+  "publication": "public-sanitized",
+  "maturity": "organizational",
+  "secondaryCategories": [
+    "infrastructure-automation"
+  ],
+  "role": {
+    "en": "Registry integration and delivery resilience",
+    "fa": "یکپارچه‌سازی رجیستری و پایداری تحویل"
+  },
+  "technologies": [
+    "Harbor",
+    "Nexus",
+    "Docker",
+    "GitLab CI/CD"
+  ],
+  "journeyIds": [
+    "transition-to-devops"
+  ],
+  "relatedSkillIds": [
+    "containers-delivery",
+    "cicd-quality"
+  ],
+  "relatedProjectIds": [
+    "cicd-release-platform"
+  ],
+  "articleIds": [],
+  "priority": 75
+}

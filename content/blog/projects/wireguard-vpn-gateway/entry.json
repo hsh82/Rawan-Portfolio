@@ -1,0 +1,35 @@
+{
+  "id": "wireguard-vpn-gateway",
+  "kind": "overview",
+  "translationId": "project-wireguard-vpn-gateway",
+  "slug": "overview",
+  "category": "projects",
+  "projectCategory": "networking-security",
+  "status": "published",
+  "visible": true,
+  "featured": false,
+  "publication": "public-sanitized",
+  "maturity": "organizational",
+  "secondaryCategories": [],
+  "role": {
+    "en": "Secure-connectivity implementation",
+    "fa": "پیاده‌سازی ارتباطات امن"
+  },
+  "technologies": [
+    "WireGuard",
+    "VPN Gateway",
+    "OPNsense",
+    "Linux"
+  ],
+  "journeyIds": [
+    "infrastructure-and-secure-access"
+  ],
+  "relatedSkillIds": [
+    "network-secure-access"
+  ],
+  "relatedProjectIds": [
+    "segmented-network-opnsense"
+  ],
+  "articleIds": [],
+  "priority": 85
+}

@@ -1,0 +1,123 @@
+{
+  "id": "utils-devops-python",
+  "kind": "overview",
+  "translationId": "project-utils-devops-python",
+  "slug": "overview",
+  "category": "projects",
+  "projectCategory": "infrastructure-automation",
+  "status": "published",
+  "visible": true,
+  "featured": true,
+  "publication": "public-sanitized",
+  "maturity": "internal-utility",
+  "secondaryCategories": [
+    "devops-delivery"
+  ],
+  "role": {
+    "en": "Library author and maintainer",
+    "fa": "توسعه‌دهنده و نگهدارندهٔ کتابخانه"
+  },
+  "technologies": [
+    "Python",
+    "Bash",
+    "Docker",
+    "GitLab CI/CD",
+    "Linux"
+  ],
+  "journeyIds": [
+    "cicd-standardization"
+  ],
+  "relatedSkillIds": [
+    "scripting-documentation",
+    "cicd-quality",
+    "containers-delivery"
+  ],
+  "relatedProjectIds": [
+    "cicd-release-platform",
+    "infrastructure-as-code-vmware"
+  ],
+  "articleIds": [],
+  "caseStudy": {
+    "en": {
+      "intro": "Utils_Devops turns recurring operational code into a shared Python toolkit instead of rewriting fragile helper logic inside individual scripts.",
+      "context": "Delivery and infrastructure tasks repeatedly needed similar command execution, configuration, logging, and integration behavior.",
+      "contribution": [
+        "Authored and used the internal Python library for recurring operations work.",
+        "Extracted proven behavior into reusable interfaces instead of expanding isolated scripts.",
+        "Separated implemented utility work from proposed architecture for future evolution."
+      ],
+      "approach": [
+        {
+          "title": "Extract from real use",
+          "description": "Promoted behavior only where practical needs justified a shared abstraction."
+        },
+        {
+          "title": "Keep boundaries explicit",
+          "description": "Used focused interfaces around external tools so failures could be handled consistently."
+        },
+        {
+          "title": "Separate roadmap from product",
+          "description": "Proposed modules are design direction, not evidence that every API exists."
+        }
+      ],
+      "outcome": "The toolkit provides a maintainable place for shared operational behavior and more consistent automation where it is used.",
+      "limitations": "The package is internal and no public repository or PyPI release is claimed. Its complete module inventory needs a separate code audit.",
+      "evidence": "Based on the dossier and direct authorship confirmation, while excluding private code and design-only APIs from public claims.",
+      "lessons": [
+        "Useful internal libraries should emerge from repeated needs.",
+        "Design documents must distinguish implemented capability from proposed interfaces."
+      ]
+    },
+    "fa": {
+      "intro": "Utils_Devops کدهای تکراری عملیات را به ابزار مشترک Python تبدیل می‌کند تا منطق کمکی در اسکریپت‌های جداگانه بازنویسی نشود.",
+      "context": "کارهای تحویل و زیرساخت بارها به رفتارهای مشابه برای اجرای فرمان، پیکربندی، ثبت رویداد و یکپارچه‌سازی نیاز داشتند.",
+      "contribution": [
+        "نوشتن و استفاده از کتابخانهٔ داخلی Python در عملیات.",
+        "استخراج رفتارهای آزموده‌شده به رابط‌های مشترک به‌جای گسترش اسکریپت‌های منفرد.",
+        "تفکیک ابزارهای پیاده‌سازی‌شده از معماری پیشنهادی آینده."
+      ],
+      "approach": [
+        {
+          "title": "استخراج از کاربرد واقعی",
+          "description": "رفتارها تنها با توجیه نیاز عملی به کتابخانه منتقل شدند."
+        },
+        {
+          "title": "مرزهای روشن",
+          "description": "رابط‌های محدود پیرامون ابزارهای خارجی، مدیریت هماهنگ خطا را حفظ کردند."
+        },
+        {
+          "title": "تفکیک نقشهٔ راه از محصول",
+          "description": "ماژول‌های پیشنهادی، مدرک پیاده‌سازی همهٔ APIها نیستند."
+        }
+      ],
+      "outcome": "این ابزار محل نگهداری‌پذیری برای رفتارهای مشترک ایجاد کرده و خودکارسازی هماهنگ‌تری فراهم می‌کند.",
+      "limitations": "کتابخانه داخلی است و انتشار عمومی GitHub یا PyPI ادعا نمی‌شود. فهرست کامل ماژول‌ها به ممیزی کد نیاز دارد.",
+      "evidence": "بر پرونده و تأیید نویسندگی مالک استوار است و کد خصوصی و APIهای پیشنهادی را از ادعاهای عمومی حذف می‌کند.",
+      "lessons": [
+        "کتابخانهٔ مفید باید از نیازهای تکرارشونده شکل بگیرد.",
+        "سند طراحی باید قابلیت موجود را از رابط پیشنهادی جدا کند."
+      ]
+    }
+  },
+  "diagram": {
+    "en": {
+      "title": "Reusable operations layer",
+      "steps": [
+        "Delivery workflows",
+        "Shared Python interfaces",
+        "Tool adapters",
+        "Infrastructure services"
+      ]
+    },
+    "fa": {
+      "title": "لایهٔ مشترک عملیات",
+      "steps": [
+        "فرایندهای تحویل",
+        "رابط‌های مشترک Python",
+        "مبدل‌های ابزار",
+        "سرویس‌های زیرساخت"
+      ]
+    }
+  },
+  "priority": 130
+}

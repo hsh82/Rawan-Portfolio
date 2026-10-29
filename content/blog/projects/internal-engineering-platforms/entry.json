@@ -1,0 +1,37 @@
+{
+  "id": "internal-engineering-platforms",
+  "kind": "overview",
+  "translationId": "project-internal-engineering-platforms",
+  "slug": "overview",
+  "category": "projects",
+  "projectCategory": "infrastructure-automation",
+  "status": "published",
+  "visible": true,
+  "featured": false,
+  "publication": "public-sanitized",
+  "maturity": "organizational",
+  "secondaryCategories": [],
+  "role": {
+    "en": "Platform integration and operations",
+    "fa": "یکپارچه‌سازی و عملیات پلتفرم"
+  },
+  "technologies": [
+    "GitLab",
+    "Jira",
+    "Confluence",
+    "Keycloak",
+    "Linux"
+  ],
+  "journeyIds": [
+    "cicd-standardization"
+  ],
+  "relatedSkillIds": [
+    "scripting-documentation",
+    "infrastructure-virtualization"
+  ],
+  "relatedProjectIds": [
+    "private-devops-platform"
+  ],
+  "articleIds": [],
+  "priority": 60
+}

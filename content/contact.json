@@ -1,10 +1,13 @@
 {
-  "email": "",
+  "email": "sh.sheikhan.m@gmail.com",
   "phone": "",
-  "location": "",
-  "socials": [],
+  "location": "Isfahan, Iran",
+  "socials": [
+    { "label": "GitHub", "url": "https://github.com/hsh82" },
+    { "label": "LinkedIn", "url": "https://www.linkedin.com/in/hamedsheikhan/" }
+  ],
   "locales": {
-    "en": { "title": "Let’s connect", "intro": "Add your preferred contact methods in content/contact.json." },
-    "fa": { "title": "در ارتباط باشیم", "intro": "راه‌های ارتباطی خود را در content/contact.json اضافه کنید." }
+    "en": { "title": "Let’s connect", "intro": "For opportunities involving DevOps, infrastructure automation, reliable software delivery, secure connectivity, or practical internal engineering tools, reach out by email or connect through GitHub and LinkedIn." },
+    "fa": { "title": "در ارتباط باشیم", "intro": "برای فرصت‌های همکاری در حوزهٔ DevOps، خودکارسازی زیرساخت، تحویل قابل‌اتکای نرم‌افزار، ارتباطات امن یا توسعهٔ ابزارهای فنی داخلی، از طریق ایمیل، GitHub یا LinkedIn در ارتباط باشید." }
   }
 }

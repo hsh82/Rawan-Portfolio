@@ -1,0 +1,126 @@
+{
+  "id": "rahban-access-gateway",
+  "kind": "overview",
+  "translationId": "project-rahban-access-gateway",
+  "slug": "overview",
+  "category": "projects",
+  "projectCategory": "software-open-source",
+  "status": "published",
+  "visible": true,
+  "featured": true,
+  "publication": "public-sanitized",
+  "maturity": "internal-pilot",
+  "secondaryCategories": [
+    "networking-security"
+  ],
+  "role": {
+    "en": "Primary implementation and integration",
+    "fa": "پیاده‌سازی و یکپارچه‌سازی اصلی"
+  },
+  "technologies": [
+    "RustGuac",
+    "Apache Guacamole",
+    "Keycloak",
+    "HashiCorp Vault",
+    "vCenter",
+    "Docker"
+  ],
+  "journeyIds": [
+    "cicd-standardization"
+  ],
+  "relatedSkillIds": [
+    "network-secure-access",
+    "containers-delivery",
+    "scripting-documentation"
+  ],
+  "relatedProjectIds": [
+    "infrastructure-as-code-vmware",
+    "internal-dns-tls-access"
+  ],
+  "articleIds": [],
+  "caseStudy": {
+    "en": {
+      "intro": "Rahban explores how browser-based access to server and demonstration environments can be governed through one internal entry point without distributing machine credentials to every user.",
+      "context": "A growing set of Windows and Linux environments was reached through scattered tools and procedures. The challenge was to create a coherent access layer without implementing remote-desktop protocols from scratch.",
+      "contribution": [
+        "Evaluated gateway foundations and selected RustGuac as the extensible upstream core.",
+        "Integrated Keycloak for identity, Vault for credential handling, and vCenter for machine discovery and controls.",
+        "Improved the interface and PWA behavior, then prepared a reproducible multi-stage Docker deployment."
+      ],
+      "approach": [
+        {
+          "title": "Extend a proven core",
+          "description": "Kept protocol handling in RustGuac and guacd while concentrating original work on product integration and operational fit."
+        },
+        {
+          "title": "Separate trust concerns",
+          "description": "Connected identity, secrets, and virtual-machine management as distinct services."
+        },
+        {
+          "title": "Package the pilot",
+          "description": "Used containerized builds and installation steps to make internal evaluation repeatable."
+        }
+      ],
+      "outcome": "The work produced a functioning internal pilot for controlled browser-based access and a clearer path toward a shared access-platform capability.",
+      "limitations": "This is an internal pilot. Production hardening, monitoring, backup, and recovery validation remained incomplete at the documented checkpoint.",
+      "evidence": "This account is sanitized from the owner’s dossier and implementation confirmation. RustGuac and guacd are credited as upstream; employer source, screenshots, endpoints, and usage metrics remain private.",
+      "lessons": [
+        "Focused integration can create more value than reimplementing mature protocol infrastructure.",
+        "Pilot maturity should be explicit while security and recovery work is evolving."
+      ]
+    },
+    "fa": {
+      "intro": "رهبان بررسی می‌کند چگونه می‌توان دسترسی مرورگری به سرورها و محیط‌های نمایشی را از یک نقطهٔ ورود داخلی مدیریت کرد، بدون توزیع اطلاعات ورود ماشین‌ها میان کاربران.",
+      "context": "با افزایش محیط‌های Windows و Linux، ابزارها و رویه‌های پراکنده به مانعی برای کنترل و نگهداری تبدیل شده بودند. هدف ساخت لایه‌ای منسجم‌تر، بدون بازنویسی پروتکل‌های دسترسی راه‌دور بود.",
+      "contribution": [
+        "بررسی گزینه‌ها و انتخاب RustGuac به‌عنوان هستهٔ متن‌باز قابل توسعه.",
+        "یکپارچه‌سازی Keycloak برای هویت، Vault برای اطلاعات ورود و vCenter برای کشف و کنترل ماشین‌ها.",
+        "بهبود رابط و PWA و آماده‌سازی استقرار بازتولیدپذیر با Docker چندمرحله‌ای."
+      ],
+      "approach": [
+        {
+          "title": "توسعه بر هسته‌ای آزموده‌شده",
+          "description": "مدیریت پروتکل‌ها به RustGuac و guacd سپرده شد و توسعهٔ اصلی بر یکپارچه‌سازی محصول متمرکز ماند."
+        },
+        {
+          "title": "تفکیک حوزه‌های اعتماد",
+          "description": "هویت، اسرار و مدیریت ماشین مجازی به‌صورت سرویس‌های مجزا متصل شدند."
+        },
+        {
+          "title": "بسته‌بندی پایلوت",
+          "description": "ساخت کانتینری، محیط را برای ارزیابی داخلی تکرارپذیرتر کرد."
+        }
+      ],
+      "outcome": "خروجی، پایلوتی داخلی برای دسترسی کنترل‌شده از مرورگر و مسیری روشن‌تر برای یک قابلیت مشترک پلتفرمی بود.",
+      "limitations": "رهبان در مرحلهٔ پایلوت داخلی است. سخت‌سازی کامل، پایش و اعتبارسنجی پشتیبان‌گیری و بازیابی هنوز تکمیل نشده بود.",
+      "evidence": "شرح عمومی از پرونده و تأیید مالک به‌صورت امن خلاصه شده است. RustGuac و guacd پایهٔ upstream هستند و کد، تصویر، نشانی و آمار داخلی منتشر نمی‌شود.",
+      "lessons": [
+        "یک لایهٔ یکپارچه‌سازی هدفمند می‌تواند از بازنویسی زیرساخت بالغ ارزشمندتر باشد.",
+        "بلوغ پایلوت باید تا تکمیل امنیت و بازیابی شفاف بیان شود."
+      ]
+    }
+  },
+  "diagram": {
+    "en": {
+      "title": "Sanitized access flow",
+      "steps": [
+        "User browser",
+        "Rahban integration",
+        "Identity and secrets",
+        "guacd gateway",
+        "Managed hosts"
+      ]
+    },
+    "fa": {
+      "title": "جریان ساده‌شدهٔ دسترسی",
+      "steps": [
+        "مرورگر کاربر",
+        "یکپارچه‌سازی رهبان",
+        "هویت و اسرار",
+        "درگاه guacd",
+        "ماشین‌های مدیریت‌شده"
+      ]
+    }
+  },
+  "priority": 160
+}

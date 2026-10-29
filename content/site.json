@@ -3,16 +3,24 @@
   "defaultLocale": "fa",
   "locales": {
     "en": {
-      "title": "Rawan Portfolio",
-      "description": "A bilingual, content-driven portfolio by Rawan.",
+      "title": "Hamed Sheikhan | DevOps Engineer",
+      "description": "DevOps Engineer focused on reliable software delivery, infrastructure automation, virtualization, secure connectivity, and maintainable internal engineering tools.",
       "homeLabel": "Home",
-      "footerCta": { "title": "Keep building", "description": "Add your articles and project notes to create a useful technical portfolio.", "button": "Browse the blog" }
+      "footerCta": {
+        "title": "Engineering notes",
+        "description": "Technical writing and reviewed project documentation will be published here when ready.",
+        "button": "Open the blog"
+      }
     },
     "fa": {
-      "title": "پورتفولیوی روان",
-      "description": "پورتفولیویی دوزبانه و محتوامحور برای روان.",
+      "title": "حامد شیخان | مهندس DevOps",
+      "description": "مهندس DevOps با تمرکز بر تحویل قابل‌اتکای نرم‌افزار، خودکارسازی زیرساخت، مجازی‌سازی، ارتباطات امن و ابزارهای داخلی نگهداری‌پذیر.",
       "homeLabel": "خانه",
-      "footerCta": { "title": "به ساختن ادامه دهید", "description": "مقاله‌ها و یادداشت‌های پروژهٔ خود را اضافه کنید تا کارنامه‌ای فنی بسازید.", "button": "مشاهدهٔ وبلاگ" }
+      "footerCta": {
+        "title": "یادداشت‌های مهندسی",
+        "description": "مقاله‌های فنی و مستندات بازبینی‌شدهٔ پروژه‌ها پس از آماده‌شدن در این بخش منتشر می‌شوند.",
+        "button": "مشاهدهٔ وبلاگ"
+      }
     }
   }
 }

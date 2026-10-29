@@ -1,0 +1,31 @@
+{
+  "id": "frappe-draw-rtl",
+  "kind": "overview",
+  "translationId": "project-frappe-draw-rtl",
+  "slug": "overview",
+  "category": "projects",
+  "projectCategory": "software-open-source",
+  "status": "draft",
+  "visible": false,
+  "featured": false,
+  "publication": "requires-review",
+  "maturity": "experimental-open-source",
+  "secondaryCategories": [],
+  "role": {
+    "en": "Contribution scope pending commit audit",
+    "fa": "دامنهٔ مشارکت در انتظار بررسی commitها"
+  },
+  "technologies": [
+    "Frappe Draw",
+    "JavaScript",
+    "RTL"
+  ],
+  "repository": "https://github.com/hsh82/frappe-draw",
+  "journeyIds": [],
+  "relatedSkillIds": [
+    "software-design"
+  ],
+  "relatedProjectIds": [],
+  "articleIds": [],
+  "priority": 50
+}

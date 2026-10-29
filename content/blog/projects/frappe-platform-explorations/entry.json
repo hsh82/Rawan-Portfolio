@@ -1,0 +1,28 @@
+{
+  "id": "frappe-platform-explorations",
+  "kind": "overview",
+  "translationId": "project-frappe-platform-explorations",
+  "slug": "overview",
+  "category": "projects",
+  "projectCategory": "software-open-source",
+  "status": "draft",
+  "visible": false,
+  "featured": false,
+  "publication": "planned-or-experimental",
+  "maturity": "under-development",
+  "secondaryCategories": [],
+  "role": {
+    "en": "Exploration in progress",
+    "fa": "بررسی در حال انجام"
+  },
+  "technologies": [
+    "Frappe"
+  ],
+  "journeyIds": [],
+  "relatedSkillIds": [
+    "software-design"
+  ],
+  "relatedProjectIds": [],
+  "articleIds": [],
+  "priority": 30
+}

@@ -1,0 +1,36 @@
+{
+  "id": "camran-cashback-mvp",
+  "kind": "overview",
+  "translationId": "project-camran-cashback-mvp",
+  "slug": "overview",
+  "category": "projects",
+  "projectCategory": "software-open-source",
+  "status": "published",
+  "visible": true,
+  "featured": false,
+  "publication": "public-ready",
+  "maturity": "academic-mvp",
+  "secondaryCategories": [],
+  "role": {
+    "en": "Academic MVP adaptation and product concept",
+    "fa": "توسعهٔ نمونهٔ دانشگاهی و مفهوم محصول"
+  },
+  "technologies": [
+    "Next.js",
+    "TypeScript",
+    "React",
+    "RTL",
+    "Shadboard"
+  ],
+  "repository": "https://github.com/hsh82/camran",
+  "externalUrl": "https://camran.vercel.app/",
+  "journeyIds": [
+    "computer-engineering-studies-yazd"
+  ],
+  "relatedSkillIds": [
+    "software-design"
+  ],
+  "relatedProjectIds": [],
+  "articleIds": [],
+  "priority": 55
+}

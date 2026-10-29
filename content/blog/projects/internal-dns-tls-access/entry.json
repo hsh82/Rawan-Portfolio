@@ -1,0 +1,38 @@
+{
+  "id": "internal-dns-tls-access",
+  "kind": "overview",
+  "translationId": "project-internal-dns-tls-access",
+  "slug": "overview",
+  "category": "projects",
+  "projectCategory": "networking-security",
+  "status": "published",
+  "visible": true,
+  "featured": false,
+  "publication": "public-sanitized",
+  "maturity": "organizational",
+  "secondaryCategories": [
+    "infrastructure-automation"
+  ],
+  "role": {
+    "en": "Service-access implementation",
+    "fa": "پیاده‌سازی دسترسی به سرویس‌ها"
+  },
+  "technologies": [
+    "DNS",
+    "TLS/HTTPS",
+    "Nginx",
+    "Linux"
+  ],
+  "journeyIds": [
+    "infrastructure-and-secure-access"
+  ],
+  "relatedSkillIds": [
+    "network-secure-access",
+    "infrastructure-virtualization"
+  ],
+  "relatedProjectIds": [
+    "rahban-access-gateway"
+  ],
+  "articleIds": [],
+  "priority": 70
+}
