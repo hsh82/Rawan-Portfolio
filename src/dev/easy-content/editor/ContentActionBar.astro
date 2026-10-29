@@ -1,0 +1,62 @@
+---
+import { contentActions } from '../context.mjs';
+import type { Locale } from '../../../utils/i18n';
+
+interface Context {
+  type: 'home' | 'blog' | 'project' | 'article';
+  locale: Locale;
+  projectId?: string;
+  articleId?: string;
+  title?: string;
+  projectTitle?: string;
+}
+interface Props { context: Context; }
+const { context } = Astro.props;
+const enabled = import.meta.env.DEV && import.meta.env.EASY_CONTENT_MODE === 'true';
+const fa = context.locale === 'fa';
+const actions = contentActions(context);
+const contextTitle = context.type === 'home'
+  ? (fa ? 'خانه' : 'Home')
+  : context.type === 'blog'
+  ? (fa ? 'وبلاگ' : 'Blog')
+  : context.type === 'project'
+    ? (context.projectTitle || context.title || context.projectId || (fa ? 'پروژه' : 'Project'))
+    : (context.title || context.articleId || (fa ? 'مقاله' : 'Article'));
+const typeLabel = context.type === 'home' ? (fa ? 'خانه' : 'Home') : context.type === 'blog' ? (fa ? 'وبلاگ' : 'Blog') : context.type === 'project' ? (fa ? 'پروژه' : 'Project') : (fa ? 'مقاله' : 'Article');
+---
+
+{enabled && actions.length > 0 && <aside class="easy-content-action-bar" dir={fa ? 'rtl' : 'ltr'} aria-label={fa ? 'ابزارهای محتوای توسعه' : 'Developer content actions'}>
+  <div class="easy-content-action-bar__inner">
+    <div class="easy-content-action-bar__context">
+      <span class="easy-content-action-bar__badge">DEV CONTENT</span>
+      <nav aria-label={fa ? 'مسیر محتوا' : 'Content breadcrumb'}>
+        <a href={context.type === 'home' ? `/${context.locale}/` : `/${context.locale}/blog/`}>{context.type === 'home' ? (fa ? 'خانه' : 'Home') : (fa ? 'وبلاگ' : 'Blog')}</a>
+        <span aria-hidden="true">/</span>
+        <span>{contextTitle}</span>
+        {context.type === 'article' && <><span aria-hidden="true">/</span><span>{context.title || context.articleId}</span></>}
+      </nav>
+      <span class="easy-content-action-bar__type">{typeLabel}</span>
+    </div>
+    <div class="easy-content-action-bar__actions">
+      {actions.map(action => <a href={action.href} data-easy-content-action={action.id}>{action.label[context.locale]}</a>)}
+    </div>
+  </div>
+</aside>}
+
+<style>
+  .easy-content-action-bar { border-bottom: 1px solid rgb(10 132 255 / .16); background: color-mix(in srgb, #0a84ff 6%, transparent); color: var(--easy-content-text, #334155); }
+  .easy-content-action-bar__inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; width: min(100% - 3rem, 1180px); min-height: 2.65rem; margin: 0 auto; padding: .45rem 0; }
+  .easy-content-action-bar__context, .easy-content-action-bar__actions, .easy-content-action-bar__context nav { display: flex; align-items: center; flex-wrap: wrap; gap: .45rem; }
+  .easy-content-action-bar__context { min-width: 0; }
+  .easy-content-action-bar__context nav { color: #64748b; font-size: .74rem; }
+  .easy-content-action-bar__context nav span:last-child { color: #334155; font-weight: 600; }
+  .easy-content-action-bar__context nav a:hover, .easy-content-action-bar__actions a:hover { color: #0a84ff; }
+  .easy-content-action-bar__badge { color: #0a84ff; font: 700 .62rem/1 ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .12em; white-space: nowrap; }
+  .easy-content-action-bar__type { border-inline-start: 1px solid rgb(100 116 139 / .35); padding-inline-start: .55rem; color: #64748b; font-size: .68rem; }
+  .easy-content-action-bar__actions { flex: 0 0 auto; }
+  .easy-content-action-bar__actions a { border: 1px solid rgb(10 132 255 / .3); border-radius: .4rem; padding: .34rem .62rem; color: #0a84ff; font-size: .72rem; font-weight: 600; white-space: nowrap; transition: background .15s, color .15s; }
+  .easy-content-action-bar__actions a:first-child { background: rgb(10 132 255 / .1); }
+  .dark .easy-content-action-bar { --easy-content-text: #cbd5e1; border-color: rgb(96 165 250 / .22); background: rgb(10 132 255 / .09); }
+  .dark .easy-content-action-bar__context nav span:last-child { color: #e2e8f0; }
+  @media (max-width: 640px) { .easy-content-action-bar__inner { align-items: flex-start; flex-direction: column; width: min(100% - 2rem, 1180px); } .easy-content-action-bar__actions { width: 100%; } .easy-content-action-bar__actions a { flex: 1; text-align: center; } }
+</style>

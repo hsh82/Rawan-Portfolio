@@ -1,6 +1,7 @@
 ---
 import { Braces, GitMerge, Palette, ServerCog, ShieldCheck } from '@lucide/astro';
 import type { Locale } from '../../utils/i18n';
+import { technologyIcon } from '../../utils/skill-icons';
 
 interface Props {
   category: string;
@@ -9,9 +10,10 @@ interface Props {
   imageAlt?: string;
   diagram?: { title: string; steps: string[] };
   compact?: boolean;
+  icon?: string;
 }
 
-const { category, image, imageAlt = '', diagram, compact = false } = Astro.props;
+const { category, image, imageAlt = '', diagram, compact = false, icon } = Astro.props;
 const icons: Record<string, any> = {
   'devops-delivery': GitMerge,
   'infrastructure-automation': ServerCog,
@@ -19,7 +21,7 @@ const icons: Record<string, any> = {
   'software-open-source': Braces,
   'design-creative': Palette,
 };
-const Icon = icons[category] || Braces;
+const Icon = icon ? technologyIcon(icon) : icons[category] || Braces;
 ---
 
 {diagram && !compact ? (

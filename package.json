@@ -4,18 +4,24 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "npm run media:publish && astro dev",
+    "dev:content": "node scripts/dev-content.mjs",
     "start": "npm run media:publish && astro dev",
     "build": "npm run media:publish && npm run resume:generate && astro build && pagefind --site dist",
-    "preview": "astro preview",
+    "preview": "node scripts/preview.mjs",
+    "preview:content": "EASY_CONTENT_MODE=true node scripts/preview.mjs",
     "astro": "astro",
     "check": "astro check",
     "test:static": "node scripts/verify-build.mjs",
+    "test:content-api": "node scripts/content-query-test.mjs",
+    "test:easy-content": "node scripts/easy-content-test.mjs",
     "content:validate": "node scripts/content-validate.mjs",
     "content:check-links": "node scripts/content-check-links.mjs",
     "content:new": "node scripts/content-new.mjs",
+    "content:migrate-bilingual": "node scripts/content-migrate-bilingual.mjs",
+    "content:migrate-project-hubs": "node scripts/content-migrate-project-hubs.mjs",
     "resume:generate": "node scripts/resume-generate.mjs",
     "media:publish": "node scripts/media-publish.mjs",
-    "test": "npm run content:validate && npm run content:check-links && npm run test:static"
+    "test": "npm run content:validate && npm run content:check-links && npm run test:content-api && npm run test:easy-content && npm run test:static"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.14",
@@ -25,9 +31,11 @@
     "@fontsource/vazirmatn": "^5.3.0",
     "@lucide/astro": "^0.544.0",
     "@preact/compat": "^18.3.1",
+    "@vercel/analytics": "^2.0.1",
     "aos": "^2.3.4",
     "astro": "^5.7.13",
     "gsap": "^3.13.0",
+    "markmap-common": "^0.18.9",
     "markmap-lib": "^0.18.12",
     "markmap-view": "^0.18.12",
     "mermaid": "^11.17.2",
@@ -44,6 +52,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
+    "@emnapi/runtime": "^1.11.3",
     "typescript": "^5.9.3"
   }
 }

@@ -1,11 +1,12 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { relative, resolve } from 'node:path';
+import { normalizeBlogEntryId } from '../src/utils/blog-layout.mjs';
 
 const root = resolve(process.cwd(), 'content');
 const walk = (dir) => existsSync(dir) ? readdirSync(dir, { withFileTypes: true }).flatMap(item => item.isDirectory() ? walk(resolve(dir, item.name)) : [resolve(dir, item.name)]) : [];
 const blogRoot = resolve(root, 'blog');
 const files = walk(blogRoot).filter(file => /\.mdx?$/.test(file));
-const articleIds = new Set(files.map(file => relative(blogRoot, file).replace(/\.mdx?$/, '').replaceAll('\\', '/')));
+const articleIds = new Set(files.map(file => normalizeBlogEntryId(relative(blogRoot, file))).filter(id => !id.endsWith('/_index')));
 const categoryIds = new Set();
 for (const id of articleIds) {
   const folders = id.split('/').slice(1, -1);

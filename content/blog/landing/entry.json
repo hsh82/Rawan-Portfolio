@@ -1,0 +1,15 @@
+{
+  "id": "landing",
+  "kind": "landing",
+  "translationId": "blog-landing",
+  "slug": "blog",
+  "category": "blog",
+  "status": "draft",
+  "pubDate": "2026-10-29",
+  "tags": [
+    "projects",
+    "engineering"
+  ],
+  "featured": false,
+  "toc": false
+}

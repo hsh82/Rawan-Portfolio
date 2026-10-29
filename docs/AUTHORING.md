@@ -1,55 +1,69 @@
-# Article author guide
+# Content authoring
 
-Create a `.mdx` file at `content/blog/en/projects/<project-id>/new-topic.mdx`:
+Projects are knowledge hubs, not only cards. Keep shared metadata in `content/blog/projects/{project-id}/entry.json`, write the localized overview in sibling `en.mdx` and `fa.mdx`, and place focused articles in `articles/<slug>/`.
+
+## Add a project
+
+Create one project hub with a shared `entry.json` using the existing schema. The author-facing selection fields are:
+
+```json
+{
+  "id": "devops",
+  "status": "published",
+  "favorite": true,
+  "favoriteAt": "2026-10-29",
+  "status": "draft",
+  "role": { "en": "Engineer", "fa": "مهندس" }
+}
+```
+
+Then create `en.mdx` and `fa.mdx` in the same project folder. The editor derives the project ID from the title and generates the `overview` URL automatically. Save as Draft while either translation is incomplete; Publish validates both translations and makes the project public. The project card, homepage selection, Blog listing, breadcrumbs, and child-article list are derived automatically. The project remains available at `/{locale}/blog/projects/{project-id}/overview/`.
+
+## Add a child article
+
+```text
+content/blog/projects/devops/articles/cicd/entry.json
+content/blog/projects/devops/articles/cicd/en.mdx
+content/blog/projects/devops/articles/cicd/fa.mdx
+```
+
+Use the normal article frontmatter and keep the same `translationId` in both locales:
 
 ```mdx
 ---
-title: "New topic"
-description: "A concise summary."
-slug: new-topic
+title: CI/CD
+description: A concise, evidence-based explanation.
+slug: cicd
 locale: en
 category: projects
-subcategory: <project-id>
-tags: [Docker, Example]
-pubDate: 2026-10-27
-updatedDate: 2026-10-27
-draft: false
+subcategory: devops
+tags: [CI/CD]
+pubDate: 2026-10-29
+draft: true
 featured: false
-# Optional: cover: ./cover.svg
-translationId: new-topic
+translationId: devops-cicd
 toc: true
 ---
 
-## First section
-
-Write your article here.
+## The article
 ```
 
-The first folder is the locale; the next folders are category and subcategory. The filename, `slug`, and final URL segment must match. Category and subcategory fields must match folders. Adding a valid file creates its card, category route, and article page on the next build. A new subcategory creates a nested category view automatically. Set `draft: true` to omit a file from public pages, sitemap, and Pagefind. Set `featured: true` to place it in the landing page's featured area.
+Set `draft: false` only after both language files and the public evidence are ready. Images, code blocks, tables, Mermaid, Markmap, KaTeX, callouts, and other documented MDX components continue to use the existing article renderer.
 
-To translate, create the same relative path under `fa/`, write Persian content and metadata, set `locale: fa`, and use the same `translationId`. The switcher links matching published translations; if one is missing, it links to that language's blog landing page. An English article is never presented as a Persian translation.
+Run `npm run content:validate`, `npm run content:check-links`, `npm run test:content-api`, and `npm run build` before publication.
 
-For a card cover, place an image beside the MDX file and add `cover: ./cover.svg` to its frontmatter. Use absolute site paths for shared files in `public/`: `![Diagram](/images/pipeline.svg)` or `<Figure src="/images/pipeline.svg" alt="Pipeline" caption="Example pipeline" />`. Put PDF files under `public/docs/` and link them with `<AttachmentDownload href="/docs/file.pdf" label="Download the report" />`. Local page links use `/{locale}/blog/.../`. External links should use normal Markdown links; add `rel="noopener noreferrer"` to links you explicitly open in a new tab.
+## Easy Content Mode
 
-Fenced code blocks use Astro's Shiki highlighting. Name the language after the opening fence, such as `bash`, `ts`, or `yaml`. Copy buttons are added automatically. Inline code stays LTR inside Persian articles. Markdown tables, task lists, footnotes, and math are supported. Use headings from H2 onward; the reader supplies the H1 title and generates the table of contents.
+For local, developer-only editing, run `npm run dev:content`. On the Blog landing and project/article pages, this adds a contextual action bar below the normal site Header. Edit and creation actions open a full-page file-backed editor in Astro development mode; there is no popup editor. It requires no CMS or database and never commits, pushes, deploys, or writes outside the canonical `content/` tree. Read `design/architecture/easy-content.md` before using it.
 
-Reusable MDX components:
+The Studio at `/dev/content/` supports the Site, Profile, Contact, Résumé, Experience, Education, Certifications, Skills, Journey, Blog landing, project hubs, and child articles. General, English, and Persian fields share one editor route. Project card metadata and localized overview MDX remain in the same hub; child articles resolve the same parent Project. Source mode is authoritative for advanced MDX. Visual preview is read-only. Use Diff, Git status, and Validate before saving or publishing locally. New projects and articles default to drafts.
 
-```mdx
-<Callout type="tip" title="Tip">A short note.</Callout>
+Uploaded images are stored under `content/media/` and mirrored to `public/media/` for the current dev session. Use the returned logical `/media/...` path in the article or project content. The API accepts only loopback, same-origin requests and checks file revisions to prevent overwriting an external edit.
 
-<CodeBlock filename="scripts/build.sh" language="bash" code={`npm run build`} />
+## Existing article capabilities
 
-<MermaidDiagram label="Deployment flow" chart={`flowchart LR\n  A[Build] --> B[Deploy]`} />
+The filename, `slug`, and final URL segment must match. `category` and `subcategory` must match their folders. To translate an article, create the same relative path under `fa/`, use `locale: fa`, and keep the same `translationId`. If a translation is missing, the language switcher safely returns to that language’s Blog landing page.
 
-<MindMap label="Architecture" content={`# Architecture\n## App\n### Pages\n## Data\n### Files`} />
+Set `draft: true` to omit content from public pages, sitemap, RSS, and Pagefind. Optional local covers can sit beside the MDX file with `cover: ./cover.svg` and a locale-specific `coverAlt`. Shared public images use paths such as `![Diagram](/images/pipeline.svg)` or `<Figure src="/images/pipeline.svg" alt="Pipeline" caption="Example pipeline" />`. Put downloadable PDFs under `public/docs/` and use `<AttachmentDownload />`.
 
-<Tabs labels={['Local', 'CI']}>
-<div><code>npm run build</code></div>
-<div><code>npm ci &amp;&amp; npm run build</code></div>
-</Tabs>
-```
-
-Mermaid accepts flowcharts, sequence, state, Gantt, entity relationship, and supported mindmap syntax. Markmap accepts Markdown headings or lists. Both render only when scrolled near the viewport and have text fallbacks. Mermaid uses strict security mode. Diagram text and code examples should be authored as trusted repository content.
-
-Use `<details><summary>More</summary>Content</details>` for collapsible sections. Keep attached assets small, give figures descriptive alt text, and test both locale routes with `npm run build && npm run preview` before publishing.
+Fenced `bash`, `ts`, `yaml`, and other code blocks receive Shiki highlighting and copy controls. Markdown tables, task lists, footnotes, math, blockquotes, headings/anchors, callouts, Mermaid, Markmap, Tabs, and collapsible details remain supported by the existing reader. Use headings from H2 onward because the reader supplies the article H1 and table of contents.

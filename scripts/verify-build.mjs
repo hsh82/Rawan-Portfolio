@@ -1,13 +1,21 @@
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { normalizeBlogEntryId } from '../src/utils/blog-layout.mjs';
 const root = new URL('../', import.meta.url).pathname;
 const dist = join(root, 'dist');
 const content = join(root, 'content/blog');
-const projectsFile = join(root, 'content/projects/entries.json');
-const projects = existsSync(projectsFile) ? JSON.parse(readFileSync(projectsFile, 'utf8')) : [];
+const projectRoot = join(root, 'content/blog/projects');
+const projects = existsSync(projectRoot) ? readdirSync(projectRoot, { withFileTypes: true })
+  .filter(entry => entry.isDirectory() && existsSync(join(projectRoot, entry.name, 'entry.json')))
+  .map(entry => JSON.parse(readFileSync(join(projectRoot, entry.name, 'entry.json'), 'utf8'))) : [];
 const walk = dir => readdirSync(dir, { withFileTypes: true }).flatMap(entry => entry.isDirectory() ? walk(join(dir, entry.name)) : [join(dir, entry.name)]);
-const files = existsSync(content) ? walk(content).filter(file => /\.mdx?$/.test(file)) : [];
+const files = existsSync(content) ? walk(content).filter(file => /\.mdx?$/.test(file) && !normalizeBlogEntryId(relative(content, file)).endsWith('/_index')) : [];
 const sitemap = readFileSync(join(dist, 'sitemap-0.xml'), 'utf8');
+for (const file of walk(dist).filter(file => file.endsWith('.html'))) {
+  const html = readFileSync(file, 'utf8');
+  if (/easy-content-open|easy-content-editor|easy-content-action-bar|DEV CONTENT|__easy-content\/api|\/dev\/content\//.test(html)) throw new Error(`Development content controls leaked into production: ${relative(dist, file)}`);
+}
+if (existsSync(join(dist, 'dev'))) throw new Error('Easy Content editor routes were generated in production');
 for (const locale of ['en', 'fa']) {
   for (const path of [`${locale}/index.html`, `${locale}/blog/index.html`, `${locale}/rss.xml`]) {
     if (!existsSync(join(dist, path))) throw new Error(`Missing static route: ${path}`);
@@ -52,7 +60,7 @@ for (const locale of ['en', 'fa']) {
 let published = 0;
 for (const file of files) {
   const body = readFileSync(file, 'utf8');
-  const id = relative(content, file).replace(/\.mdx?$/, '').replaceAll('\\', '/');
+  const id = normalizeBlogEntryId(relative(content, file));
   const route = `/${id.split('/')[0]}/blog/${id.split('/').slice(1).join('/')}/`;
   const output = join(dist, route, 'index.html');
   const isDraft = /^draft:\s*true\s*$/m.test(body);

@@ -17,6 +17,13 @@
     "imprint": "Imprint",
     "privacyPolicy": "Privacy Policy"
   },
+  "errors": {
+    "notFoundLabel": "Page not found",
+    "notFoundTitle": "This page is not here",
+    "notFoundDescription": "The address may be outdated or the page may have moved. Return to the portfolio or go back to the previous page.",
+    "backHome": "Return home",
+    "goBack": "Go back"
+  },
   "blog": {
     "title": "Project journal",
     "intro": "Evidence-based project write-ups, engineering notes, and selected technical documentation.",
@@ -43,6 +50,13 @@
     "copied": "Copied",
     "back": "Back to blog",
     "sample": "Project reading",
+    "projectHubsLabel": "Knowledge hubs",
+    "favoriteProjects": "Favorite projects",
+    "viewProjects": "View all projects",
+    "projectHubLabel": "Project hub",
+    "projectArticlesLabel": "In this project",
+    "projectArticles": "Articles in this project",
+    "backToProject": "Back to project",
     "noResults": "No articles match your filters.",
     "page": "Page",
     "of": "of",

@@ -1,14 +1,14 @@
 ---
 import type { Locale } from '../../utils/i18n';
-import { localizedValue, publicItems, portfolio, publicMediaPath } from '../../utils/portfolio-content';
+import { homepageProjects, publishedProjects, projectUrl, localizedValue, publicMediaPath } from '../../utils/content-api';
 import { technologyIcon } from '../../utils/skill-icons';
 import EmptyState from './EmptyState.astro';
 import ProjectVisual from './ProjectVisual.astro';
 
-interface Props { lang: Locale; featuredOnly?: boolean; showFilters?: boolean; }
-const { lang, featuredOnly = false, showFilters = false } = Astro.props;
-const all = publicItems(portfolio().projects as any[]);
-const projects = featuredOnly ? all.filter((project: any) => project.featured) : all;
+interface Props { lang: Locale; featuredOnly?: boolean; showFilters?: boolean; projects?: any[]; limit?: number; }
+const { lang, featuredOnly = false, showFilters = false, projects: providedProjects, limit = 6 } = Astro.props;
+const all = providedProjects || (featuredOnly ? homepageProjects(limit) : publishedProjects());
+const projects = all.slice(0, featuredOnly ? limit : all.length);
 const categories: Record<string, { en: string; fa: string }> = {
   'devops-delivery': { en: 'DevOps & Delivery', fa: 'DevOps و تحویل' },
   'infrastructure-automation': { en: 'Infrastructure & Automation', fa: 'زیرساخت و خودکارسازی' },
@@ -39,10 +39,10 @@ const usedCategories = Object.keys(categories).filter(category => projects.some(
     {projects.map((project: any) => {
       const copy = localizedValue(project.locales, lang);
       const role = project.role?.[lang];
-      const articleHref = `/${lang}/blog/projects/${project.id}/overview/`;
+      const articleHref = projectUrl(lang, project);
       return (
         <article class="project-card" data-project-card data-categories={[project.category, ...(project.secondaryCategories || [])].join(' ')}>
-          <ProjectVisual category={project.category} lang={lang} compact image={publicMediaPath(project.image)} imageAlt={project.imageAlt?.[lang]} />
+          <ProjectVisual category={project.category} lang={lang} compact icon={project.icon} image={publicMediaPath(project.image)} imageAlt={project.imageAlt?.[lang]} />
           <div class="project-card__body">
             <div class="project-card__meta"><span>{label(categories, project.category)}</span><span>{label(maturity, project.maturity)}</span></div>
             <h2><a href={articleHref} class="stretched-link">{copy.title}</a></h2>

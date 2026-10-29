@@ -2,5 +2,23 @@
 import { portfolio } from '../utils/portfolio-content';
 
 const { defaultLocale } = portfolio().site;
-return Astro.redirect(`/${defaultLocale}/`, 308);
+const destination = `/${defaultLocale}/`;
 ---
+
+<!doctype html>
+<html lang="en" data-redirect={destination}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="refresh" content={`0;url=${destination}`} />
+    <script is:inline>
+      window.location.replace(document.documentElement.dataset.redirect || '/en/');
+    </script>
+    <title>Redirecting</title>
+    <style>html,body{margin:0;background:#fff}body{display:none}</style>
+    <noscript><style>body{display:block;font:1rem system-ui,sans-serif;padding:2rem;text-align:center}</style></noscript>
+  </head>
+  <body>
+    <noscript><a href={destination}>Continue to the portfolio</a></noscript>
+  </body>
+</html>

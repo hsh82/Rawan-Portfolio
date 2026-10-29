@@ -1,0 +1,7 @@
+---
+import JourneyDetail from '../../../components/platform/JourneyDetail.astro';
+import { portfolio } from '../../../utils/portfolio-content';
+export function getStaticPaths() { return portfolio().journey.filter((entry: any) => entry.visible || (import.meta.env.DEV && import.meta.env.EASY_CONTENT_MODE === 'true')).map((entry: any) => ({ params: { id: entry.id }, props: { id: entry.id } })); }
+const { id } = Astro.props;
+---
+<JourneyDetail id={id} lang="en" />

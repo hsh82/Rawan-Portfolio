@@ -2,8 +2,8 @@
 // Removed Button import to create a custom non-animated button
 import { portfolio, localizedValue, publicMediaPath } from '../../utils/portfolio-content';
 
-const lang = Astro.currentLocale;
-const profileData = portfolio().profile;
+const lang = Astro.props.lang || Astro.currentLocale || 'en';
+const profileData = Astro.props.profileData || portfolio().profile;
 const profile = localizedValue(profileData.locales, lang === 'fa' ? 'fa' : 'en');
 const profileImage = publicMediaPath(profileData.image);
 const profileImageAlt = profileData.imageAlt?.[lang === 'fa' ? 'fa' : 'en'] || profile.displayName;

@@ -1,0 +1,17 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+import ProjectGrid from '../../../../components/platform/ProjectGrid.astro';
+import { publishedProjects } from '../../../../utils/content-api';
+const lang = 'fa' as const;
+const projects = publishedProjects();
+---
+<Layout lang={lang} title="پروژه‌ها · وبلاگ" description="هاب‌های پروژهٔ منتشرشده و مقاله‌های فنی آن‌ها.">
+  <section class="tracked-section py-16 md:py-24">
+    <div class="mx-auto max-w-container px-6">
+      <p class="eyebrow">هاب‌های پروژه</p>
+      <h1 class="font-heading text-h1 mt-3">پروژه‌ها</h1>
+      <p class="mt-5 mb-10 max-w-3xl text-lg text-secondary/70 dark:text-white/70">همهٔ پروژه‌های این صفحه از همان هاب‌های پروژهٔ وبلاگ خوانده می‌شوند که صفحهٔ اصلی استفاده می‌کند.</p>
+      <ProjectGrid lang={lang} projects={projects} showFilters />
+    </div>
+  </section>
+</Layout>
