@@ -4,9 +4,9 @@
       "greeting": "Hello, I’m Hamed.",
       "displayName": "Hamed Sheikhan",
       "title": "DevOps Engineer",
-      "intro": "I build reliable delivery paths and infrastructure systems across CI/CD, virtualization, secure connectivity, and internal engineering platforms.",
-      "summary": "My work connects practical operations with maintainable automation, from container delivery and infrastructure as code to controlled access and reusable engineering tools.",
-      "description": "I started in visual design, continued through Computer Engineering study at Yazd University, and moved into hands-on DevOps and infrastructure engineering.",
+      "intro": "I'm a DevOps Engineer based in Isfahan. Over the past year and a half, I've focused on making the systems behind software easier to build, release, and run reliably. I enjoy untangling difficult problems, finding practical solutions, and seeing how a thoughtful improvement can make a team's everyday work easier.",
+      "summary": "Before DevOps, I spent years in graphic design and then explored software development. That journey taught me to care about more than the technology itself: I value clarity, good communication, and solutions people can understand and maintain together. For me, engineering works best when people share knowledge and take responsibility for the result.",
+      "description": "I'm Hamed Sheikhan, born in Isfahan in the spring of 2003. My journey began in graphic design, where I discovered the value of creativity and clear communication. Curiosity and a passion for building things led me to programming and computer engineering studies at Yazd University, and eventually into infrastructure and DevOps. Today, I combine my creative background with hands-on engineering to simplify complex challenges and build reliable solutions that people and teams can confidently use and maintain.",
       "ctaExperience": "Explore experience",
       "ctaProjects": "View projects"
     },
@@ -14,9 +14,9 @@
       "greeting": "سلام، من حامد هستم.",
       "displayName": "حامد شیخان",
       "title": "مهندس DevOps",
-      "intro": "در مسیرهای تحویل قابل‌اتکا و سامانه‌های زیرساختی در حوزه‌های CI/CD، مجازی‌سازی، ارتباطات امن و پلتفرم‌های داخلی مهندسی کار می‌کنم.",
-      "summary": "تمرکز من پیوند دادن عملیات عملی با خودکارسازی نگهداری‌پذیر است؛ از تحویل کانتینری و زیرساخت به‌عنوان کد تا دسترسی کنترل‌شده و ابزارهای قابل‌استفادهٔ مجدد مهندسی.",
-      "description": "مسیر من از طراحی بصری آغاز شد، با تحصیل مهندسی کامپیوتر در دانشگاه یزد ادامه پیدا کرد و به کار عملی در DevOps و مهندسی زیرساخت رسید.",
+      "intro": "من مهندس DevOps ساکن اصفهان هستم. در حدود یک‌سال‌ونیم گذشته، بیشتر تمرکزم روی ساختن و بهبود زیرساخت‌هایی بوده که کمک می‌کنند تیم‌ها نرم‌افزار را با اطمینان بیشتری توسعه دهند، منتشر کنند و به دست کاربران برسانند. از پیدا کردن راه‌حل‌های کاربردی برای مسائل پیچیده و دیدن اثر واقعی آن‌ها بر کار روزمرهٔ آدم‌ها لذت می‌برم.",
+      "summary": "پیش از ورود به DevOps، سال‌ها در طراحی گرافیک فعالیت داشتم و بعد به دنیای برنامه‌نویسی نزدیک شدم. همین مسیر باعث شده در کنار جزئیات فنی، به سادگی، ارتباط روشن و راه‌حل‌هایی اهمیت بدهم که همهٔ اعضای تیم بتوانند آن‌ها را بفهمند و نگهداری کنند. به نظرم بهترین نتیجه زمانی به دست می‌آید که افراد دانش و مسئولیت را با هم به اشتراک بگذارند.",
+      "description": "بنده حامد شیخان؛ فروردین ۱۳۸۲ در اصفهان به دنیا آمدم و مسیرم را از دنیای طراحی گرافیک آغاز کردم. علاقه‌ام به یادگیری، ساختن و حل مسئله، من را به برنامه‌نویسی و تحصیل در رشتهٔ مهندسی کامپیوتر در دانشگاه یزد رساند و در ادامه با دنیای زیرساخت و DevOps آشنا کرد. امروز تلاش می‌کنم با ترکیب نگاه خلاقانه و تجربهٔ فنی‌ام، مسائل پیچیده را ساده‌تر کنم و راهکارهایی بسازم که نه‌تنها درست کار کنند، بلکه استفاده و نگهداری از آن‌ها برای دیگران هم آسان باشد.",
       "ctaExperience": "مشاهدهٔ تجربه",
       "ctaProjects": "مشاهدهٔ پروژه‌ها"
     }
@@ -24,7 +24,7 @@
   "about": {
     "en": {
       "title": "About me",
-      "description": "My background combines visual communication, Computer Engineering study, and hands-on DevOps work. That combination keeps both clarity and operational reality in view when I build systems.",
+      "description": "My professional journey began in graphic design. For years, I worked with visual identities, layouts, and digital content, learning that good work starts with understanding the problem and making the result clear to the people who use it. Curiosity about how digital products work behind the scenes eventually led me to programming, infrastructure, and DevOps.\n\nToday, I'm a DevOps Engineer based in Isfahan, with around 18 months of full-time experience and primary hands-on responsibility for DevOps implementation at Weinno. I work on making the journey from writing software to running it more dependable. Whether I'm improving a deployment process, building infrastructure, or developing an internal tool, I like to solve problems in ways the team can understand and continue to maintain.\n\nTo me, DevOps is more than a collection of tools: it's a culture of collaboration, shared responsibility, and continuous improvement. Docker is a good example of why that matters—its value isn't just in containers, but in helping teams move beyond 'it works on my machine' toward a shared, reliable way of working. I still bring a designer's perspective to engineering: keep things clear, useful, and considerate of the people behind the system.",
       "cards": [
         { "title": "Reliable delivery", "description": "I work on repeatable build, test, deployment, health-check, and recovery paths." },
         { "title": "Infrastructure foundations", "description": "I work across virtualization, infrastructure as code, containers, and secure service access." },
@@ -33,7 +33,7 @@
     },
     "fa": {
       "title": "دربارهٔ من",
-      "description": "پیشینهٔ من طراحی بصری، تحصیل مهندسی کامپیوتر و تجربهٔ عملی DevOps را کنار هم قرار می‌دهد. این ترکیب کمک می‌کند هنگام ساخت سامانه‌ها، هم وضوح و هم واقعیت عملیاتی را در نظر بگیرم.",
+      "description": "مسیر حرفه‌ای من از طراحی گرافیک شروع شد. سال‌ها با هویت بصری، صفحه‌آرایی و محتوای دیجیتال سروکار داشتم و در این مسیر یاد گرفتم که کار خوب، پیش از هر چیز، از شناخت درست مسئله و انتقال روشن مفهوم آغاز می‌شود. کنجکاوی دربارهٔ پشت‌صحنهٔ محصولات دیجیتال کم‌کم مرا به برنامه‌نویسی، زیرساخت و در نهایت DevOps رساند.\n\nامروز مهندس DevOps ساکن اصفهان هستم و حدود یک‌سال‌ونیم تجربهٔ تمام‌وقت دارم. در وینو مسئول اصلی اجرای فنی کارهای DevOps بوده‌ام و تلاش کرده‌ام مسیر ساخت، انتشار و نگهداری نرم‌افزار برای تیم‌ها مطمئن‌تر و کم‌دردسرتر شود. چه در راه‌اندازی زیرساخت، چه در خودکارسازی کارهای تکراری و چه در ساخت یک ابزار داخلی، برایم مهم است راه‌حلی پیدا کنم که دیگران هم بتوانند آن را بفهمند، ادامه دهند و با اطمینان از آن استفاده کنند.\n\nبرای من DevOps فقط نام چند ابزار نیست؛ فرهنگی از همکاری، مسئولیت مشترک و بهتر کردن مداوم روش کار است. ابزارهایی مثل Docker وقتی ارزش واقعی دارند که فاصلهٔ میان «روی سیستم من کار می‌کند» و «برای همه درست کار می‌کند» را کمتر کنند. هنوز هم نگاه یک طراح را با خودم دارم: سادگی، وضوح و توجه به آدم‌هایی که قرار است با نتیجهٔ کار زندگی کنند.",
       "cards": [
         { "title": "تحویل قابل‌اتکا", "description": "روی مسیرهای تکرارپذیر ساخت، آزمون، استقرار، health check و بازیابی کار می‌کنم." },
         { "title": "پایه‌های زیرساخت", "description": "در حوزه‌های مجازی‌سازی، زیرساخت به‌عنوان کد، کانتینرها و دسترسی امن به سرویس‌ها فعالیت می‌کنم." },
