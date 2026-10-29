@@ -73,9 +73,12 @@ function projectHubs(raw: ReturnType<typeof readPortfolioSource>) {
 
 export const portfolio = () => {
   const raw = source();
+  const parsedProfile = profileSchema.parse(raw.profile);
+  const parsedHome = homeSchema.parse(raw.home);
   return {
     site: siteSchema.parse(raw.site),
-    profile: { ...profileSchema.parse(raw.profile), ...homeSchema.parse(raw.profile) },
+    profile: { ...parsedProfile, locales: { ...(raw.profile.locales || {}), ...(parsedHome.locales || {}) } },
+    home: parsedHome,
     contact: contactSchema.parse(raw.contact),
     projects: projectHubs(raw),
     journey: raw.journey.map((item: any) => journeySchema.parse(item)),

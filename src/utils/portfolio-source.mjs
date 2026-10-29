@@ -20,11 +20,8 @@ export function readPortfolioSource(contentRoot = resolve(process.cwd(), 'conten
 
   return {
     site: readJson(contentRoot, 'site.json', {}),
-    profile: {
-      ...profile,
-      ...home,
-      locales: { ...(profile.locales || {}), ...(home.locales || {}) },
-    },
+    profile,
+    home,
     contact: readJson(contentRoot, 'contact.json', { email: '', phone: '', location: '', socials: [], locales: { en: {}, fa: {} } }),
     projects: readProjectHubs(contentRoot),
     journey: readList(contentRoot, 'journey/entries.json'),
