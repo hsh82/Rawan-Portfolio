@@ -5,12 +5,14 @@ import EmptyState from '../platform/EmptyState.astro';
 interface Props {
   lang: string | undefined;
   profileData?: any;
+  homeData?: any;
 }
 
 const { lang } = Astro.props;
+const homeData: any = Astro.props.homeData || portfolio().home;
 const profileData: any = Astro.props.profileData || portfolio().profile;
 const profile = localizedValue(profileData.locales, lang === 'fa' ? 'fa' : 'en');
-const about = profileData.about?.[lang === 'fa' ? 'fa' : 'en'];
+const about = homeData.about?.[lang === 'fa' ? 'fa' : 'en'];
 ---
 
 <section id="about" class="tracked-section py-16 md:py-24 bg-neutral-bg dark:bg-neutral-dark/60">
@@ -70,6 +72,6 @@ const about = profileData.about?.[lang === 'fa' ? 'fa' : 'en'];
         </div>
         <h3 class="font-heading text-xl text-secondary dark:text-white mb-3 group-hover:text-primary transition-colors duration-300">{about?.cards?.[2]?.title}</h3><p class="text-secondary/70 dark:text-white/70">{about?.cards?.[2]?.description}</p>
       </div>
-    </div> : <EmptyState title={lang === 'fa' ? 'دربارهٔ این مسیر' : 'About this portfolio'} description={lang === 'fa' ? 'متن معرفی خود را در content/profile.json اضافه کنید.' : 'Add your introduction to content/profile.json.'} />}
+    </div> : <EmptyState title={lang === 'fa' ? 'دربارهٔ این مسیر' : 'About this portfolio'} description={lang === 'fa' ? 'متن معرفی خود را در content/home.json اضافه کنید.' : 'Add your introduction to content/home.json.'} />}
   </div>
 </section>
