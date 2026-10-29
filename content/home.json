@@ -1,1 +1,44 @@
-{}
+{
+  "locales": {
+    "en": {
+      "greeting": "Hello, I’m Hamed.",
+      "displayName": "Hamed Sheikhan",
+      "title": "DevOps Engineer",
+      "intro": "I build reliable delivery paths and infrastructure systems across CI/CD, virtualization, secure connectivity, and internal engineering platforms.",
+      "summary": "My work connects practical operations with maintainable automation, from container delivery and infrastructure as code to controlled access and reusable engineering tools.",
+      "description": "I started in visual design, continued through Computer Engineering study at Yazd University, and moved into hands-on DevOps and infrastructure engineering.",
+      "ctaExperience": "Explore experience",
+      "ctaProjects": "View projects"
+    },
+    "fa": {
+      "greeting": "سلام، من حامد هستم.",
+      "displayName": "حامد شیخان",
+      "title": "مهندس DevOps",
+      "intro": "در مسیرهای تحویل قابل‌اتکا و سامانه‌های زیرساختی در حوزه‌های CI/CD، مجازی‌سازی، ارتباطات امن و پلتفرم‌های داخلی مهندسی کار می‌کنم.",
+      "summary": "تمرکز من پیوند دادن عملیات عملی با خودکارسازی نگهداری‌پذیر است؛ از تحویل کانتینری و زیرساخت به‌عنوان کد تا دسترسی کنترل‌شده و ابزارهای قابل‌استفادهٔ مجدد مهندسی.",
+      "description": "مسیر من از طراحی بصری آغاز شد، با تحصیل مهندسی کامپیوتر در دانشگاه یزد ادامه پیدا کرد و به کار عملی در DevOps و مهندسی زیرساخت رسید.",
+      "ctaExperience": "مشاهدهٔ تجربه",
+      "ctaProjects": "مشاهدهٔ پروژه‌ها"
+    }
+  },
+  "about": {
+    "en": {
+      "title": "About me",
+      "description": "My background combines visual communication, Computer Engineering study, and hands-on DevOps work. That combination keeps both clarity and operational reality in view when I build systems.",
+      "cards": [
+        { "title": "Reliable delivery", "description": "I work on repeatable build, test, deployment, health-check, and recovery paths." },
+        { "title": "Infrastructure foundations", "description": "I work across virtualization, infrastructure as code, containers, and secure service access." },
+        { "title": "Design-informed engineering", "description": "An earlier design practice continues to shape how I communicate systems and improve interfaces." }
+      ]
+    },
+    "fa": {
+      "title": "دربارهٔ من",
+      "description": "پیشینهٔ من طراحی بصری، تحصیل مهندسی کامپیوتر و تجربهٔ عملی DevOps را کنار هم قرار می‌دهد. این ترکیب کمک می‌کند هنگام ساخت سامانه‌ها، هم وضوح و هم واقعیت عملیاتی را در نظر بگیرم.",
+      "cards": [
+        { "title": "تحویل قابل‌اتکا", "description": "روی مسیرهای تکرارپذیر ساخت، آزمون، استقرار، health check و بازیابی کار می‌کنم." },
+        { "title": "پایه‌های زیرساخت", "description": "در حوزه‌های مجازی‌سازی، زیرساخت به‌عنوان کد، کانتینرها و دسترسی امن به سرویس‌ها فعالیت می‌کنم." },
+        { "title": "مهندسی با نگاه طراحی", "description": "پیشینهٔ طراحی همچنان بر شیوهٔ توضیح سامانه‌ها و بهبود رابط‌ها اثر می‌گذارد." }
+      ]
+    }
+  }
+}
