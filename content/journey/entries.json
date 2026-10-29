@@ -5,11 +5,21 @@
     "type": "milestone",
     "current": false,
     "locales": {
-      "en": { "title": "Visual design foundation", "description": "A self-taught start in visual identity, print and digital communication, video, and motion established a lasting focus on clarity and usability." },
-      "fa": { "title": "آغاز مسیر با طراحی بصری", "description": "شروعی خودآموخته در هویت بصری، ارتباطات چاپی و دیجیتال، ویدئو و موشن که توجه ماندگار به وضوح و کاربردپذیری را شکل داد." }
+      "en": {
+        "title": "Visual design foundation",
+        "description": "A self-taught start in visual identity, print and digital communication, video, and motion established a lasting focus on clarity and usability."
+      },
+      "fa": {
+        "title": "آغاز مسیر با طراحی بصری",
+        "description": "شروعی خودآموخته در هویت بصری، ارتباطات چاپی و دیجیتال، ویدئو و موشن که توجه ماندگار به وضوح و کاربردپذیری را شکل داد."
+      }
     },
     "organization": "",
-    "technologies": ["Photoshop", "Illustrator", "Visual Communication"],
+    "technologies": [
+      "Photoshop",
+      "Illustrator",
+      "Visual Communication"
+    ],
     "projectIds": [],
     "articleIds": [],
     "links": [],
@@ -21,12 +31,23 @@
     "type": "education",
     "current": false,
     "locales": {
-      "en": { "title": "Computer engineering and software exploration", "description": "Master’s-level Computer Engineering study at Yazd University broadened the path from visual communication into programming, software systems, and working academic applications. Completion status and dates remain unstated pending confirmation." },
-      "fa": { "title": "مهندسی کامپیوتر و تجربهٔ توسعهٔ نرم‌افزار", "description": "تحصیل در سطح کارشناسی ارشد مهندسی کامپیوتر در دانشگاه یزد، مسیر را از ارتباطات بصری به برنامه‌نویسی، سامانه‌های نرم‌افزاری و نمونه‌های دانشگاهی قابل اجرا گسترش داد. وضعیت اتمام و تاریخ‌ها تا زمان تأیید ذکر نشده‌اند." }
+      "en": {
+        "title": "Computer engineering and software exploration",
+        "description": "Master’s-level Computer Engineering study at Yazd University broadened the path from visual communication into programming, software systems, and working academic applications. Completion status and dates remain unstated pending confirmation."
+      },
+      "fa": {
+        "title": "مهندسی کامپیوتر و تجربهٔ توسعهٔ نرم‌افزار",
+        "description": "تحصیل در سطح کارشناسی ارشد مهندسی کامپیوتر در دانشگاه یزد، مسیر را از ارتباطات بصری به برنامه‌نویسی، سامانه‌های نرم‌افزاری و نمونه‌های دانشگاهی قابل اجرا گسترش داد. وضعیت اتمام و تاریخ‌ها تا زمان تأیید ذکر نشده‌اند."
+      }
     },
     "organization": "Yazd University",
-    "technologies": ["Computer Engineering", "Software Projects"],
-    "projectIds": ["camran-cashback-mvp"],
+    "technologies": [
+      "Computer Engineering",
+      "Software Projects"
+    ],
+    "projectIds": [
+      "camran-cashback-mvp"
+    ],
     "articleIds": [],
     "links": [],
     "priority": 20
@@ -37,12 +58,25 @@
     "type": "employment",
     "current": false,
     "locales": {
-      "en": { "title": "Full-time DevOps engineering", "description": "The professional focus moved to Linux, containers, GitLab CI/CD, repeatable deployment, and the engineering of operational work instead of reliance on one-off manual steps." },
-      "fa": { "title": "ورود تمام‌وقت به مهندسی DevOps", "description": "تمرکز حرفه‌ای به Linux، کانتینرها، GitLab CI/CD، استقرار تکرارپذیر و مهندسی عملیات به‌جای اتکا به مراحل دستی و موردی منتقل شد." }
+      "en": {
+        "title": "Full-time DevOps engineering",
+        "description": "The professional focus moved to Linux, containers, GitLab CI/CD, repeatable deployment, and the engineering of operational work instead of reliance on one-off manual steps."
+      },
+      "fa": {
+        "title": "ورود تمام‌وقت به مهندسی DevOps",
+        "description": "تمرکز حرفه‌ای به Linux، کانتینرها، GitLab CI/CD، استقرار تکرارپذیر و مهندسی عملیات به‌جای اتکا به مراحل دستی و موردی منتقل شد."
+      }
     },
     "organization": "",
-    "technologies": ["Linux", "Docker", "CI/CD", "Automation"],
-    "projectIds": ["cicd-release-platform"],
+    "technologies": [
+      "Linux",
+      "Docker",
+      "CI/CD",
+      "Automation"
+    ],
+    "projectIds": [
+      "cicd-release-platform"
+    ],
     "articleIds": [],
     "links": [],
     "priority": 30
@@ -53,12 +87,26 @@
     "type": "milestone",
     "current": false,
     "locales": {
-      "en": { "title": "Internal tools and platform integrations", "description": "Reusable Python automation, the Rahban internal access pilot built on RustGuac, and engineering-platform integrations extended the work from operating tools to developing maintainable internal capabilities." },
-      "fa": { "title": "توسعهٔ ابزارها و یکپارچه‌سازی پلتفرم‌های داخلی", "description": "خودکارسازی قابل‌استفادهٔ مجدد با Python، پایلوت داخلی رهبان بر پایهٔ RustGuac و یکپارچه‌سازی پلتفرم‌های مهندسی، مسیر را از کار با ابزارها به توسعهٔ قابلیت‌های داخلی نگهداری‌پذیر گسترش داد." }
+      "en": {
+        "title": "Internal tools and platform integrations",
+        "description": "Reusable Python automation, the Rahban internal access pilot built on RustGuac, and engineering-platform integrations extended the work from operating tools to developing maintainable internal capabilities."
+      },
+      "fa": {
+        "title": "توسعهٔ ابزارها و یکپارچه‌سازی پلتفرم‌های داخلی",
+        "description": "خودکارسازی قابل‌استفادهٔ مجدد با Python، پایلوت داخلی رهبان بر پایهٔ RustGuac و یکپارچه‌سازی پلتفرم‌های مهندسی، مسیر را از کار با ابزارها به توسعهٔ قابلیت‌های داخلی نگهداری‌پذیر گسترش داد."
+      }
     },
     "organization": "",
-    "technologies": ["Python", "RustGuac", "Keycloak", "vCenter"],
-    "projectIds": ["utils-devops-python", "rahban-access-gateway"],
+    "technologies": [
+      "Python",
+      "RustGuac",
+      "Keycloak",
+      "vCenter"
+    ],
+    "projectIds": [
+      "cicd-release-platform",
+      "rahban-access-gateway"
+    ],
     "articleIds": [],
     "links": [],
     "priority": 50
@@ -69,12 +117,27 @@
     "type": "milestone",
     "current": false,
     "locales": {
-      "en": { "title": "Infrastructure and network expansion", "description": "Responsibility expanded into VMware virtualization, Terraform and Ansible automation, segmented networking, encrypted connectivity, and controlled service access." },
-      "fa": { "title": "گسترش مسئولیت به زیرساخت و شبکه", "description": "دامنهٔ مسئولیت به مجازی‌سازی VMware، خودکارسازی با Terraform و Ansible، شبکهٔ تفکیک‌شده، ارتباط رمزنگاری‌شده و دسترسی کنترل‌شده به سرویس‌ها گسترش یافت." }
+      "en": {
+        "title": "Infrastructure and network expansion",
+        "description": "Responsibility expanded into VMware virtualization, Terraform and Ansible automation, segmented networking, encrypted connectivity, and controlled service access."
+      },
+      "fa": {
+        "title": "گسترش مسئولیت به زیرساخت و شبکه",
+        "description": "دامنهٔ مسئولیت به مجازی‌سازی VMware، خودکارسازی با Terraform و Ansible، شبکهٔ تفکیک‌شده، ارتباط رمزنگاری‌شده و دسترسی کنترل‌شده به سرویس‌ها گسترش یافت."
+      }
     },
     "organization": "",
-    "technologies": ["VMware", "Terraform", "Ansible", "OPNsense", "WireGuard"],
-    "projectIds": ["infrastructure-as-code-vmware", "segmented-network-opnsense", "wireguard-vpn-gateway"],
+    "technologies": [
+      "VMware",
+      "Terraform",
+      "Ansible",
+      "OPNsense",
+      "WireGuard"
+    ],
+    "projectIds": [
+      "infrastructure-as-code-vmware",
+      "segmented-network-opnsense"
+    ],
     "articleIds": [],
     "links": [],
     "priority": 40

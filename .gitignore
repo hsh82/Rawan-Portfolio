@@ -43,6 +43,8 @@ design/reports/local-*
 design/reports/private-*
 *.local.md
 
+
+design/plans
 # Editors and operating systems
 .DS_Store
 Thumbs.db

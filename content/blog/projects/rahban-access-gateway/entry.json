@@ -7,7 +7,7 @@
   "projectCategory": "software-open-source",
   "status": "published",
   "visible": true,
-  "featured": true,
+  "featured": false,
   "publication": "public-sanitized",
   "maturity": "internal-pilot",
   "secondaryCategories": [
@@ -35,7 +35,7 @@
   ],
   "relatedProjectIds": [
     "infrastructure-as-code-vmware",
-    "internal-dns-tls-access"
+    "segmented-network-opnsense"
   ],
   "articleIds": [],
   "caseStudy": {
@@ -122,5 +122,8 @@
       ]
     }
   },
-  "priority": 160
+  "priority": 160,
+  "favorite": true,
+  "favoriteAt": "2026-10-29",
+  "icon": "server"
 }

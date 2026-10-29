@@ -30,8 +30,14 @@
     "network-secure-access"
   ],
   "relatedProjectIds": [
-    "wireguard-vpn-gateway"
+    "infrastructure-as-code-vmware",
+    "rahban-access-gateway"
   ],
-  "articleIds": [],
-  "priority": 90
+  "articleIds": [
+    "segmented-network-opnsense/internal-dns-tls-access",
+    "segmented-network-opnsense/wireguard-vpn-gateway"
+  ],
+  "priority": 110,
+  "favorite": false,
+  "icon": "opnsense"
 }

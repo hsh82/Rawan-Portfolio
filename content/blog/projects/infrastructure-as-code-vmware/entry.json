@@ -7,7 +7,7 @@
   "projectCategory": "infrastructure-automation",
   "status": "published",
   "visible": true,
-  "featured": true,
+  "featured": false,
   "publication": "public-sanitized",
   "maturity": "organizational",
   "secondaryCategories": [],
@@ -118,5 +118,8 @@
       ]
     }
   },
-  "priority": 140
+  "priority": 150,
+  "favorite": true,
+  "favoriteAt": "2026-10-29",
+  "icon": "terraform"
 }

@@ -1,0 +1,13 @@
+{
+  "id": "segmented-network-opnsense/wireguard-vpn-gateway",
+  "kind": "article",
+  "translationId": "project-wireguard-vpn-gateway",
+  "slug": "wireguard-vpn-gateway",
+  "category": "projects",
+  "subcategory": "segmented-network-opnsense",
+  "status": "published",
+  "pubDate": "2026-10-29",
+  "tags": [],
+  "featured": false,
+  "toc": true
+}

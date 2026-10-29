@@ -1,0 +1,13 @@
+{
+  "id": "cicd-release-platform/windows-iis-container-sample",
+  "kind": "article",
+  "translationId": "project-multi-stage-windows-docker",
+  "slug": "windows-iis-container-sample",
+  "category": "projects",
+  "subcategory": "cicd-release-platform",
+  "status": "published",
+  "pubDate": "2026-10-29",
+  "tags": [],
+  "featured": false,
+  "toc": true
+}

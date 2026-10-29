@@ -32,5 +32,8 @@
   ],
   "relatedProjectIds": [],
   "articleIds": [],
-  "priority": 55
+  "priority": 140,
+  "favorite": true,
+  "favoriteAt": "2026-10-29",
+  "icon": "next-js"
 }

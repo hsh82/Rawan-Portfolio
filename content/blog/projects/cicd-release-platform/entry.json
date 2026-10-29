@@ -7,7 +7,7 @@
   "projectCategory": "devops-delivery",
   "status": "published",
   "visible": true,
-  "featured": true,
+  "featured": false,
   "publication": "public-sanitized",
   "maturity": "organizational",
   "secondaryCategories": [
@@ -33,11 +33,15 @@
     "containers-delivery",
     "scripting-documentation"
   ],
-  "relatedProjectIds": [
-    "playwright-quality-gates",
-    "private-devops-platform"
+  "relatedProjectIds": [],
+  "articleIds": [
+    "cicd-release-platform/quality-gates",
+    "cicd-release-platform/private-registries",
+    "cicd-release-platform/cross-platform-containers",
+    "cicd-release-platform/windows-iis-container-sample",
+    "cicd-release-platform/engineering-platform-integrations",
+    "cicd-release-platform/devops-python-toolkit"
   ],
-  "articleIds": [],
   "caseStudy": {
     "en": {
       "intro": "A reusable delivery system replaced application-specific manual release steps with a clearer path from source change to verified deployment.",
@@ -124,5 +128,7 @@
       ]
     }
   },
-  "priority": 150
+  "priority": 120,
+  "favorite": false,
+  "icon": "gitlab-ci-cd"
 }
