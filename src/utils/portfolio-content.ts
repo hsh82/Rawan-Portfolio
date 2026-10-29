@@ -1,8 +1,7 @@
-import { readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { z } from 'zod';
 import type { Locale } from './i18n';
-import { readProjectHubs } from './project-source.mjs';
+import { readPortfolioSource } from './portfolio-source.mjs';
 
 const root = resolve(process.cwd(), 'content');
 const localizedText = z.object({ title: z.string().default(''), displayName: z.string().default(''), description: z.string().default(''), intro: z.string().default(''), summary: z.string().default(''), greeting: z.string().default(''), ctaExperience: z.string().default(''), ctaProjects: z.string().default(''), bullets: z.array(z.string()).default([]) }).partial();
@@ -61,15 +60,10 @@ const recordSchema = z.object({ id: z.string().regex(/^[a-z0-9-]+$/), visible: z
 const skillSchema = recordSchema.extend({ category: z.enum(['cicd', 'containers', 'infrastructure', 'network', 'scripting', 'design']) });
 const resumeSchema = z.object({ enabled: z.boolean().default(false), filenameSlug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).default('resume'), portrait: z.boolean().default(true), locales: z.array(z.enum(['en', 'fa'])).default(['en', 'fa']), include: z.object({ experience: z.boolean().default(true), education: z.boolean().default(true), certifications: z.boolean().default(true), skills: z.boolean().default(true), projects: z.boolean().default(true), journey: z.boolean().default(false) }).default({}), projectLimit: z.number().int().min(1).max(6).default(4), projectIds: z.array(z.string()).default([]), journeyIds: z.array(z.string()).default([]) });
 
-function read<T>(path: string, schema: z.ZodType<T>, fallback: T): T {
-  const file = resolve(root, path);
-  if (!existsSync(file)) return fallback;
-  return schema.parse(JSON.parse(readFileSync(file, 'utf8')));
-}
-function list(path: string, schema: z.ZodType<any>) { return read(path, z.array(schema), []); }
+const source = () => readPortfolioSource(root);
 
-function projectHubs() {
-  return readProjectHubs(root).map(shared => projectSchema.parse({
+function projectHubs(raw: ReturnType<typeof readPortfolioSource>) {
+  return raw.projects.map(shared => projectSchema.parse({
     ...shared,
     // Publication is represented once in shared metadata. `visible` is
     // retained only as a normalized runtime compatibility property.
@@ -77,18 +71,21 @@ function projectHubs() {
   }));
 }
 
-export const portfolio = () => ({
-  site: read('site.json', siteSchema, { siteUrl: '', defaultLocale: 'en', locales: { en: { title: 'Rawan Portfolio', description: 'A reusable bilingual portfolio.', homeLabel: 'Portfolio' }, fa: { title: 'پورتفولیوی راوان', description: 'پورتفولیویی دوزبانه برای آثار حرفه‌ای.', homeLabel: 'کارنامه' } } }),
-  profile: { ...read('profile.json', profileSchema, { visible: false, name: '' }), ...read('home.json', homeSchema, { locales: { en: {}, fa: {} } }) },
-  contact: read('contact.json', contactSchema, { email: '', phone: '', location: '', socials: [], locales: { en: {}, fa: {} } }),
-  projects: projectHubs(),
-  journey: list('journey/entries.json', journeySchema),
-  experience: list('experience/entries.json', recordSchema),
-  education: list('education/entries.json', recordSchema),
-  certifications: list('certifications/entries.json', recordSchema),
-  skills: list('skills/entries.json', skillSchema),
-  resume: read('resume/config.json', resumeSchema, { enabled: false, filenameSlug: 'resume', portrait: true, locales: ['en', 'fa'], include: {}, projectIds: [], journeyIds: [] }),
-});
+export const portfolio = () => {
+  const raw = source();
+  return {
+    site: siteSchema.parse(raw.site),
+    profile: { ...profileSchema.parse(raw.profile), ...homeSchema.parse(raw.profile) },
+    contact: contactSchema.parse(raw.contact),
+    projects: projectHubs(raw),
+    journey: raw.journey.map((item: any) => journeySchema.parse(item)),
+    experience: raw.experience.map((item: any) => recordSchema.parse(item)),
+    education: raw.education.map((item: any) => recordSchema.parse(item)),
+    certifications: raw.certifications.map((item: any) => recordSchema.parse(item)),
+    skills: raw.skills.map((item: any) => skillSchema.parse(item)),
+    resume: resumeSchema.parse(raw.resume),
+  };
+};
 
 export const localizedValue = (value: { en?: Record<string, any>; fa?: Record<string, any> } | undefined, lang: Locale) => value?.[lang] || value?.en || {};
 export const publicMediaPath = (value?: string) => value?.startsWith('media/') ? `/${value}` : value || '';
@@ -96,8 +93,8 @@ export const publicItems = <T extends { visible: boolean; priority: number }>(it
 export function validatePortfolioContent() {
   const data = portfolio();
   const ids = new Set(data.projects.map(item => item.id));
-  const journeyIds = new Set(data.journey.map(item => item.id));
-  const skillIds = new Set(data.skills.map(item => item.id));
+  const journeyIds = new Set(data.journey.map((item: any) => item.id));
+  const skillIds = new Set(data.skills.map((item: any) => item.id));
   const duplicates = data.projects.length !== ids.size;
   if (duplicates) throw new Error('Duplicate project IDs in content/blog/projects');
   for (const item of data.projects) {
