@@ -1,19 +1,30 @@
 import { execFile } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { dirname, relative, resolve } from 'node:path';
 import { promisify } from 'node:util';
 import { repositoryRoot, assertLocalRequest, sessionToken, mediaRoot, safePath, writeAtomic } from './security.mjs';
-import { contextForPath, createArticle, createJourney, createProject, readEntity, saveEntity } from './adapters.mjs';
+import { contentTree, contextForPath, editorContextForPath, createArticle, createJourney, createProject, readEntity, saveEntity } from './adapters.mjs';
 
 const execFileAsync = promisify(execFile);
 const MAX_BODY = 1_500_000;
 const MAX_ASSET = 12 * 1024 * 1024;
 const MAX_UPLOAD_BODY = Math.ceil(MAX_ASSET / 3) * 4 + 300_000;
+const editorRoot = resolve(dirname(new URL(import.meta.url).pathname), '..', 'editor');
+const editorHtml = readFileSync(resolve(editorRoot, 'editor.html'), 'utf8');
+const editorScript = readFileSync(resolve(editorRoot, 'editor.js'), 'utf8');
 
 function json(res, status, payload) {
   res.statusCode = status;
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.setHeader('Cache-Control', 'no-store');
   res.end(JSON.stringify(payload));
+}
+
+function text(res, status, contentType, payload) {
+  res.statusCode = status;
+  res.setHeader('Content-Type', contentType);
+  res.setHeader('Cache-Control', 'no-store');
+  res.end(payload);
 }
 
 function requestPath(req) {
@@ -83,14 +94,40 @@ async function uploadAsset(input) {
   return { reference: `media/projects/${project}/${filename}`, publicUrl: `/media/projects/${project}/${filename}` };
 }
 
-export function easyContentMiddleware() {
+function listMedia(directory = mediaRoot) {
+  if (!existsSync(directory)) return [];
+  return readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
+    const file = resolve(directory, entry.name);
+    if (entry.isDirectory()) return listMedia(file);
+    if (!/\.(png|jpe?g|webp|gif)$/i.test(entry.name)) return [];
+    return [`/media/${relative(mediaRoot, file).replaceAll('\\', '/')}`];
+  });
+}
+
+export function easyContentMiddleware({ editorOnly = false } = {}) {
   return async (req, res, next) => {
     try {
-      assertLocalRequest(req);
       const url = requestPath(req);
+      const isEditorRequest = url.pathname === '/__easy-content/editor.js' || url.pathname.startsWith('/dev/content/');
+      if (editorOnly && !isEditorRequest) return next();
+      if (editorOnly) {
+        assertLocalRequest(req);
+        if (req.method === 'GET' && url.pathname === '/__easy-content/editor.js') return text(res, 200, 'text/javascript; charset=utf-8', editorScript);
+        if (req.method === 'GET' && url.pathname.startsWith('/dev/content/')) {
+          const context = editorContextForPath(url.pathname, url.search);
+          if (context.type === 'unsupported') return text(res, 404, 'text/plain; charset=utf-8', context.reason || 'unsupported content type');
+          return text(res, 200, 'text/html; charset=utf-8', editorHtml);
+        }
+        return next();
+      }
+      assertLocalRequest(req);
       const operation = url.pathname.replace(/^\//, '');
       if (req.method === 'GET' && operation === 'context') {
-        const context = contextForPath(url.searchParams.get('path') || '/');
+        const requestedPath = url.searchParams.get('path') || '/';
+        const requestedUrl = new URL(requestedPath, 'http://easy-content.local');
+        const context = requestedUrl.pathname.startsWith('/dev/content/')
+          ? editorContextForPath(requestedUrl.pathname, requestedUrl.search)
+          : contextForPath(requestedUrl.pathname);
         return json(res, context.type === 'unsupported' ? 404 : 200, { enabled: true, token: sessionToken, context });
       }
       if (req.method === 'GET' && operation === 'read') {
@@ -105,6 +142,15 @@ export function easyContentMiddleware() {
       if (req.method === 'GET' && operation === 'validate') {
         requireToken(req);
         return json(res, 200, await validateContent());
+      }
+      if (req.method === 'GET' && operation === 'editor.js') return text(res, 200, 'text/javascript; charset=utf-8', editorScript);
+      if (req.method === 'GET' && operation === 'tree') {
+        requireToken(req);
+        return json(res, 200, { tree: contentTree(url.searchParams.get('locale') === 'fa' ? 'fa' : 'en') });
+      }
+      if (req.method === 'GET' && operation === 'media') {
+        requireToken(req);
+        return json(res, 200, { media: listMedia() });
       }
       if (req.method !== 'POST') return next();
       requireToken(req);

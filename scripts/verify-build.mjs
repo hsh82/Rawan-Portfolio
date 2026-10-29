@@ -10,8 +10,9 @@ const files = existsSync(content) ? walk(content).filter(file => /\.mdx?$/.test(
 const sitemap = readFileSync(join(dist, 'sitemap-0.xml'), 'utf8');
 for (const file of walk(dist).filter(file => file.endsWith('.html'))) {
   const html = readFileSync(file, 'utf8');
-  if (/easy-content-open|easy-content-editor|DEV CONTENT|__easy-content\/api/.test(html)) throw new Error(`Development content controls leaked into production: ${relative(dist, file)}`);
+  if (/easy-content-open|easy-content-editor|easy-content-action-bar|DEV CONTENT|__easy-content\/api|\/dev\/content\//.test(html)) throw new Error(`Development content controls leaked into production: ${relative(dist, file)}`);
 }
+if (existsSync(join(dist, 'dev'))) throw new Error('Easy Content editor routes were generated in production');
 for (const locale of ['en', 'fa']) {
   for (const path of [`${locale}/index.html`, `${locale}/blog/index.html`, `${locale}/rss.xml`]) {
     if (!existsSync(join(dist, path))) throw new Error(`Missing static route: ${path}`);

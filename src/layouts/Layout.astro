@@ -12,7 +12,9 @@ import { localeOf, t, type Locale } from '../utils/i18n';
 import { portfolio } from '../utils/portfolio-content';
 import favicon from '../assets/favicon.png';
 import Analytics from '@vercel/analytics/astro';
-interface Props { title?: string; description?: string; lang?: Locale; translationId?: string; alternates?: Partial<Record<Locale, string>>; type?: 'website' | 'article'; image?: string; published?: Date; updated?: Date; }
+import ContentActionBar from '../dev/easy-content/editor/ContentActionBar.astro';
+interface ContentContext { type: 'blog' | 'project' | 'article'; locale: Locale; projectId?: string; articleId?: string; title?: string; projectTitle?: string; }
+interface Props { title?: string; description?: string; lang?: Locale; translationId?: string; alternates?: Partial<Record<Locale, string>>; type?: 'website' | 'article'; image?: string; published?: Date; updated?: Date; contentContext?: ContentContext; }
 const lang = localeOf(Astro.props.lang || Astro.currentLocale);
 const siteCopy: any = portfolio().site.locales[lang];
 const { title = siteCopy.title, description = siteCopy.description, type = 'website', image, published, updated } = Astro.props;
@@ -49,6 +51,7 @@ const alternates = Astro.props.alternates || { en: Astro.url.pathname.replace(/^
     <a class="skip-link" href="#main-content">{lang === 'fa' ? 'رفتن به محتوا' : 'Skip to content'}</a>
     <div class="flex min-h-screen flex-col">
       <Navbar lang={lang} translationId={Astro.props.translationId} />
+      {Astro.props.contentContext && <ContentActionBar context={Astro.props.contentContext} />}
       <main id="main-content" class="min-w-0 flex-grow"><slot /></main>
       <Footer lang={lang} />
     </div>

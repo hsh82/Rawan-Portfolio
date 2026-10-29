@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Easy Content Editor</title>
+    <style>
+      :root { color-scheme: light; --bg: #f8fafc; --surface: #fff; --surface-soft: #f1f5f9; --text: #102039; --muted: #64748b; --border: #dbe4ee; --primary: #0a84ff; --primary-soft: rgb(10 132 255 / .1); --danger: #dc2626; --shadow: 0 1rem 3rem rgb(15 23 42 / .08); --font: Vazirmatn, ui-sans-serif, system-ui, sans-serif; }
+      html.dark { color-scheme: dark; --bg: #0d1117; --surface: #111827; --surface-soft: #172235; --text: #f8fafc; --muted: #aab8ca; --border: #334155; --primary-soft: rgb(96 165 250 / .14); --shadow: 0 1rem 3rem rgb(0 0 0 / .24); }
+      * { box-sizing: border-box; }
+      html, body { min-height: 100%; margin: 0; background: var(--bg); color: var(--text); font-family: var(--font); }
+      body { font-size: 14px; line-height: 1.6; }
+      a { color: inherit; }
+      button, input, textarea, select { font: inherit; }
+      button, a { -webkit-tap-highlight-color: transparent; }
+      button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+      .editor-app { min-height: 100vh; display: flex; flex-direction: column; }
+      .editor-topbar { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .8rem clamp(1rem, 3vw, 2.5rem); border-bottom: 1px solid var(--border); background: color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter: blur(12px); }
+      .topbar-start, .topbar-end, .editor-actions, .editor-status, .breadcrumbs { display: flex; align-items: center; flex-wrap: wrap; gap: .55rem; }
+      .back-link { color: var(--muted); text-decoration: none; font-weight: 600; white-space: nowrap; }
+      .back-link:hover { color: var(--primary); }
+      .breadcrumbs { min-width: 0; color: var(--muted); font-size: .78rem; }
+      .breadcrumbs strong { overflow: hidden; color: var(--text); text-overflow: ellipsis; white-space: nowrap; }
+      .state { display: inline-flex; align-items: center; gap: .3rem; border-radius: 999px; padding: .2rem .55rem; color: var(--primary); background: var(--primary-soft); font-size: .68rem; font-weight: 700; white-space: nowrap; }
+      .state.is-error { color: var(--danger); background: rgb(220 38 38 / .1); }
+      .button { border: 1px solid var(--border); border-radius: .45rem; padding: .45rem .7rem; color: var(--text); background: var(--surface); cursor: pointer; font-size: .76rem; font-weight: 650; white-space: nowrap; }
+      .button:hover { border-color: var(--primary); color: var(--primary); }
+      .button.primary { border-color: var(--primary); color: #fff; background: var(--primary); }
+      .button.primary:hover { color: #fff; filter: brightness(.94); }
+      .button.subtle { border-color: transparent; color: var(--muted); background: transparent; }
+      .editor-notice { display: none; margin: 1rem auto 0; width: min(100% - 2rem, 1440px); border: 1px solid rgb(10 132 255 / .25); border-radius: .65rem; padding: .75rem 1rem; color: var(--muted); background: var(--primary-soft); font-size: .8rem; }
+      .editor-notice.is-visible { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+      .editor-notice strong { color: var(--text); }
+      .editor-shell { display: grid; grid-template-columns: 15rem minmax(0, 1fr) 18rem; gap: 1px; width: min(100% - 2rem, 1440px); min-height: calc(100vh - 5rem); margin: 1rem auto; overflow: hidden; border: 1px solid var(--border); border-radius: .9rem; background: var(--border); box-shadow: var(--shadow); }
+      .panel { min-width: 0; background: var(--surface); }
+      .tree-panel, .inspector-panel { padding: 1rem; overflow: auto; }
+      .tree-panel { direction: ltr; }
+      [dir="rtl"] .tree-panel, [dir="rtl"] .inspector-panel { direction: rtl; }
+      .panel-title { margin: 0 0 .8rem; color: var(--muted); font-size: .68rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; }
+      .tree-list, .tree-list ul { display: grid; gap: .2rem; margin: 0; padding: 0; list-style: none; }
+      .tree-list ul { margin-inline-start: .85rem; padding-inline-start: .55rem; border-inline-start: 1px solid var(--border); }
+      .tree-item { display: flex; align-items: center; gap: .35rem; min-width: 0; border-radius: .35rem; padding: .35rem .4rem; color: var(--muted); text-decoration: none; font-size: .76rem; }
+      .tree-item:hover, .tree-item[aria-current="page"] { color: var(--primary); background: var(--primary-soft); }
+      .tree-item span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .tree-draft { color: #d97706; font-size: .62rem; }
+      .canvas-panel { display: flex; min-height: 0; flex-direction: column; padding: 1rem clamp(1rem, 3vw, 2rem); }
+      .editor-heading { margin: 0 0 .9rem; font-size: clamp(1.25rem, 2vw, 1.7rem); line-height: 1.2; }
+      .toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: .35rem; margin-bottom: .7rem; padding: .45rem; border: 1px solid var(--border); border-radius: .55rem; background: var(--surface-soft); }
+      .toolbar-group { display: flex; align-items: center; gap: .2rem; padding-inline-end: .35rem; border-inline-end: 1px solid var(--border); }
+      .toolbar-group:last-child { border: 0; }
+      .toolbar button, .toolbar select { min-height: 1.9rem; border: 0; border-radius: .3rem; padding: .25rem .45rem; color: var(--muted); background: transparent; cursor: pointer; font-size: .72rem; }
+      .toolbar button:hover, .toolbar select:hover { color: var(--primary); background: var(--primary-soft); }
+      .toolbar select { border: 1px solid var(--border); background: var(--surface); }
+      .mode-tabs { display: flex; gap: .25rem; margin-bottom: .65rem; }
+      .mode-tabs button { border: 0; border-radius: .35rem; padding: .38rem .65rem; color: var(--muted); background: transparent; cursor: pointer; font-size: .75rem; font-weight: 650; }
+      .mode-tabs button.is-active { color: var(--primary); background: var(--primary-soft); }
+      .source-editor, .visual-editor, .diff-editor { flex: 1; min-height: 32rem; width: 100%; margin: 0; overflow: auto; border: 1px solid var(--border); border-radius: .65rem; padding: 1rem; color: var(--text); background: var(--surface-soft); }
+      .source-editor { direction: ltr; text-align: left; resize: vertical; font: .86rem/1.75 ui-monospace, SFMono-Regular, Consolas, monospace; tab-size: 2; }
+      .visual-editor { direction: inherit; font-size: .95rem; }
+      .visual-editor.is-readonly { outline: 2px dashed rgb(10 132 255 / .35); }
+      .diff-editor { direction: ltr; white-space: pre-wrap; text-align: left; font: .78rem/1.65 ui-monospace, SFMono-Regular, Consolas, monospace; }
+      .diff-added { color: #15803d; background: rgb(34 197 94 / .1); }
+      .diff-removed { color: #b91c1c; background: rgb(239 68 68 / .1); }
+      .inspector-panel { border-inline-start: 1px solid var(--border); }
+      .inspector-section { margin: 0 0 1.1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+      .field { display: block; margin: 0 0 .8rem; color: var(--muted); font-size: .72rem; font-weight: 650; }
+      .field input, .field textarea, .field select { display: block; width: 100%; margin-top: .3rem; border: 1px solid var(--border); border-radius: .4rem; padding: .5rem .55rem; color: var(--text); background: var(--surface); font-size: .8rem; font-weight: 400; }
+      .field textarea { min-height: 4.6rem; resize: vertical; }
+      .check { display: flex; align-items: center; gap: .5rem; margin: .7rem 0; color: var(--text); font-size: .78rem; }
+      .check input { accent-color: var(--primary); }
+      .child-context { border: 1px solid var(--border); border-radius: .45rem; padding: .55rem; color: var(--muted); background: var(--surface-soft); font-size: .75rem; }
+      .child-context strong { display: block; color: var(--text); }
+      .editor-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .7rem; margin-top: .75rem; color: var(--muted); font-size: .75rem; }
+      .status-message { min-height: 1.5rem; }
+      .status-message.is-error { color: var(--danger); }
+      .hidden { display: none !important; }
+      .empty { color: var(--muted); font-size: .78rem; }
+      @media (max-width: 1080px) { .editor-shell { grid-template-columns: 13rem minmax(0, 1fr); } .inspector-panel { grid-column: 1 / -1; border-top: 1px solid var(--border); border-inline-start: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; } .inspector-panel > .panel-title { grid-column: 1 / -1; margin-bottom: 0; } }
+      @media (max-width: 720px) { .editor-topbar { align-items: flex-start; flex-direction: column; } .topbar-end { width: 100%; justify-content: space-between; } .editor-shell { display: block; width: min(100% - 1rem, 1440px); margin-top: .5rem; } .tree-panel { max-height: 13rem; border-bottom: 1px solid var(--border); } .inspector-panel { display: block; } .canvas-panel { min-height: 36rem; } .source-editor, .visual-editor, .diff-editor { min-height: 24rem; } .editor-notice { width: min(100% - 1rem, 1440px); } }
+    </style>
+  </head>
+  <body>
+    <div id="app" class="editor-app" aria-busy="true">
+      <header class="editor-topbar">
+        <div class="topbar-start"><a id="back-link" class="back-link" href="/">← Back</a><nav id="breadcrumbs" class="breadcrumbs" aria-label="Content breadcrumb"></nav></div>
+        <div class="topbar-end"><div class="editor-status"><span id="state" class="state">Loading</span><a id="locale-en" class="button subtle" href="#">EN</a><a id="locale-fa" class="button subtle" href="#">FA</a></div><div class="editor-actions"><button id="theme-toggle" class="button subtle" type="button" aria-label="Toggle theme">◐</button><button id="validate-top" class="button subtle" type="button">Validate</button><button id="git-top" class="button subtle" type="button">Changes</button><button id="save-top" class="button" type="button">Save draft</button><button id="publish-top" class="button primary" type="button">Publish</button></div></div>
+      </header>
+      <div id="notice" class="editor-notice"><span><strong>Easy Content Mode</strong> writes directly to your local Git working tree. Saving never commits or pushes.</span><button id="dismiss-notice" class="button subtle" type="button">Got it</button></div>
+      <main class="editor-shell">
+        <aside class="panel tree-panel" aria-label="Content tree"><h2 class="panel-title">Content tree</h2><div id="tree" class="tree-list"><p class="empty">Loading projects…</p></div></aside>
+        <section class="panel canvas-panel"><h1 id="editor-heading" class="editor-heading">Editing</h1><div class="toolbar" role="toolbar" aria-label="Formatting toolbar"><div class="toolbar-group"><button type="button" data-action="undo" title="Undo">↶</button><button type="button" data-action="redo" title="Redo">↷</button></div><div class="toolbar-group"><select id="heading-style" aria-label="Block style"><option value="paragraph">Paragraph</option><option value="##">Heading 2</option><option value="###">Heading 3</option><option value="####">Heading 4</option></select><button type="button" data-insert="**text**" title="Bold"><strong>B</strong></button><button type="button" data-insert="*text*" title="Italic"><em>I</em></button><button type="button" data-insert="`code`" title="Inline code"><code>&lt;/&gt;</code></button></div><div class="toolbar-group"><button type="button" data-insert="- item" title="Bulleted list">☷</button><button type="button" data-insert="1. item" title="Numbered list">1.</button><button type="button" data-insert="> quote" title="Quote">❝</button><button type="button" data-insert="[link text](https://example.com)" title="Link">↗</button></div><div class="toolbar-group"><select id="block-picker" aria-label="Insert content block"><option value="">Insert…</option><option value="callout">Callout</option><option value="code">Code</option><option value="figure">Image / Figure</option><option value="table">Table</option><option value="mermaid">Mermaid</option><option value="markmap">Markmap</option><option value="math">Math</option></select></div></div><div class="mode-tabs" role="tablist" aria-label="Editor mode"><button type="button" data-mode="visual" role="tab">Visual</button><button type="button" data-mode="source" role="tab" aria-selected="true" class="is-active">Source</button><button type="button" data-mode="diff" role="tab">Diff</button></div><textarea id="source" class="source-editor" spellcheck="false" aria-label="MDX source"></textarea><article id="visual" class="visual-editor doc-content hidden" aria-label="Visual preview"></article><pre id="diff" class="diff-editor hidden" aria-label="Document differences"></pre><footer class="editor-footer"><span id="status-message" class="status-message" aria-live="polite"></span><div class="editor-actions"><button id="save-bottom" class="button" type="button">Save draft</button><button id="publish-bottom" class="button primary" type="button">Publish</button></div></footer></section>
+        <aside class="panel inspector-panel" aria-label="Metadata inspector"><h2 class="panel-title">Metadata</h2><section class="inspector-section"><label class="field">Title<input id="title" type="text"></label><div id="bilingual-fields" class="hidden"><label class="field">English title<input id="title-en" type="text"></label><label class="field">عنوان فارسی<input id="title-fa" type="text" dir="rtl"></label></div><label class="field">Summary<textarea id="description"></textarea></label><div id="bilingual-descriptions" class="hidden"><label class="field">English summary<textarea id="description-en"></textarea></label><label class="field">توضیح فارسی<textarea id="description-fa" dir="rtl"></textarea></label></div><label class="field">Slug<input id="slug" type="text" readonly></label><label class="field">Tags<input id="tags" type="text" placeholder="Docker, CI/CD"></label></section><section id="parent-section" class="inspector-section hidden"><h3 class="panel-title">Parent project</h3><div id="parent" class="child-context"></div></section><details id="advanced" class="inspector-section"><summary class="panel-title">Advanced metadata</summary><label class="field">Icon ID<input id="icon" type="search" list="icon-list" placeholder="docker"><datalist id="icon-list"></datalist></label><label class="field">Publication<select id="publication"><option value="requires-review">requires-review</option><option value="public-sanitized">public-sanitized</option><option value="public-ready">public-ready</option><option value="planned-or-experimental">planned-or-experimental</option></select></label><label class="check"><input id="draft" type="checkbox"> Draft</label><label class="check"><input id="favorite" type="checkbox"> Favorite project</label><label class="field">Favorite date<input id="favorite-at" type="date"></label></details><section class="inspector-section"><h3 class="panel-title">Media</h3><label class="button" for="upload">Upload image</label><input id="upload" class="hidden" type="file" accept="image/png,image/jpeg,image/webp,image/gif"><label class="field" style="margin-top:.7rem">Choose existing<select id="existing-media"><option value="">No indexed media</option></select></label><p id="media-result" class="empty">Drop or paste an image into the source editor.</p></section></aside>
+      </main>
+    </div>
+    <script type="module" src="/__easy-content/editor.js"></script>
+  </body>
+</html>

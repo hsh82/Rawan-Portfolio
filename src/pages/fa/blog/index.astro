@@ -18,7 +18,7 @@ const landingArticle = await landing(lang);
 const landingRender = landingArticle ? await render(landingArticle) : undefined;
 const favorites = favoriteProjects();
 ---
-<Layout lang={lang} title={t('blog.title', lang)} description={t('blog.intro', lang)}>
+<Layout lang={lang} title={t('blog.title', lang)} description={t('blog.intro', lang)} contentContext={{ type: 'blog', locale: lang }}>
   <script type="application/ld+json" set:html={JSON.stringify({ '@context': 'https://schema.org', '@type': 'CollectionPage', name: t('blog.title', lang), description: t('blog.intro', lang), inLanguage: lang })} />
   <BlogIndex lang={lang} articles={articles} favoriteProjects={favorites}>
     {landingRender && <landingRender.Content slot="landing" components={{ Callout, Tabs, Figure, AttachmentDownload, MermaidDiagram, MindMap, CodeBlock }} />}

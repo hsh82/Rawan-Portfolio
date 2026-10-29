@@ -34,7 +34,12 @@ function projectChildren(locale, project) {
   if (!existsSync(directory)) return [];
   return readdirSync(directory, { withFileTypes: true })
     .filter(entry => entry.isFile() && /\.mdx?$/.test(entry.name) && entry.name !== 'overview.mdx')
-    .map(entry => entry.name.replace(/\.mdx?$/, ''));
+    .map(entry => {
+      const slug = entry.name.replace(/\.mdx?$/, '');
+      const source = readText(articleFile(locale, project, slug));
+      const document = parseDocument(source);
+      return { slug, title: document.frontmatter.title || slug, draft: document.frontmatter.draft === true };
+    });
 }
 
 function readProject(locale, id) {
@@ -52,12 +57,6 @@ function readLanding(locale) {
   return { type: 'blog', id: 'landing', locale, source, document, revision: revisionOf(source) };
 }
 
-function readHome(locale) {
-  const file = contentPath('profile.json');
-  const data = readJson(file);
-  return { type: 'home', id: 'home', locale, metadata: { locale, profile: { name: data.name || '', ...localized(data.locales, locale) }, profileData: data }, source: '', revision: revisionOf(readText(file)) };
-}
-
 function readJourney(locale, id) {
   const file = jsonPath('journey');
   const entries = readJson(file);
@@ -70,7 +69,9 @@ export function contextForPath(pathname) {
   const match = pathname.match(/^\/(en|fa)(?:\/|$)/);
   const locale = match?.[1] || 'en';
   const rest = pathname.replace(/^\/(en|fa)\/?/, '').replace(/\/$/, '');
-  if (!rest) return { type: 'home', id: 'home', locale };
+  // Home is intentionally outside the Easy Content capability model. It has
+  // no editor context and no write endpoint in this phase.
+  if (!rest) return { type: 'unsupported', id: 'home', locale, reason: 'unsupported content type' };
   if (rest === 'blog') return { type: 'blog', id: 'landing', locale };
   const article = rest.match(/^blog\/projects\/([a-z0-9-]+)\/([a-z0-9-]+)$/);
   if (article) return { type: article[2] === 'overview' ? 'project' : 'article', id: `${article[1]}/${article[2]}`, locale, project: article[1], slug: article[2] };
@@ -81,8 +82,56 @@ export function contextForPath(pathname) {
   return { type: 'unsupported', id: rest, locale };
 }
 
+function localeFromSearch(search) {
+  const locale = new URLSearchParams(search || '').get('locale');
+  return locale === 'fa' ? 'fa' : 'en';
+}
+
+export function editorContextForPath(pathname, search = '') {
+  const locale = localeFromSearch(search);
+  const blog = pathname.match(/^\/dev\/content\/(edit|new)\/blog\/?$/);
+  if (blog) return blog[1] === 'edit'
+    ? { type: 'blog', id: 'landing', locale, mode: 'edit', returnPath: `/${locale}/blog/` }
+    : { type: 'unsupported', id: 'blog', locale, reason: 'Blog creation is not supported' };
+
+  const project = pathname.match(/^\/dev\/content\/(edit|new)\/project(?:\/([a-z0-9-]+))?\/?$/);
+  if (project) {
+    const id = project[2];
+    if (project[1] === 'new') return { type: 'project', id: 'new', locale, mode: 'new', returnPath: `/${locale}/blog/` };
+    if (!id) return { type: 'unsupported', id: 'project', locale, reason: 'Project ID is required' };
+    return { type: 'project', id, project: id, locale, mode: 'edit', returnPath: `/${locale}/blog/projects/${id}/overview/` };
+  }
+
+  const article = pathname.match(/^\/dev\/content\/(edit|new)\/article\/([a-z0-9-]+)(?:\/([a-z0-9-]+))?\/?$/);
+  if (article) {
+    const projectId = article[2];
+    const slug = article[3];
+    if (article[1] === 'new') return { type: 'article', id: `${projectId}/new`, project: projectId, slug: 'new', locale, mode: 'new', returnPath: `/${locale}/blog/projects/${projectId}/overview/` };
+    if (!slug) return { type: 'unsupported', id: projectId, locale, reason: 'Article slug is required' };
+    return { type: 'article', id: `${projectId}/${slug}`, project: projectId, slug, locale, mode: 'edit', returnPath: `/${locale}/blog/projects/${projectId}/${slug}/` };
+  }
+
+  return { type: 'unsupported', id: pathname, locale, reason: 'unsupported content type' };
+}
+
+export function contentTree(locale = 'en') {
+  return readJson(jsonPath('projects')).map(project => ({
+    type: 'project',
+    id: project.id,
+    title: localized(project.locales, locale).title || project.id,
+    draft: project.visible === false,
+    children: projectChildren(locale, project.id).map(article => ({
+      type: 'article',
+      id: `${project.id}/${article.slug}`,
+      slug: article.slug,
+      title: article.title,
+      draft: article.draft,
+    })),
+  }));
+}
+
 export function readEntity(context) {
-  if (context.type === 'home') return readHome(context.locale);
+  if (context.type === 'home') throw new Error('unsupported content type');
   if (context.type === 'blog') return readLanding(context.locale);
   if (context.type === 'project') return readProject(context.locale, context.project || context.id);
   if (context.type === 'article') return articleEntity(context.locale, context.project, context.slug);
@@ -126,17 +175,7 @@ function assertProjectPublication(record, locale, publish) {
 export function saveEntity(input) {
   const context = input.context;
   const source = String(input.source ?? '');
-  if (context.type === 'home') {
-    const file = contentPath('profile.json');
-    const current = readJson(file);
-    const profile = input.metadata?.profile || {};
-    const allowed = ['name', 'displayName', 'title', 'intro', 'summary', 'description', 'greeting', 'ctaExperience', 'ctaProjects', 'bullets'];
-    const localizedProfile = Object.fromEntries(allowed.filter(key => profile[key] !== undefined).map(key => [key, profile[key]]));
-    const next = { ...current, name: profile.name ?? current.name, locales: { ...current.locales, [context.locale]: { ...current.locales?.[context.locale], ...localizedProfile } } };
-    if (revisionOf(readText(file)) !== input.expectedRevision) throw Object.assign(new Error('File changed outside Easy Content Mode'), { code: 409 });
-    writeTransaction([{ file, source: writeJson(next) }]);
-    return { ...readHome(context.locale), saved: true };
-  }
+  if (context.type === 'home') throw new Error('unsupported content type');
   if (context.type === 'blog') {
     const file = contentPath('blog', context.locale, '_index.mdx');
     if (revisionOf(readText(file)) !== input.expectedRevision) throw Object.assign(new Error('File changed outside Easy Content Mode'), { code: 409 });
@@ -209,10 +248,12 @@ export function createProject(input) {
     if (existsSync(file)) throw new Error(`Project overview already exists: ${locale}/${id}`);
     const title = record.locales[locale].title;
     const description = record.locales[locale].description;
-    files.push({ file, source: serializeDocument({ title, description, slug: 'overview', locale, category: 'projects', subcategory: id, tags: [], pubDate: new Date().toISOString().slice(0, 10), draft: true, featured: false, translationId: `${id}-overview`, toc: true }, `\n## ${title}\n\n${description}\n`) });
+    const body = locale === input.locale && input.body ? String(input.body) : `\n## ${title}\n\n${description}\n`;
+    files.push({ file, source: serializeDocument({ title, description, slug: 'overview', locale, category: 'projects', subcategory: id, tags: input.tags || [], pubDate: new Date().toISOString().slice(0, 10), draft: true, featured: false, translationId: `${id}-overview`, toc: true }, body) });
   }
   writeTransaction(files);
-  return { id, route: `/${input.locale || 'en'}/blog/projects/${id}/overview/` };
+  const locale = input.locale === 'fa' ? 'fa' : 'en';
+  return { id, route: `/${locale}/blog/projects/${id}/overview/`, editorRoute: `/dev/content/edit/project/${id}/?locale=${locale}` };
 }
 
 export function createArticle(input) {
@@ -226,10 +267,12 @@ export function createArticle(input) {
     if (existsSync(file)) throw new Error(`Article slug already exists: ${locale}/${project}/${slug}`);
     const title = input.title?.[locale] || slug;
     const description = input.description?.[locale] || 'Draft article.';
-    files.push({ file, source: serializeDocument({ title, description, slug, locale, category: 'projects', subcategory: project, tags: input.tags || [], pubDate: new Date().toISOString().slice(0, 10), draft: true, featured: false, translationId: input.translationId || `${project}-${slug}`, toc: true }, `\n## ${title}\n\n`) });
+    const body = locale === input.locale && input.body ? String(input.body) : `\n## ${title}\n\n`;
+    files.push({ file, source: serializeDocument({ title, description, slug, locale, category: 'projects', subcategory: project, tags: input.tags || [], pubDate: new Date().toISOString().slice(0, 10), draft: true, featured: false, translationId: input.translationId || `${project}-${slug}`, toc: true }, body) });
   }
   writeTransaction(files);
-  return { project, slug, route: `/${input.locale || 'en'}/blog/projects/${project}/${slug}/` };
+  const locale = input.locale === 'fa' ? 'fa' : 'en';
+  return { project, slug, route: `/${locale}/blog/projects/${project}/${slug}/`, editorRoute: `/dev/content/edit/article/${project}/${slug}/?locale=${locale}` };
 }
 
 export function createJourney(input) {

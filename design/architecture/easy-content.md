@@ -4,31 +4,37 @@ Easy Content is a local developer tool for editing this portfolio’s canonical 
 
 ## Activation and production boundary
 
-Run `npm run dev:content`. The wrapper starts Astro with `EASY_CONTENT_MODE=true`. The Vite integration is registered only for the `serve` command, and the editor launcher is rendered only when Astro is both in development mode and the flag is enabled. A normal `npm run dev` has no editor controls. Production builds do not include the middleware, write API, session token, or editor UI.
+Run `npm run dev:content`. The wrapper starts Astro with `EASY_CONTENT_MODE=true`. The write API is registered only for the development server, and the editor route is injected only while that flag is enabled. A normal `npm run dev` has no authoring controls. Production builds do not include the middleware, write API, session token, editor route, or editor UI.
 
 ## Architecture
 
 ```text
-EasyContentLauncher.astro
+Public Blog/Project/Article page
         |
         v
-/__easy-content/api/*  -- local same-origin middleware --  adapters
+ContentActionBar.astro  -- contextual links only in Easy Content dev mode
+        |
+        v
+/dev/content/edit/* and /dev/content/new/*  -- injected dev-only Astro route
         |                                             |
         v                                             v
-  session/revision checks                       canonical content/
+editor.html + editor.js                         canonical content/
         |                                             |
-        +-- atomic writes / transactions -------------+
+        +-- /__easy-content/api/* -- local middleware --+
+              session/revision checks / atomic transactions
 ```
 
-The launcher is a small native DOM editor. It has Content, Metadata, Media, and Changes tabs; Source, Visual, and Diff modes; onboarding; keyboard save; and draft/publish actions. It intentionally has no React/Preact/MDX editor dependency. Source mode remains authoritative for MDX components that cannot safely be represented by the lightweight visual preview.
+The editor is a full-page native DOM authoring workspace. It has a logical content tree, metadata inspector, media upload, Git/validation controls, Source/Visual/Diff modes, onboarding, keyboard save, and draft/publish actions. It intentionally has no React/Preact/MDX editor dependency. Source mode remains authoritative for MDX components that cannot safely be represented by the lightweight visual preview. The public Header remains a site Header; authoring actions are owned by `ContentActionBar.astro`.
 
 ## Adapter rules
 
-- Home: limited localized profile fields in `content/profile.json`.
+- Home: not editable in this phase. Home contexts, editor routes, and write requests return `unsupported content type`.
 - Blog: localized landing copy in `content/blog/{locale}/_index.mdx`.
 - Project: the registry record and the localized `overview.mdx` are saved as one transaction. Child articles are inferred from the project directory.
 - Article: localized child MDX with a stable slug and translation relationship.
 - Journey: localized milestone copy in `content/journey/entries.json`, initially hidden when created.
+
+The action resolver exposes only `Edit Blog` + `New Project` on the Blog landing, and `Edit` + `New Article` on a Project or Article surface. An Article’s New Article action always uses its parent Project, so it creates a sibling rather than a nested child.
 
 Project publishing updates the canonical registry and overview together, keeps the overview frontmatter synchronized, validates registered icon IDs, and refuses unsafe publication classes until they are explicitly moved to a public-sanitized state. Project favorites and `favoriteAt` remain registry data, so homepage and Blog selection continue to use the existing selectors.
 

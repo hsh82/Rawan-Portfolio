@@ -8,7 +8,7 @@ import mdx from '@astrojs/mdx';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
-import { easyContentVitePlugin } from './src/dev/easy-content/integration/index.mjs';
+import { easyContentAstroIntegration, easyContentVitePlugin } from './src/dev/easy-content/integration/index.mjs';
 
 const siteContent = JSON.parse(readFileSync(resolve('content/site.json'), 'utf8'));
 // English is the safe default when content/site.json omits defaultLocale.
@@ -33,7 +33,7 @@ export default defineConfig({
 
   // Integrations
   markdown: { remarkPlugins: [remarkGfm, remarkMath], rehypePlugins: [rehypeKatex], shikiConfig: { themes: { light: 'github-light', dark: 'github-dark' } } },
-  integrations: [tailwind(), mdx(), sitemap({
+  integrations: [tailwind(), mdx(), easyContentAstroIntegration(), sitemap({
     filter: (page) => !/\/(?:en|fa)\/(?:contact|resume)\/$/.test(new URL(page).pathname)
   }), preact({
     compat: true
