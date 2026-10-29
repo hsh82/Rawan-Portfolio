@@ -1,6 +1,6 @@
 # Content model
 
-`content/` is the source boundary for public owner data. JSON records use stable IDs. Journey references project and article IDs. Resume selection references existing IDs. Empty arrays are supported. The homepage composes profile, skills, experience, projects, journey, résumé, and contact models into anchored sections.
+`content/` is the source boundary for public owner data. JSON records use stable IDs. Journey references project and article IDs. Résumé selection references existing IDs and root Blog project hubs. Empty arrays are supported. The homepage and résumé compose profile, skills, experience, projects, journey, résumé, and contact models into their respective views.
 
 Profile media is authored only under `content/media/` and referenced with a content-relative path such as `media/profile/name.svg`. `npm run media:publish` creates the ignored `public/media/` mirror required by Astro’s static server. The mirror is generated output, not a second source of truth. Résumé generation reads the same canonical content file directly.
 

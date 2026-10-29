@@ -1,7 +1,8 @@
-import { readFileSync, existsSync, readdirSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { z } from 'zod';
 import type { Locale } from './i18n';
+import { readProjectHubs } from './project-source.mjs';
 
 const root = resolve(process.cwd(), 'content');
 const localizedText = z.object({ title: z.string().default(''), displayName: z.string().default(''), description: z.string().default(''), intro: z.string().default(''), summary: z.string().default(''), greeting: z.string().default(''), ctaExperience: z.string().default(''), ctaProjects: z.string().default(''), bullets: z.array(z.string()).default([]) }).partial();
@@ -58,7 +59,7 @@ export const projectSchema = z.object({
 const journeySchema = z.object({ id: z.string().regex(/^[a-z0-9-]+$/), visible: z.boolean().default(true), type: z.enum(['employment', 'milestone', 'education', 'certification', 'achievement', 'project', 'training', 'open-source', 'other']), startDate: z.coerce.date().optional(), endDate: z.coerce.date().optional(), current: z.boolean().default(false), locales: localized, organization: z.string().default(''), location: z.string().default(''), technologies: z.array(z.string()).default([]), image: z.string().optional(), documents: z.array(link).default([]), projectIds: z.array(z.string()).default([]), articleIds: z.array(z.string()).default([]), links: z.array(link).default([]), priority: z.number().int().default(0) });
 const recordSchema = z.object({ id: z.string().regex(/^[a-z0-9-]+$/), visible: z.boolean().default(true), locales: localized, startDate: z.coerce.date().optional(), endDate: z.coerce.date().optional(), organization: z.string().default(''), technologies: z.array(z.string()).default([]), priority: z.number().int().default(0) });
 const skillSchema = recordSchema.extend({ category: z.enum(['cicd', 'containers', 'infrastructure', 'network', 'scripting', 'design']) });
-const resumeSchema = z.object({ enabled: z.boolean().default(false), filenameSlug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).default('resume'), portrait: z.boolean().default(true), locales: z.array(z.enum(['en', 'fa'])).default(['en', 'fa']), include: z.object({ experience: z.boolean().default(true), education: z.boolean().default(true), certifications: z.boolean().default(true), skills: z.boolean().default(true), projects: z.boolean().default(true), journey: z.boolean().default(false) }).default({}), projectIds: z.array(z.string()).default([]), journeyIds: z.array(z.string()).default([]) });
+const resumeSchema = z.object({ enabled: z.boolean().default(false), filenameSlug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).default('resume'), portrait: z.boolean().default(true), locales: z.array(z.enum(['en', 'fa'])).default(['en', 'fa']), include: z.object({ experience: z.boolean().default(true), education: z.boolean().default(true), certifications: z.boolean().default(true), skills: z.boolean().default(true), projects: z.boolean().default(true), journey: z.boolean().default(false) }).default({}), projectLimit: z.number().int().min(1).max(6).default(4), projectIds: z.array(z.string()).default([]), journeyIds: z.array(z.string()).default([]) });
 
 function read<T>(path: string, schema: z.ZodType<T>, fallback: T): T {
   const file = resolve(root, path);
@@ -67,47 +68,13 @@ function read<T>(path: string, schema: z.ZodType<T>, fallback: T): T {
 }
 function list(path: string, schema: z.ZodType<any>) { return read(path, z.array(schema), []); }
 
-function frontmatterValue(source: string, field: string) {
-  const match = source.match(new RegExp(`^${field}:\\s*(.+?)\\s*$`, 'm'));
-  if (!match) return '';
-  const value = match[1].trim();
-  try { return JSON.parse(value); } catch { return value.replace(/^['"]|['"]$/g, ''); }
-}
-
-/**
- * Projects are published documents, not a second JSON registry. Shared card
- * metadata belongs to the project hub's entry.json; each sibling MDX file is
- * authoritative for its translated title and summary.
- */
 function projectHubs() {
-  const directory = resolve(root, 'blog', 'projects');
-  if (!existsSync(directory)) return [];
-  return readdirSync(directory, { withFileTypes: true })
-    .filter(item => item.isDirectory())
-    .map(item => {
-      if (item.name === 'overview') throw new Error('Invalid project hub ID: overview is reserved for the overview URL');
-      const projectRoot = resolve(directory, item.name);
-      const entry = resolve(projectRoot, 'entry.json');
-      if (!existsSync(entry)) return null;
-      const shared = JSON.parse(readFileSync(entry, 'utf8'));
-      const locales = Object.fromEntries(['en', 'fa'].map(locale => {
-        const file = resolve(projectRoot, `${locale}.mdx`);
-        const source = existsSync(file) ? readFileSync(file, 'utf8') : '';
-        return [locale, {
-          title: frontmatterValue(source, 'title'),
-          description: frontmatterValue(source, 'description'),
-        }];
-      }));
-      return projectSchema.parse({
-        ...shared,
-        // Publication is represented once in shared metadata. `visible` is
-        // retained only as a normalized runtime compatibility property.
-        visible: shared.status === 'published',
-        category: shared.projectCategory || (shared.category === 'projects' ? 'devops-delivery' : shared.category),
-        locales,
-      });
-    })
-    .filter((project): project is z.infer<typeof projectSchema> => Boolean(project));
+  return readProjectHubs(root).map(shared => projectSchema.parse({
+    ...shared,
+    // Publication is represented once in shared metadata. `visible` is
+    // retained only as a normalized runtime compatibility property.
+    visible: shared.status === 'published',
+  }));
 }
 
 export const portfolio = () => ({
