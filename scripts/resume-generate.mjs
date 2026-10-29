@@ -146,7 +146,8 @@ mkdirSync(output, { recursive: true });
 mkdirSync(temp, { recursive: true });
 
 for (const locale of locales) {
-  const copy = profileCopy(locale);
+  const baseCopy = profileCopy(locale);
+  const copy = { ...baseCopy, intro: [baseCopy.greeting, baseCopy.intro].filter(Boolean).join(' ') };
   const text = labels[locale] || labels.en;
   const name = copy.displayName || profile.name || '';
   const title = copy.title || '';
