@@ -1,12 +1,12 @@
 ---
-import { Github, Linkedin } from '@lucide/astro';
+import { GithubIcon, LinkedinIcon } from '@lucide/astro';
 import { localeOf, t, type Locale } from '../../utils/i18n';
 import { portfolio } from '../../utils/portfolio-content';
 const lang = localeOf(Astro.props.lang) as Locale;
 const data = portfolio();
 const currentYear = new Date().getFullYear();
 const profileName = data.profile.name || (lang === 'fa' ? 'پورتفولیوی راوان' : 'Rawan Portfolio');
-const iconFor = (label: string) => /linkedin/i.test(label) ? Linkedin : Github;
+const iconFor = (label: string) => /linkedin/i.test(label) ? LinkedinIcon : GithubIcon;
 const socials = (data.contact.socials || []).map((item: any) => ({ ...item, Icon: iconFor(item.label) }));
 ---
 <footer class="site-footer border-t border-gray-100 bg-white py-8 dark:border-gray-800 dark:bg-neutral-dark">

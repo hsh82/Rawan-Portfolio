@@ -1,0 +1,174 @@
+---
+import { EASY_CONTENT_BLOCKS } from '../blocks/registry.mjs';
+import { ICON_IDS } from '../../../utils/icon-registry.mjs';
+import type { Locale } from '../../../utils/i18n';
+
+interface Props { lang: Locale; }
+const { lang } = Astro.props;
+const enabled = import.meta.env.DEV && import.meta.env.EASY_CONTENT_MODE === 'true';
+const fa = lang === 'fa';
+const copy = fa ? {
+  edit: 'ویرایش', editing: 'در حال ویرایش', dev: 'محتوای توسعه', warningTitle: 'حالت محتوای توسعه', warningBody: 'Easy Content فایل‌های واقعی را مستقیماً در پوشهٔ کاری شما تغییر می‌دهد. تغییرات خودکار commit یا push نمی‌شوند؛ آن‌ها را با Git بررسی کنید.', acknowledge: 'متوجه شدم — ورود به حالت ویرایش', close: 'بستن', save: 'ذخیرهٔ پیش‌نویس', publish: 'انتشار محلی', content: 'محتوا', metadata: 'داده‌ها', media: 'رسانه', changes: 'تغییرات', visual: 'نمایش', source: 'منبع', diff: 'تفاوت', title: 'عنوان', description: 'توضیح کوتاه', slug: 'شناسهٔ مسیر', tags: 'برچسب‌ها', icon: 'شناسهٔ آیکن', draft: 'پیش‌نویس', favorite: 'پروژهٔ منتخب', favoriteAt: 'تاریخ انتخاب', publication: 'وضعیت انتشار', newJourney: 'رویداد جدید مسیر', validate: 'اعتبارسنجی', git: 'وضعیت Git', newProject: 'پروژهٔ جدید', addArticle: 'افزودن مقاله', upload: 'افزودن تصویر', selectBlock: 'افزودن بلوک', saved: 'ذخیره شد. تغییرات را با Git بررسی و commit کنید.', conflict: 'این فایل بیرون از Easy Content تغییر کرده است. نسخهٔ شما نگه داشته شد؛ ابتدا از دیسک بارگذاری مجدد کنید.', unsupported: 'این صفحه هنوز آداپتر ویرایش ندارد.'
+} : {
+  edit: 'Edit', editing: 'Editing', dev: 'DEV CONTENT', warningTitle: 'Developer content mode', warningBody: 'Easy Content writes directly to files in your working tree. It never commits or pushes automatically. Review your changes with Git.', acknowledge: 'I understand — enter Edit Mode', close: 'Close', save: 'Save draft', publish: 'Publish locally', content: 'Content', metadata: 'Metadata', media: 'Media', changes: 'Changes', visual: 'Visual', source: 'Source', diff: 'Diff', title: 'Title', description: 'Description', slug: 'URL slug', tags: 'Tags', icon: 'Icon ID', draft: 'Draft', favorite: 'Favorite project', favoriteAt: 'Favorite date', publication: 'Publication status', newJourney: 'New journey event', validate: 'Validate', git: 'Git status', newProject: 'New project', addArticle: 'Add article', upload: 'Add image', selectBlock: 'Insert block', saved: 'Saved. Review and commit your changes with Git.', conflict: 'This file changed outside Easy Content. Your version is still in the editor; reload before saving.', unsupported: 'This page does not have an editing adapter yet.'
+};
+---
+
+{enabled && <>
+  <div class="easy-content-indicator" title={copy.dev}>{copy.dev}</div>
+  <button id="easy-content-open" type="button" class="easy-content-open">{copy.edit}</button>
+
+  <dialog id="easy-content-onboarding" class="easy-content-dialog easy-content-onboarding">
+    <div class="easy-content-onboarding__body" dir={fa ? 'rtl' : 'ltr'}>
+      <span class="easy-content-kicker">{copy.dev}</span>
+      <h2>{copy.warningTitle}</h2>
+      <p>{copy.warningBody}</p>
+      <div class="easy-content-actions"><button id="easy-content-ack" type="button" class="easy-content-primary">{copy.acknowledge}</button><button id="easy-content-onboarding-close" type="button" class="easy-content-secondary">{copy.close}</button></div>
+    </div>
+  </dialog>
+
+  <dialog id="easy-content-editor" class="easy-content-dialog easy-content-editor-dialog">
+    <div class="easy-content-shell" dir={fa ? 'rtl' : 'ltr'}>
+      <header class="easy-content-header"><div><span class="easy-content-kicker">{copy.dev}</span><h2 id="easy-content-heading">{copy.editing}</h2><p id="easy-content-entity" class="easy-content-muted"></p></div><div class="easy-content-header-actions"><button id="easy-content-validate" type="button" class="easy-content-secondary">{copy.validate}</button><button id="easy-content-git" type="button" class="easy-content-secondary">{copy.git}</button><button id="easy-content-close" type="button" class="easy-content-secondary">{copy.close}</button></div></header>
+      <div class="easy-content-tabs"><button type="button" data-panel="content" class="is-active">{copy.content}</button><button type="button" data-panel="metadata">{copy.metadata}</button><button type="button" data-panel="media">{copy.media}</button><button type="button" data-panel="changes">{copy.changes}</button></div>
+      <main class="easy-content-workspace">
+        <section class="easy-content-main" data-panel-content>
+          <div class="easy-content-toolbar"><div class="easy-content-mode"><button type="button" data-mode="visual">{copy.visual}</button><button type="button" data-mode="source" class="is-active">{copy.source}</button><button type="button" data-mode="diff">{copy.diff}</button></div><select id="easy-content-block" aria-label={copy.selectBlock}><option value="">{copy.selectBlock}</option>{EASY_CONTENT_BLOCKS.map(block => <option value={block.id}>{block.label}</option>)}</select></div>
+          <textarea id="easy-content-source" class="easy-content-source" spellcheck="false" aria-label={copy.source}></textarea>
+          <article id="easy-content-visual" class="easy-content-preview doc-content" hidden></article>
+          <pre id="easy-content-diff" class="easy-content-diff" hidden></pre>
+        </section>
+        <aside class="easy-content-inspector" data-panel-metadata hidden>
+          <label>{copy.title}<input id="easy-content-title" type="text" /></label>
+          <label>{copy.description}<textarea id="easy-content-description" rows="4"></textarea></label>
+          <label>{copy.slug}<input id="easy-content-slug" type="text" readonly /></label>
+          <label>{copy.tags}<input id="easy-content-tags" type="text" placeholder="Docker, CI/CD" /></label>
+          <label class="easy-content-check"><input id="easy-content-draft" type="checkbox" /> <span>{copy.draft}</span></label>
+          <div id="easy-content-project-fields" hidden><label>{copy.icon}<input id="easy-content-icon" list="easy-content-icon-options" type="search" placeholder="docker" /><datalist id="easy-content-icon-options">{ICON_IDS.map(icon => <option value={icon} />)}</datalist></label><label>{copy.publication}<select id="easy-content-publication"><option value="requires-review">requires-review</option><option value="public-sanitized">public-sanitized</option><option value="public-ready">public-ready</option><option value="planned-or-experimental">planned-or-experimental</option></select></label><label class="easy-content-check"><input id="easy-content-favorite" type="checkbox" /> <span>{copy.favorite}</span></label><label>{copy.favoriteAt}<input id="easy-content-favorite-at" type="date" /></label></div>
+        </aside>
+        <section class="easy-content-inspector" data-panel-media hidden><p class="easy-content-muted">{copy.upload}</p><input id="easy-content-upload" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" /><div id="easy-content-media-result" class="easy-content-muted"></div></section>
+        <section class="easy-content-inspector" data-panel-changes hidden><pre id="easy-content-git-output" class="easy-content-git-output"></pre></section>
+      </main>
+      <footer class="easy-content-footer"><p id="easy-content-status" class="easy-content-status" aria-live="polite"></p><div class="easy-content-actions"><button id="easy-content-new-project" type="button" class="easy-content-secondary">+ {copy.newProject}</button><button id="easy-content-new-journey" type="button" class="easy-content-secondary">+ {copy.newJourney}</button><button id="easy-content-add-article" type="button" class="easy-content-secondary" hidden>+ {copy.addArticle}</button><button id="easy-content-save" type="button" class="easy-content-secondary">{copy.save}</button><button id="easy-content-publish" type="button" class="easy-content-primary">{copy.publish}</button></div></footer>
+    </div>
+  </dialog>
+
+  <script define:vars={{ blocks: EASY_CONTENT_BLOCKS, copy }}>
+    const api = '/__easy-content/api';
+    const openButton = document.querySelector('#easy-content-open');
+    const onboarding = document.querySelector('#easy-content-onboarding');
+    const editor = document.querySelector('#easy-content-editor');
+    const source = document.querySelector('#easy-content-source');
+    const visual = document.querySelector('#easy-content-visual');
+    const diff = document.querySelector('#easy-content-diff');
+    const status = document.querySelector('#easy-content-status');
+    const title = document.querySelector('#easy-content-title');
+    const description = document.querySelector('#easy-content-description');
+    const slug = document.querySelector('#easy-content-slug');
+    const tags = document.querySelector('#easy-content-tags');
+    const draft = document.querySelector('#easy-content-draft');
+    const favorite = document.querySelector('#easy-content-favorite');
+    const favoriteAt = document.querySelector('#easy-content-favorite-at');
+    const publication = document.querySelector('#easy-content-publication');
+    const icon = document.querySelector('#easy-content-icon');
+    const projectFields = document.querySelector('#easy-content-project-fields');
+    const addArticle = document.querySelector('#easy-content-add-article');
+    let token = '';
+    let context;
+    let entity;
+    let baseline = '';
+    let working = '';
+    let mode = 'source';
+    let visualChanged = false;
+    let dirty = false;
+
+    const $ = (selector) => document.querySelector(selector);
+    const setStatus = (message, error = false) => { status.textContent = message; status.classList.toggle('is-error', error); };
+    const markDirty = () => { dirty = true; };
+    const request = async (path, options = {}) => { const response = await fetch(`${api}/${path}`, { ...options, headers: { 'Content-Type': 'application/json', 'x-easy-content-token': token, ...(options.headers || {}) } }); const result = await response.json(); if (!response.ok) { const error = new Error(result.error || 'Request failed'); error.status = response.status; throw error; } return result; };
+    const parseFrontmatter = (value) => { const match = value.match(/^---\s*\n([\s\S]*?)\n---(?:\n|$)/); const fields = {}; const order = []; if (!match) return { fields, order, body: value }; for (const line of match[1].split('\n')) { const item = line.match(/^([A-Za-z][A-Za-z0-9_-]*):\s*(.*?)\s*$/); if (!item) continue; order.push(item[1]); let parsed = item[2]; if (parsed === 'true') parsed = true; else if (parsed === 'false') parsed = false; else if (parsed.startsWith('[')) { try { parsed = JSON.parse(parsed.replaceAll("'", '"')); } catch {} } else parsed = parsed.replace(/^['"]|['"]$/g, ''); fields[item[1]] = parsed; } return { fields, order, body: value.slice(match[0].length) }; };
+    const yamlValue = (value) => typeof value === 'string' ? JSON.stringify(value) : JSON.stringify(value);
+    const bodyOnly = (value) => parseFrontmatter(value).body;
+    const escapeHtml = (value) => value.replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
+    const visualHtml = (value) => { const lines = bodyOnly(value).trim().split('\n'); let html = ''; let inCode = false; let code = []; let list = null; for (const line of lines) { if (line.startsWith('```')) { if (inCode) { html += `<pre><code>${escapeHtml(code.join('\n'))}</code></pre>`; code = []; inCode = false; } else inCode = true; continue; } if (inCode) { code.push(line); continue; } if (/^<\/?[A-Z]/.test(line.trim())) { html += `<div class="easy-content-unsupported">${escapeHtml(line.trim())}</div>`; continue; } if (!line.trim()) { if (list) { html += `</${list}>`; list = null; } continue; } const heading = line.match(/^(#{2,4})\s+(.+)$/); if (heading) { if (list) { html += `</${list}>`; list = null; } const level = heading[1].length; html += `<h${level}>${inlineHtml(heading[2])}</h${level}>`; continue; } const bullet = line.match(/^\s*[-*]\s+(.+)$/); const numbered = line.match(/^\s*\d+\.\s+(.+)$/); if (bullet || numbered) { const wanted = numbered ? 'ol' : 'ul'; if (list !== wanted) { if (list) html += `</${list}>`; html += `<${wanted}>`; list = wanted; } html += `<li>${inlineHtml((bullet || numbered)[1])}</li>`; continue; } if (line.startsWith('> ')) html += `<blockquote>${inlineHtml(line.slice(2))}</blockquote>`; else if (/^---+$/.test(line.trim())) html += '<hr />'; else html += `<p>${inlineHtml(line)}</p>`; } if (list) html += `</${list}>`; return html || '<p class="easy-content-muted">Nothing to preview yet.</p>'; };
+    const inlineHtml = (value) => escapeHtml(value).replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/\*([^*]+)\*/g, '<em>$1</em>').replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+    const diffHtml = (before, after) => { const oldLines = before.split('\n'); const newLines = after.split('\n'); const max = Math.max(oldLines.length, newLines.length); const rows = []; for (let i = 0; i < max; i++) { const oldLine = oldLines[i]; const newLine = newLines[i]; if (oldLine === newLine) rows.push(`  ${escapeHtml(oldLine || '')}`); else { if (oldLine !== undefined) rows.push(`- ${escapeHtml(oldLine)}`); if (newLine !== undefined) rows.push(`+ ${escapeHtml(newLine)}`); } } return rows.join('\n') || 'No changes'; };
+    const renderMode = () => { source.hidden = mode !== 'source'; visual.hidden = mode !== 'visual'; diff.hidden = mode !== 'diff'; if (mode === 'visual') { visual.innerHTML = visualHtml(working); const advanced = /<[A-Z]/.test(working) || working.includes('```') || /!\[/.test(working) || /^\s*\|/m.test(working) || working.includes('$$') || working.includes('**') || /\[[^\]]+\]\(/.test(working); visual.contentEditable = advanced ? 'false' : 'true'; visual.classList.toggle('is-readonly', advanced); } if (mode === 'diff') diff.textContent = diffHtml(baseline, working); document.querySelectorAll('[data-mode]').forEach(button => button.classList.toggle('is-active', button.dataset.mode === mode)); };
+    const renderEntity = () => { const front = entity.document?.frontmatter || {}; const project = entity.metadata; const localeData = project?.locales?.[context.locale] || entity.metadata?.profile || {}; title.value = localeData.title || front.title || ''; description.value = localeData.description || localeData.intro || front.description || ''; slug.value = context.type === 'project' ? context.project : context.type === 'home' ? 'home' : front.slug || ''; tags.value = Array.isArray(front.tags) ? front.tags.join(', ') : ''; icon.value = project?.icon || ''; publication.value = project?.publication || 'requires-review'; draft.checked = context.type !== 'home' && Boolean(front.draft); projectFields.hidden = context.type !== 'project'; favorite.checked = Boolean(project?.favorite ?? project?.featured); favoriteAt.value = project?.favoriteAt ? String(project.favoriteAt).slice(0, 10) : ''; addArticle.hidden = context.type !== 'project'; working = entity.source || ''; source.value = working; baseline = working; dirty = false; visualChanged = false; $('#easy-content-entity').textContent = `${context.type} · ${context.locale}${context.id ? ` · ${context.id}` : ''}`; renderMode(); setStatus(''); };
+    const load = async () => { try { const contextResponse = await fetch(`${api}/context?path=${encodeURIComponent(location.pathname)}`); const contextResult = await contextResponse.json(); if (!contextResult.enabled) throw new Error(copy.unsupported); token = contextResult.token; context = contextResult.context; if (context.type === 'unsupported') throw new Error(copy.unsupported); const result = await request(`read?context=${encodeURIComponent(JSON.stringify(context))}`); entity = result.entity; renderEntity(); editor.showModal(); } catch (error) { setStatus(error.message, true); editor.showModal(); } };
+    const metadataPayload = () => { if (!['project', 'journey'].includes(context.type)) return undefined; const next = structuredClone(entity.metadata); next.locales = { ...next.locales, [context.locale]: { ...next.locales?.[context.locale], title: title.value, description: description.value } }; if (context.type === 'project') { next.icon = icon.value.trim() || undefined; next.publication = publication.value; next.favorite = favorite.checked; next.favoriteAt = favorite.checked ? (favoriteAt.value || new Date().toISOString().slice(0, 10)) : null; } return next; };
+    const prepareSource = (publish) => { if (context.type === 'home') return ''; if (visualChanged) { working = `---\n${parseFrontmatter(working).order.map(key => `${key}: ${yamlValue(parseFrontmatter(working).fields[key])}`).join('\n')}\n---\n${htmlToMarkdown(visual.innerHTML)}`; visualChanged = false; } const updates = { title: title.value, description: description.value, tags: tags.value.split(',').map(value => value.trim()).filter(Boolean), draft: publish ? false : true }; if (context.type === 'project') { updates.title = title.value; updates.description = description.value; } return working; };
+    const htmlToMarkdown = (html) => { const node = document.createElement('div'); node.innerHTML = html; const walk = element => [...element.childNodes].map(child => { if (child.nodeType === 3) return child.textContent; const tag = child.nodeName.toLowerCase(); const text = walk(child); if (/^h[2-4]$/.test(tag)) return `${'#'.repeat(Number(tag[1]))} ${text}\n\n`; if (tag === 'p') return `${text}\n\n`; if (tag === 'li') return `- ${text}\n`; if (tag === 'blockquote') return `> ${text}\n\n`; if (tag === 'pre') return '```\n' + child.textContent + '\n```\n\n'; if (tag === 'hr') return '---\n\n'; return text; }).join(''); return walk(node).trim() + '\n'; };
+    const save = async (publish) => { try { const nextSource = prepareSource(publish); const result = await request('save', { method: 'POST', body: JSON.stringify({ context, source: nextSource, metadata: context.type === 'home' ? { profile: { name: entity.metadata.profile.name, title: title.value, intro: description.value } } : metadataPayload(), frontmatter: { title: title.value, description: description.value, tags: tags.value.split(',').map(value => value.trim()).filter(Boolean) }, expectedRevision: entity.revision, publish }) }); entity = result.entity; renderEntity(); setStatus(copy.saved); } catch (error) { setStatus(error.status === 409 ? copy.conflict : error.message, true); } };
+    const createProject = async () => { const id = prompt(fa ? 'شناسهٔ پروژه (انگلیسی):' : 'Project slug:'); if (!id) return; const en = prompt('English title:') || id; const faTitle = prompt('عنوان فارسی:') || en; const result = await request('create-project', { method: 'POST', body: JSON.stringify({ id, title: { en, fa: faTitle }, description: { en: 'Draft project.', fa: 'پروژهٔ پیش‌نویس.' }, locales: ['en', 'fa'] }) }); location.assign(result.route); };
+    const createChildArticle = async () => { if (context.type !== 'project') return; const id = prompt(fa ? 'شناسهٔ مقاله (انگلیسی):' : 'Article slug:'); if (!id) return; const en = prompt('English title:') || id; const faTitle = prompt('عنوان فارسی:') || en; const result = await request('create-article', { method: 'POST', body: JSON.stringify({ project: context.project, slug: id, title: { en, fa: faTitle }, description: { en: 'Draft article.', fa: 'مقالهٔ پیش‌نویس.' }, locales: ['en', 'fa'], locale: context.locale }) }); location.assign(result.route); };
+    const createJourney = async () => { const id = prompt(fa ? 'شناسهٔ رویداد (انگلیسی):' : 'Journey slug:'); if (!id) return; const en = prompt('English title:') || id; const faTitle = prompt('عنوان فارسی:') || en; const result = await request('create-journey', { method: 'POST', body: JSON.stringify({ id, title: { en, fa: faTitle }, description: { en: 'Draft story.', fa: 'روایت پیش‌نویس.' }, locale: context.locale }) }); location.assign(result.route); };
+    openButton?.addEventListener('click', () => { if (localStorage.getItem('easy-content:onboarding:v1') !== 'acknowledged') onboarding.showModal(); else load(); });
+    $('#easy-content-ack')?.addEventListener('click', () => { localStorage.setItem('easy-content:onboarding:v1', 'acknowledged'); onboarding.close(); load(); });
+    $('#easy-content-onboarding-close')?.addEventListener('click', () => onboarding.close());
+    $('#easy-content-close')?.addEventListener('click', () => { if (!dirty || confirm(fa ? 'تغییرات ذخیره نشده بسته شود؟' : 'Discard unsaved changes?')) editor.close(); });
+    $('#easy-content-save')?.addEventListener('click', () => save(false));
+    $('#easy-content-publish')?.addEventListener('click', () => save(true));
+    $('#easy-content-new-project')?.addEventListener('click', createProject);
+    $('#easy-content-new-journey')?.addEventListener('click', createJourney);
+    addArticle?.addEventListener('click', createChildArticle);
+    document.querySelectorAll('[data-mode]').forEach(button => button.addEventListener('click', () => { mode = button.dataset.mode; renderMode(); }));
+    source?.addEventListener('input', () => { working = source.value; markDirty(); renderMode(); });
+    [title, description, tags, icon, publication, favoriteAt, draft, favorite].forEach(field => { field?.addEventListener('input', markDirty); field?.addEventListener('change', markDirty); });
+    visual?.addEventListener('input', () => { visualChanged = true; markDirty(); setStatus(fa ? 'تغییرات بصری ذخیره نشده است.' : 'Visual changes are unsaved.'); });
+    $('#easy-content-block')?.addEventListener('change', event => { const block = blocks.find(item => item.id === event.target.value); if (!block) return; const start = source.selectionStart || working.length; working = `${working.slice(0, start)}\n\n${block.template}\n\n${working.slice(source.selectionEnd)}`; source.value = working; event.target.value = ''; markDirty(); renderMode(); source.focus(); });
+    $('#easy-content-validate')?.addEventListener('click', async () => { try { const result = await request('validate'); setStatus(`${result.validate} ${result.links}`); } catch (error) { setStatus(error.message, true); } });
+    $('#easy-content-git')?.addEventListener('click', async () => { try { const result = await request('git-status'); $('#easy-content-git-output').textContent = `${result.status}\n${result.diff}` || 'Clean'; document.querySelector('[data-panel="changes"]').click(); } catch (error) { setStatus(error.message, true); } });
+    $('#easy-content-upload')?.addEventListener('change', async event => { const file = event.target.files?.[0]; if (!file) return; const reader = new FileReader(); reader.onload = async () => { try { const result = await request('upload-asset', { method: 'POST', body: JSON.stringify({ filename: file.name, contentType: file.type, data: String(reader.result).split(',')[1], project: context.project }) }); $('#easy-content-media-result').textContent = result.publicUrl; const insert = `![${file.name}](${result.publicUrl})`; const cursor = source.selectionStart || working.length; working = `${working.slice(0, cursor)}\n\n${insert}\n\n${working.slice(source.selectionEnd)}`; source.value = working; markDirty(); renderMode(); } catch (error) { setStatus(error.message, true); } }; reader.readAsDataURL(file); });
+    document.querySelectorAll('[data-panel]').forEach(tab => tab.addEventListener('click', () => { const panel = tab.dataset.panel; document.querySelectorAll('[data-panel]').forEach(item => item.classList.toggle('is-active', item === tab)); document.querySelector('[data-panel-content]').hidden = panel !== 'content'; document.querySelector('[data-panel-metadata]').hidden = panel !== 'metadata'; document.querySelector('[data-panel-media]').hidden = panel !== 'media'; document.querySelector('[data-panel-changes]').hidden = panel !== 'changes'; }));
+    window.addEventListener('beforeunload', event => { if (dirty) { event.preventDefault(); event.returnValue = ''; } });
+    document.addEventListener('keydown', event => { if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's' && editor.open) { event.preventDefault(); save(false); } });
+  </script>
+
+  <style>
+    .easy-content-open { border: 1px solid rgb(10 132 255 / .45); border-radius: .45rem; padding: .35rem .65rem; color: #0a84ff; background: rgb(10 132 255 / .08); font: 600 .72rem/1.2 var(--font-ui); cursor: pointer; }
+    .easy-content-indicator { position: fixed; z-index: 80; bottom: .75rem; inset-inline-end: .75rem; padding: .25rem .5rem; border-radius: .35rem; color: #fff; background: #0a84ff; font: 700 .62rem/1 var(--font-ui); letter-spacing: .12em; pointer-events: none; }
+    .easy-content-dialog { max-width: none; padding: 0; border: 0; border-radius: 1rem; color: #102039; background: #fff; box-shadow: 0 2rem 6rem rgb(0 0 0 / .28); }
+    .easy-content-dialog::backdrop { background: rgb(5 12 24 / .62); backdrop-filter: blur(3px); }
+    .dark .easy-content-dialog { color: #f8fafc; background: #101a29; }
+    .easy-content-onboarding { width: min(32rem, calc(100vw - 2rem)); }
+    .easy-content-onboarding__body { padding: 2rem; }
+    .easy-content-kicker { color: #0a84ff; font: 700 .68rem/1 var(--font-ui); letter-spacing: .14em; text-transform: uppercase; }
+    .easy-content-onboarding h2, .easy-content-header h2 { margin: .65rem 0 0; font-size: 1.35rem; }
+    .easy-content-onboarding p { margin: 1rem 0 0; color: #64748b; line-height: 1.75; }
+    .dark .easy-content-onboarding p, .dark .easy-content-muted { color: #aab8ca; }
+    .easy-content-editor-dialog { width: min(94rem, calc(100vw - 2rem)); height: min(92vh, 58rem); overflow: hidden; }
+    .easy-content-shell { display: flex; flex-direction: column; width: 100%; height: 100%; }
+    .easy-content-header, .easy-content-footer { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.35rem; border-bottom: 1px solid #e2e8f0; }
+    .easy-content-footer { border-top: 1px solid #e2e8f0; border-bottom: 0; flex-wrap: wrap; }
+    .dark .easy-content-header, .dark .easy-content-footer, .dark .easy-content-tabs { border-color: #334155; }
+    .easy-content-header-actions, .easy-content-actions, .easy-content-mode { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+    .easy-content-tabs { display: flex; gap: .25rem; padding: .55rem 1.35rem; border-bottom: 1px solid #e2e8f0; overflow-x: auto; }
+    .easy-content-tabs button, .easy-content-mode button { border: 0; border-radius: .4rem; padding: .5rem .7rem; color: #64748b; background: transparent; font: 500 .78rem/1 var(--font-ui); cursor: pointer; }
+    .easy-content-tabs button.is-active, .easy-content-mode button.is-active { color: #0a84ff; background: rgb(10 132 255 / .1); }
+    .easy-content-workspace { display: grid; grid-template-columns: minmax(0, 1fr) minmax(16rem, 20rem); min-height: 0; flex: 1; }
+    .easy-content-main { display: flex; flex-direction: column; min-width: 0; min-height: 0; padding: 1rem 1.35rem; }
+    .easy-content-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: .75rem; }
+    .easy-content-toolbar select, .easy-content-inspector input, .easy-content-inspector textarea { width: 100%; border: 1px solid #cbd5e1; border-radius: .45rem; padding: .65rem .75rem; color: inherit; background: transparent; font: inherit; }
+    .easy-content-toolbar select { width: auto; max-width: 12rem; }
+    .dark .easy-content-toolbar select, .dark .easy-content-inspector input, .dark .easy-content-inspector textarea { border-color: #475569; }
+    .easy-content-source, .easy-content-preview, .easy-content-diff { flex: 1; min-height: 18rem; width: 100%; overflow: auto; border: 1px solid #cbd5e1; border-radius: .65rem; padding: 1.2rem; color: inherit; background: rgb(248 250 252 / .7); font: .9rem/1.75 ui-monospace, SFMono-Regular, Consolas, monospace; resize: none; }
+    .dark .easy-content-source, .dark .easy-content-preview, .dark .easy-content-diff { border-color: #475569; background: rgb(2 6 23 / .4); }
+    .easy-content-preview { font-family: var(--font-ui); }
+    .easy-content-preview.is-readonly { outline: 2px dashed rgb(10 132 255 / .4); }
+    .easy-content-unsupported { margin: .75rem 0; padding: .65rem; border: 1px dashed rgb(10 132 255 / .45); border-radius: .4rem; color: #64748b; font: .78rem/1.5 ui-monospace, monospace; }
+    .easy-content-inspector { min-width: 0; overflow: auto; padding: 1.1rem 1.2rem; border-inline-start: 1px solid #e2e8f0; }
+    .dark .easy-content-inspector { border-color: #334155; }
+    .easy-content-inspector label { display: block; margin-bottom: 1rem; font-size: .78rem; font-weight: 600; }
+    .easy-content-inspector label input, .easy-content-inspector label textarea { display: block; margin-top: .4rem; font-size: .88rem; font-weight: 400; }
+    .easy-content-check { display: flex !important; align-items: center; gap: .5rem; }
+    .easy-content-check input { width: auto !important; margin: 0 !important; }
+    .easy-content-primary, .easy-content-secondary { min-height: 2.3rem; border-radius: .45rem; padding: .55rem .8rem; font: 600 .75rem/1 var(--font-ui); cursor: pointer; }
+    .easy-content-primary { border: 1px solid #0a84ff; color: #fff; background: #0a84ff; }
+    .easy-content-secondary { border: 1px solid #94a3b8; color: inherit; background: transparent; }
+    .easy-content-status { flex: 1; min-width: 14rem; margin: 0; color: #64748b; font-size: .78rem; }
+    .easy-content-status.is-error { color: #dc2626; }
+    .easy-content-git-output { white-space: pre-wrap; font: .78rem/1.6 ui-monospace, monospace; }
+    @media (max-width: 800px) { .easy-content-editor-dialog { width: calc(100vw - 1rem); height: calc(100vh - 1rem); } .easy-content-workspace { grid-template-columns: 1fr; overflow: auto; } .easy-content-inspector { border-inline-start: 0; border-top: 1px solid #e2e8f0; } .easy-content-header { align-items: flex-start; flex-direction: column; } .easy-content-toolbar { align-items: flex-start; flex-direction: column; } }
+  </style>
+</>}

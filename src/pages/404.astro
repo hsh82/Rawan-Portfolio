@@ -1,0 +1,8 @@
+---
+import ErrorPage from '../components/platform/ErrorPage.astro';
+import { portfolio } from '../utils/portfolio-content';
+
+const defaultLocale = portfolio().site.defaultLocale || 'en';
+---
+
+<ErrorPage lang={defaultLocale} />

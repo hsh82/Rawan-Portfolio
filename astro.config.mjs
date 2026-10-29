@@ -8,6 +8,7 @@ import mdx from '@astrojs/mdx';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import { easyContentVitePlugin } from './src/dev/easy-content/integration/index.mjs';
 
 const siteContent = JSON.parse(readFileSync(resolve('content/site.json'), 'utf8'));
 // English is the safe default when content/site.json omits defaultLocale.
@@ -24,6 +25,9 @@ export default defineConfig({
     locales: ['en', 'fa'],
     routing: {
       prefixDefaultLocale: true,
+      // The root route owns the immediate locale redirect so Astro does not
+      // emit its visible two-second redirect document.
+      redirectToDefaultLocale: false,
     },
   },
 
@@ -49,6 +53,10 @@ export default defineConfig({
     build: {
       cssCodeSplit: true
     },
+    define: {
+      'import.meta.env.EASY_CONTENT_MODE': JSON.stringify(process.env.EASY_CONTENT_MODE === 'true' ? 'true' : 'false'),
+    },
+    plugins: [easyContentVitePlugin()],
     ssr: {
       external: ['aos']
     }

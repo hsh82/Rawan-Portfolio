@@ -6,8 +6,12 @@ const content = join(root, 'content/blog');
 const projectsFile = join(root, 'content/projects/entries.json');
 const projects = existsSync(projectsFile) ? JSON.parse(readFileSync(projectsFile, 'utf8')) : [];
 const walk = dir => readdirSync(dir, { withFileTypes: true }).flatMap(entry => entry.isDirectory() ? walk(join(dir, entry.name)) : [join(dir, entry.name)]);
-const files = existsSync(content) ? walk(content).filter(file => /\.mdx?$/.test(file)) : [];
+const files = existsSync(content) ? walk(content).filter(file => /\.mdx?$/.test(file) && !file.endsWith('/_index.mdx') && !file.endsWith('/_index.md')) : [];
 const sitemap = readFileSync(join(dist, 'sitemap-0.xml'), 'utf8');
+for (const file of walk(dist).filter(file => file.endsWith('.html'))) {
+  const html = readFileSync(file, 'utf8');
+  if (/easy-content-open|easy-content-editor|DEV CONTENT|__easy-content\/api/.test(html)) throw new Error(`Development content controls leaked into production: ${relative(dist, file)}`);
+}
 for (const locale of ['en', 'fa']) {
   for (const path of [`${locale}/index.html`, `${locale}/blog/index.html`, `${locale}/rss.xml`]) {
     if (!existsSync(join(dist, path))) throw new Error(`Missing static route: ${path}`);

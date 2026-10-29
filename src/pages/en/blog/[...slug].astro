@@ -1,7 +1,7 @@
 ---
 import ArticleReader from '../../../components/blog/ArticleReader.astro';
 import { published, articlePath } from '../../../utils/blog';
-export async function getStaticPaths() { return (await published('en')).map(article => ({ params: { slug: articlePath(article).replace('/en/blog/', '').replace(/\/$/, '') }, props: { article } })); }
+export async function getStaticPaths() { return (await published('en', import.meta.env.DEV && import.meta.env.EASY_CONTENT_MODE === 'true')).map(article => ({ params: { slug: articlePath(article).replace('/en/blog/', '').replace(/\/$/, '') }, props: { article } })); }
 const { article } = Astro.props;
 ---
 <ArticleReader article={article} />

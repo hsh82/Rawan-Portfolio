@@ -1,9 +1,26 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
 import BlogIndex from '../../../components/blog/BlogIndex.astro';
-import { published } from '../../../utils/blog';
+import { published, landing, isProjectOverview } from '../../../utils/blog';
+import { favoriteProjects } from '../../../utils/content-api';
+import Callout from '../../../components/blog/Callout.astro';
+import Tabs from '../../../components/blog/Tabs.astro';
+import Figure from '../../../components/blog/Figure.astro';
+import AttachmentDownload from '../../../components/blog/AttachmentDownload.astro';
+import MermaidDiagram from '../../../components/blog/MermaidDiagram.astro';
+import MindMap from '../../../components/blog/MindMap.astro';
+import CodeBlock from '../../../components/blog/CodeBlock.astro';
+import { render } from 'astro:content';
 import { t } from '../../../utils/i18n';
 const lang = 'fa';
-const articles = await published(lang);
+const articles = (await published(lang)).filter(article => !isProjectOverview(article));
+const landingArticle = await landing(lang);
+const landingRender = landingArticle ? await render(landingArticle) : undefined;
+const favorites = favoriteProjects();
 ---
-<Layout lang={lang} title={t('blog.title', lang)} description={t('blog.intro', lang)}><BlogIndex lang={lang} articles={articles} /></Layout>
+<Layout lang={lang} title={t('blog.title', lang)} description={t('blog.intro', lang)}>
+  <script type="application/ld+json" set:html={JSON.stringify({ '@context': 'https://schema.org', '@type': 'CollectionPage', name: t('blog.title', lang), description: t('blog.intro', lang), inLanguage: lang })} />
+  <BlogIndex lang={lang} articles={articles} favoriteProjects={favorites}>
+    {landingRender && <landingRender.Content slot="landing" components={{ Callout, Tabs, Figure, AttachmentDownload, MermaidDiagram, MindMap, CodeBlock }} />}
+  </BlogIndex>
+</Layout>

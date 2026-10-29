@@ -3,6 +3,7 @@ import ThemeToggle from '../ui/ThemeToggle.astro';
 import LanguageSwitcher from '../ui/LanguageSwitcher.astro';
 import { t, type Locale } from '../../utils/i18n';
 import { portfolio } from '../../utils/portfolio-content';
+import EasyContentLauncher from '../../dev/easy-content/editor/EasyContentLauncher.astro';
 interface Props { lang: Locale; translationId?: string; }
 const { lang, translationId } = Astro.props;
 const data = portfolio();
@@ -145,6 +146,7 @@ const currentLabel = isHome
             {t('nav.resume', lang)}
           </a>
         )}
+        {import.meta.env.DEV && import.meta.env.EASY_CONTENT_MODE === 'true' && <EasyContentLauncher lang={lang} />}
       </nav>
 
       <button id="menu-toggle" type="button" aria-controls="mobile-menu" aria-expanded="false" aria-label={lang === 'fa' ? 'فتح القائمة' : 'Open menu'} class="flex h-8 w-8 items-center justify-center rounded-md text-gray-900 dark:text-white transition-colors duration-150 hover:bg-gray-900/[0.06] dark:hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary md:hidden">

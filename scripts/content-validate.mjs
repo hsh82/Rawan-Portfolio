@@ -1,5 +1,6 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { ICON_IDS } from '../src/utils/icon-registry.mjs';
 
 const root = resolve(process.cwd(), 'content');
 const read = (file, fallback) => existsSync(resolve(root, file)) ? JSON.parse(readFileSync(resolve(root, file), 'utf8')) : fallback;
@@ -7,6 +8,19 @@ const entries = (file) => {
   const value = read(file, []);
   if (!Array.isArray(value)) throw new Error(`${file} must contain a JSON array`);
   return value;
+};
+const walk = (dir) => existsSync(dir)
+  ? readdirSync(dir, { withFileTypes: true }).flatMap(item => item.isDirectory() ? walk(resolve(dir, item.name)) : [resolve(dir, item.name)])
+  : [];
+const blogFiles = () => walk(resolve(root, 'blog')).filter(file => /\.mdx?$/.test(file));
+const frontmatter = (source) => {
+  const match = source.match(/^---\s*\n([\s\S]*?)\n---/);
+  const fields = {};
+  for (const line of match?.[1]?.split('\n') || []) {
+    const value = line.match(/^([A-Za-z][A-Za-z0-9]*):\s*(.*?)\s*$/);
+    if (value) fields[value[1]] = value[2].replace(/^['"]|['"]$/g, '');
+  }
+  return fields;
 };
 const requiredLocales = (entry, source) => {
   if (!entry.locales?.en || !entry.locales?.fa) throw new Error(`${source}:${entry.id || 'entry'} needs en and fa locale values`);
@@ -19,6 +33,7 @@ const journeyIds = new Set(journey.map(event => event.id));
 const skillIds = new Set(skills.map(skill => skill.id));
 const categories = new Set(['devops-delivery', 'infrastructure-automation', 'networking-security', 'software-open-source', 'design-creative']);
 const publicationStates = new Set(['public-ready', 'public-sanitized', 'requires-review', 'planned-or-experimental']);
+const projectById = new Map(projects.map(project => [project.id, project]));
 for (const project of projects) {
   if (!/^[a-z0-9-]+$/.test(project.id || '')) throw new Error('Project IDs must use lowercase letters, numbers, and hyphens');
   if (ids.has(project.id)) throw new Error(`Duplicate project ID: ${project.id}`);
@@ -32,6 +47,10 @@ for (const project of projects) {
   if (project.image && !project.image.startsWith('media/')) throw new Error(`Project ${project.id} image must reference content/media/`);
   if (project.image && (!project.imageAlt?.en || !project.imageAlt?.fa)) throw new Error(`Project ${project.id} image needs English and Persian alt text`);
   if (project.image && !existsSync(resolve(root, project.image))) throw new Error(`Missing project image: content/${project.image}`);
+  if (project.icon && !ICON_IDS.includes(project.icon)) throw new Error(`Project ${project.id} has an unknown icon: ${project.icon}`);
+  const favorite = project.favorite ?? project.featured ?? false;
+  if (project.favoriteAt && !favorite) throw new Error(`Project ${project.id} has favoriteAt but is not favorite; set favorite: true or remove favoriteAt`);
+  for (const field of ['publishedAt', 'updatedAt', 'favoriteAt']) if (project[field] && Number.isNaN(Date.parse(project[field]))) throw new Error(`Project ${project.id} has an invalid ${field}: ${project[field]}`);
   if (project.visible) {
     for (const locale of ['en', 'fa']) {
       const article = resolve(root, 'blog', locale, 'projects', project.id, 'overview.mdx');
@@ -50,6 +69,34 @@ for (const event of journey) {
   requiredLocales(event, 'journey');
   if (event.startDate && Number.isNaN(Date.parse(event.startDate))) throw new Error(`Journey ${event.id} needs a valid startDate`);
   for (const id of event.projectIds || []) if (!ids.has(id)) throw new Error(`Journey ${event.id} references missing project ${id}`);
+}
+const articleTranslationIds = new Set();
+for (const file of blogFiles()) {
+  const relativePath = file.slice(resolve(root, 'blog').length + 1).replaceAll('\\', '/');
+  const parts = relativePath.replace(/\.mdx?$/, '').split('/');
+  const fields = frontmatter(readFileSync(file, 'utf8'));
+  const locale = parts[0];
+  if (!['en', 'fa'].includes(locale) || fields.locale !== locale) throw new Error(`Blog file ${relativePath} must use a matching en/fa locale`);
+  if (!fields.title || !fields.description || !fields.translationId || !fields.pubDate) throw new Error(`Blog file ${relativePath} needs title, description, translationId, and pubDate frontmatter`);
+  if (Number.isNaN(Date.parse(fields.pubDate)) || (fields.updatedDate && Number.isNaN(Date.parse(fields.updatedDate)))) throw new Error(`Blog file ${relativePath} has an invalid publication date`);
+  const key = `${locale}:${fields.translationId}`;
+  if (articleTranslationIds.has(key)) throw new Error(`Duplicate blog translation identifier ${key} in ${relativePath}`);
+  articleTranslationIds.add(key);
+  const kind = fields.kind || 'article';
+  if (kind === 'landing') {
+    if (parts.at(-1) !== '_index') throw new Error(`Blog landing file ${relativePath} must be named _index.mdx`);
+    continue;
+  }
+  if (parts.length < 3 || parts.at(-1) !== fields.slug || parts.at(-1) === '_index') throw new Error(`Blog file ${relativePath} must match its slug and locale/category folders`);
+  if (fields.category === 'projects') {
+    const projectId = parts[2];
+    const project = projectById.get(projectId);
+    if (!project) throw new Error(`Blog file ${relativePath} references missing parent project ${projectId}`);
+    if (!fields.subcategory || fields.subcategory !== projectId || parts.length < 4) throw new Error(`Blog file ${relativePath} needs subcategory: ${projectId}`);
+    if (!fields.draft && (!project.visible || ['requires-review', 'planned-or-experimental'].includes(project.publication))) throw new Error(`Published blog file ${relativePath} belongs to a non-public project`);
+  } else if (fields.subcategory && parts[2] !== fields.subcategory) {
+    throw new Error(`Blog file ${relativePath} has a subcategory/folder mismatch`);
+  }
 }
 const profile = read('profile.json', {});
 const resume = read('resume/config.json', {});
