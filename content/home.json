@@ -1,4 +1,34 @@
 {
+  "focus": {
+    "en": [
+      {
+        "title": "Reliable software delivery",
+        "description": "I help teams turn complicated releases into clear, repeatable steps, so new features reach people with less uncertainty and fewer last-minute surprises."
+      },
+      {
+        "title": "Infrastructure people can rely on",
+        "description": "I build and improve the systems behind applications with an emphasis on consistency, clarity, and making them easier for the whole team to operate."
+      },
+      {
+        "title": "Thoughtful and secure access",
+        "description": "I work on practical ways for people and services to connect safely, without adding unnecessary friction to their everyday work."
+      }
+    ],
+    "fa": [
+      {
+        "title": "انتشار مطمئن‌تر نرم‌افزار",
+        "description": "کمک می‌کنم انتشار نسخه‌های جدید از مجموعه‌ای از کارهای پراکنده و پراسترس، به فرایندی روشن، تکرارپذیر و قابل‌پیش‌بینی تبدیل شود."
+      },
+      {
+        "title": "زیرساختی که می‌توان به آن تکیه کرد",
+        "description": "سامانه‌های پشت‌صحنهٔ نرم‌افزار را طوری می‌سازم و بهبود می‌دهم که مدیریت، توسعه و نگهداری آن‌ها برای تمام اعضای تیم ساده‌تر باشد."
+      },
+      {
+        "title": "دسترسی امن و کاربردی",
+        "description": "به‌دنبال راه‌هایی هستم که افراد و سرویس‌ها بتوانند با امنیت بیشتر و پیچیدگی کمتر به منابع موردنیازشان دسترسی داشته باشند."
+      }
+    ]
+  },
   "locales": {
     "en": {
       "greeting": "Your professional portfolio",
