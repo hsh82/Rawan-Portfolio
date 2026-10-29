@@ -2,10 +2,10 @@
 
 This directory is the only source of public, owner-specific portfolio content. Application components and routes belong in `src/`.
 
-- `site.json`, `profile.json`, and `contact.json` hold localized identity and contact details.
+- `site.json`, `profile.json`, `home.json`, and `contact.json` hold site identity, portrait data, homepage copy, and contact details separately.
 - `journey/`, `experience/`, `education/`, `certifications/`, and `skills/` contain structured JSON entries.
 - `blog/landing/{entry.json,en.mdx,fa.mdx}` contains editable Blog landing copy. Each project is its own canonical Blog hub at `blog/projects/{project-id}/{entry.json,en.mdx,fa.mdx}`; child articles live below `articles/{article-slug}/`. The project hub is the only source for project cards, homepage favorites, Blog project hubs, and project reading routes. New AI-authored factual articles should start as drafts until publication is explicitly approved.
-- `media/` holds public images; `documents/` holds intended public downloads. Use `media/projects/{project-id}/cover.webp` for an optional project-card cover, then reference it in the project record with bilingual `imageAlt`; category icons remain the fallback. `profile.image` is the main-site portrait; optional `profile.resumeImage` overrides it only for résumé PDFs. If `resumeImage` is absent, the résumé uses `profile.image`. The repository README preview is intentionally kept separately at `public/images/portfolio-preview.jpg` for GitHub rendering.
+- `media/` holds public images; `documents/` holds intended public downloads. Use `media/projects/{project-id}/cover.webp` for an optional project-card cover, then reference it in the project record with bilingual `imageAlt`; category icons remain the fallback. `profile.json` owns the portrait and identity only; `home.json` owns homepage copy. The Studio’s Profile & portrait resource can import an image into `content/media/` and save its canonical reference automatically. Optional `profile.resumeImage` overrides the portrait only for résumé PDFs. The repository README preview is intentionally kept separately at `public/images/portfolio-preview.jpg` for GitHub rendering.
 - `resume/config.json` selects existing entries for the generated résumé view and PDF process.
 
 ## Easy Content Mode foundation

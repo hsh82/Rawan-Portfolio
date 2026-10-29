@@ -9,14 +9,21 @@ export function editorPath(context, mode = 'edit') {
   return null;
 }
 
+function localizedEditorPath(path, locale) {
+  return `${path}${path.includes('?') ? '&' : '?'}locale=${locale}`;
+}
+
 export function contentActions(context) {
-  if (!context || !['blog', 'project', 'article'].includes(context.type)) return [];
-  if (context.type === 'blog') return [
-    { id: 'edit-blog', label: { en: 'Edit Blog', fa: 'ویرایش وبلاگ' }, href: editorPath(context) },
-    { id: 'new-project', label: { en: 'New Project', fa: 'پروژهٔ جدید' }, href: editorPath({ ...context, type: 'project' }, 'new') },
+  if (!context || !['home', 'blog', 'project', 'article'].includes(context.type)) return [];
+  if (context.type === 'home') return [
+    { id: 'edit-home', label: { en: 'Edit Home content', fa: 'ویرایش محتوای خانه' }, href: localizedEditorPath('/dev/content/edit/resource/home/', context.locale) },
   ];
-  const edit = { id: `edit-${context.type}`, label: { en: 'Edit', fa: 'ویرایش' }, href: editorPath(context) };
-  const newArticle = { id: 'new-article', label: { en: 'New Article', fa: 'مقالهٔ جدید' }, href: editorPath({ type: 'article', locale: context.locale, projectId: context.projectId }, 'new') };
+  if (context.type === 'blog') return [
+    { id: 'edit-blog', label: { en: 'Edit Blog', fa: 'ویرایش وبلاگ' }, href: localizedEditorPath(editorPath(context), context.locale) },
+    { id: 'new-project', label: { en: 'New Project', fa: 'پروژهٔ جدید' }, href: localizedEditorPath(editorPath({ ...context, type: 'project' }, 'new'), context.locale) },
+  ];
+  const edit = { id: `edit-${context.type}`, label: { en: 'Edit', fa: 'ویرایش' }, href: localizedEditorPath(editorPath(context), context.locale) };
+  const newArticle = { id: 'new-article', label: { en: 'New Article', fa: 'مقالهٔ جدید' }, href: localizedEditorPath(editorPath({ type: 'article', locale: context.locale, projectId: context.projectId }, 'new'), context.locale) };
   return [edit, newArticle];
 }
 

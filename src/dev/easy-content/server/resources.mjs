@@ -6,7 +6,8 @@ const serialize = value => `${JSON.stringify(value, null, 2)}\n`;
 
 export const RESOURCE_CATALOG = [
   { id: 'site', label: 'Site settings', group: 'Site', file: ['site.json'], kind: 'singleton', preview: 'home' },
-  { id: 'profile', label: 'Profile & home', group: 'Site', file: ['profile.json'], kind: 'singleton', preview: 'home', localized: true },
+  { id: 'profile', label: 'Profile & portrait', group: 'Site', file: ['profile.json'], kind: 'singleton', preview: 'home' },
+  { id: 'home', label: 'Homepage content', group: 'Site', file: ['home.json'], kind: 'singleton', preview: 'home', localized: true },
   { id: 'contact', label: 'Contact', group: 'Site', file: ['contact.json'], kind: 'singleton', preview: 'home', localized: true },
   { id: 'resume', label: 'Résumé settings', group: 'Site', file: ['resume', 'config.json'], kind: 'singleton', preview: 'home' },
   { id: 'experience', label: 'Experience', group: 'Career', file: ['experience', 'entries.json'], kind: 'collection', preview: 'home', localized: true },

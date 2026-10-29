@@ -9,7 +9,8 @@ const localized = z.object({ en: localizedText.default({}), fa: localizedText.de
 const link = z.object({ label: z.string().min(1), url: z.string().url() });
 
 const siteSchema = z.object({ siteUrl: z.string().url().or(z.literal('')).default(''), defaultLocale: z.enum(['en', 'fa']).default('en'), locales: z.object({ en: z.object({ title: z.string(), description: z.string(), homeLabel: z.string().default('Portfolio'), footerCta: z.object({ title: z.string(), description: z.string(), button: z.string() }).optional() }), fa: z.object({ title: z.string(), description: z.string(), homeLabel: z.string().default('کارنامه'), footerCta: z.object({ title: z.string(), description: z.string(), button: z.string() }).optional() }) }) });
-const profileSchema = z.object({ visible: z.boolean().default(false), name: z.string().default(''), image: z.string().optional(), resumeImage: z.string().optional(), imageAlt: z.object({ en: z.string().min(1), fa: z.string().min(1) }).optional(), focus: z.object({ en: z.array(z.object({ title: z.string(), description: z.string() })), fa: z.array(z.object({ title: z.string(), description: z.string() })) }).optional(), about: z.object({ en: z.object({ title: z.string(), description: z.string(), cards: z.array(z.object({ title: z.string(), description: z.string() })) }), fa: z.object({ title: z.string(), description: z.string(), cards: z.array(z.object({ title: z.string(), description: z.string() })) }) }).optional(), locales: localized.default({ en: {}, fa: {} }) });
+const profileSchema = z.object({ visible: z.boolean().default(false), name: z.string().default(''), image: z.string().optional(), resumeImage: z.string().optional(), imageAlt: z.object({ en: z.string().min(1), fa: z.string().min(1) }).optional() });
+const homeSchema = z.object({ focus: z.object({ en: z.array(z.object({ title: z.string(), description: z.string() })), fa: z.array(z.object({ title: z.string(), description: z.string() })) }).optional(), about: z.object({ en: z.object({ title: z.string(), description: z.string(), cards: z.array(z.object({ title: z.string(), description: z.string() })) }), fa: z.object({ title: z.string(), description: z.string(), cards: z.array(z.object({ title: z.string(), description: z.string() })) }) }).optional(), locales: localized.default({ en: {}, fa: {} }) });
 const contactSchema = z.object({ email: z.string().email().or(z.literal('')).default(''), phone: z.string().default(''), location: z.string().default(''), socials: z.array(link).default([]), locales: localized.default({ en: {}, fa: {} }) });
 const projectCategorySchema = z.enum(['devops-delivery', 'infrastructure-automation', 'networking-security', 'software-open-source', 'design-creative']);
 const localizedLabelSchema = z.object({ en: z.string().min(1), fa: z.string().min(1) });
@@ -26,6 +27,7 @@ const projectCaseStudyCopySchema = z.object({
 const projectDiagramCopySchema = z.object({ title: z.string().min(1), steps: z.array(z.string().min(1)).min(2).max(6) });
 export const projectSchema = z.object({
   id: z.string().regex(/^[a-z0-9-]+$/),
+  status: z.enum(['draft', 'published']).default('draft'),
   visible: z.boolean().default(true),
   featured: z.boolean().default(false),
   translationId: z.string().min(1),
@@ -110,7 +112,7 @@ function projectHubs() {
 
 export const portfolio = () => ({
   site: read('site.json', siteSchema, { siteUrl: '', defaultLocale: 'en', locales: { en: { title: 'Rawan Portfolio', description: 'A reusable bilingual portfolio.', homeLabel: 'Portfolio' }, fa: { title: 'پورتفولیوی راوان', description: 'پورتفولیویی دوزبانه برای آثار حرفه‌ای.', homeLabel: 'کارنامه' } } }),
-  profile: read('profile.json', profileSchema, { visible: false, name: '', locales: { en: {}, fa: {} } }),
+  profile: { ...read('profile.json', profileSchema, { visible: false, name: '' }), ...read('home.json', homeSchema, { locales: { en: {}, fa: {} } }) },
   contact: read('contact.json', contactSchema, { email: '', phone: '', location: '', socials: [], locales: { en: {}, fa: {} } }),
   projects: projectHubs(),
   journey: list('journey/entries.json', journeySchema),
@@ -133,7 +135,7 @@ export function validatePortfolioContent() {
   if (duplicates) throw new Error('Duplicate project IDs in content/blog/projects');
   for (const item of data.projects) {
     if (item.featured && !item.visible) throw new Error(`Featured project ${item.id} must be visible`);
-    if (item.visible && ['requires-review', 'planned-or-experimental'].includes(item.publication)) throw new Error(`Private project ${item.id} cannot be visible`);
+    if (item.visible !== (item.status === 'published')) throw new Error(`Project ${item.id} visibility must match its draft/published status`);
     for (const journeyId of item.journeyIds) if (!journeyIds.has(journeyId)) throw new Error(`Project ${item.id} references missing journey ${journeyId}`);
     for (const skillId of item.relatedSkillIds) if (!skillIds.has(skillId)) throw new Error(`Project ${item.id} references missing skill ${skillId}`);
     for (const projectId of item.relatedProjectIds) if (!ids.has(projectId)) throw new Error(`Project ${item.id} references missing related project ${projectId}`);

@@ -58,17 +58,16 @@ const ids = new Set();
 const journeyIds = new Set(journey.map(event => event.id));
 const skillIds = new Set(skills.map(skill => skill.id));
 const categories = new Set(['devops-delivery', 'infrastructure-automation', 'networking-security', 'software-open-source', 'design-creative']);
-const publicationStates = new Set(['public-ready', 'public-sanitized', 'requires-review', 'planned-or-experimental']);
 const projectById = new Map(projects.map(project => [project.id, project]));
 for (const project of projects) {
   if (!/^[a-z0-9-]+$/.test(project.id || '')) throw new Error('Project IDs must use lowercase letters, numbers, and hyphens');
   if (ids.has(project.id)) throw new Error(`Duplicate project ID: ${project.id}`);
   ids.add(project.id); requiredLocales(project, 'projects');
   if (!categories.has(project.category)) throw new Error(`Project ${project.id} has an invalid category`);
-  if (!publicationStates.has(project.publication)) throw new Error(`Project ${project.id} has an invalid publication state`);
+  if (!['draft', 'published'].includes(project.status)) throw new Error(`Project ${project.id} must be draft or published`);
   if (!project.role?.en || !project.role?.fa) throw new Error(`Project ${project.id} needs localized role labels`);
   if (project.featured && !project.visible) throw new Error(`Featured project ${project.id} must be visible`);
-  if (project.visible && ['requires-review', 'planned-or-experimental'].includes(project.publication)) throw new Error(`Private project ${project.id} cannot be visible`);
+  if (project.visible !== (project.status === 'published')) throw new Error(`Project ${project.id} visibility must match its draft/published status`);
   if (project.caseStudy && (!project.caseStudy.en || !project.caseStudy.fa)) throw new Error(`Project ${project.id} needs a bilingual case study`);
   if (project.image && !project.image.startsWith('media/')) throw new Error(`Project ${project.id} image must reference content/media/`);
   if (project.image && (!project.imageAlt?.en || !project.imageAlt?.fa)) throw new Error(`Project ${project.id} image needs English and Persian alt text`);
@@ -88,7 +87,7 @@ for (const project of projects) {
       if (!article) throw new Error(`Visible project ${project.id} needs a ${locale} overview article`);
       const source = readFileSync(article, 'utf8');
       if (/^draft:\s*true\s*$/m.test(source)) throw new Error(`Visible project ${project.id} overview is still a draft: ${locale}`);
-      if (!source.includes(`subcategory: ${project.id}`)) throw new Error(`Project overview category mismatch: ${locale}/${project.id}`);
+      if (frontmatter(source).subcategory !== project.id) throw new Error(`Project overview category mismatch: ${locale}/${project.id}`);
     }
   }
   for (const id of project.journeyIds || []) if (!journeyIds.has(id)) throw new Error(`Project ${project.id} references missing journey ${id}`);
@@ -126,7 +125,6 @@ for (const file of blogFiles()) {
     if (!shared.translationId || !shared.slug || !shared.status) throw new Error(`Unified blog entity ${pathInfo.entityPath} needs shared id, slug, and status`);
     if (fields.translationId !== shared.translationId || fields.slug !== shared.slug || fields.category !== shared.category) throw new Error(`Generated frontmatter does not match shared metadata: ${relativePath}`);
     if ((shared.status === 'published') !== (fields.draft !== true)) throw new Error(`Shared status and locale draft flag disagree: ${pathInfo.entityPath}/${locale}`);
-    if (shared.status === 'published' && ['requires-review', 'planned-or-experimental'].includes(shared.publication)) throw new Error(`Non-public unified blog entity is published: ${pathInfo.entityPath}`);
     if (pathInfo.entityPath === 'landing') continue;
     const unifiedParts = pathInfo.entityPath.split('/');
     if (fields.category === 'projects') {
@@ -134,7 +132,7 @@ for (const file of blogFiles()) {
       const project = projectById.get(projectId);
       if (!project) throw new Error(`Blog file ${relativePath} references missing parent project ${projectId}`);
       if (!fields.subcategory || fields.subcategory !== projectId) throw new Error(`Blog file ${relativePath} needs subcategory: ${projectId}`);
-      if (!fields.draft && (!project.visible || ['requires-review', 'planned-or-experimental'].includes(project.publication))) throw new Error(`Published blog file ${relativePath} belongs to a non-public project`);
+      if (!fields.draft && project.status !== 'published') throw new Error(`Published blog file ${relativePath} belongs to a draft project`);
     }
     continue;
   }
@@ -148,7 +146,7 @@ for (const file of blogFiles()) {
     const project = projectById.get(projectId);
     if (!project) throw new Error(`Blog file ${relativePath} references missing parent project ${projectId}`);
     if (!fields.subcategory || fields.subcategory !== projectId || parts.length < 4) throw new Error(`Blog file ${relativePath} needs subcategory: ${projectId}`);
-    if (!fields.draft && (!project.visible || ['requires-review', 'planned-or-experimental'].includes(project.publication))) throw new Error(`Published blog file ${relativePath} belongs to a non-public project`);
+    if (!fields.draft && project.status !== 'published') throw new Error(`Published blog file ${relativePath} belongs to a draft project`);
   } else if (fields.subcategory && parts[2] !== fields.subcategory) {
     throw new Error(`Blog file ${relativePath} has a subcategory/folder mismatch`);
   }

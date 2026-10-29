@@ -6,6 +6,8 @@
 
 [![Portfolio preview](public/images/portfolio-preview.jpg)](public/images/portfolio-preview.jpg)
 
+<a href="README.fa.md"><strong>راهنمای فارسی ←</strong></a>
+
 Rawan Portfolio is a reusable English/Persian portfolio framework for developers, engineers, designers, and technical teams. It keeps public owner data in `content/`, presentation and behavior in `src/`, and maintenance guidance in repository-local Agent Skills. Normal content changes do not require editing Astro components.
 
 The project originated from the [Nicremo Astro multilingual portfolio template](https://github.com/nicremo/astro-multilingual-portfolio-template) and has been extended with structured content loaders, RTL/LTR support, nested MDX publishing, Mermaid and Markmap readers, search, journey/project relationships, and optional bilingual résumé generation. The reusable `main` branch stays owner-neutral; personal content is maintained on a separate content branch.
@@ -62,6 +64,57 @@ npm run preview
 
 The root route redirects to English. `npm run build` generates `dist/` and the Pagefind index. `npm run preview` serves the production output.
 
+## Easy Content mode
+
+Easy Content is the local authoring interface for editing JSON and bilingual project content without changing Astro components. It is disabled by default and is never enabled by a production build.
+
+### Start the editable development site
+
+```sh
+npm run dev:content
+```
+
+Then open `http://localhost:4321/en/` or `http://localhost:4321/fa/`. When Easy Content is enabled, the site shows an editing action bar. Persian action links open the editor in Persian; English links open it in English.
+
+### Preview with editing enabled
+
+```sh
+npm run build
+npm run preview:content
+```
+
+Use `npm run preview` for a normal read-only production preview. Do not expose `EASY_CONTENT_MODE=true` on a public or deployed server because Easy Content writes to the local working tree.
+
+### Recommended authoring flow
+
+1. Start `npm run dev:content`, or build first and use `npm run preview:content`.
+2. Open the site in the language you want to edit.
+3. Use the edit action bar to open **Homepage content**, **Profile & portrait**, or **Edit Blog**.
+4. Edit homepage copy in `content/home.json`. Keep identity and portrait fields in `content/profile.json`; import a portrait from the Profile & portrait editor so it is stored under `content/media/` and referenced automatically.
+5. Use **Edit Blog** to create a project hub. A project is one folder containing shared `entry.json` metadata and sibling `en.mdx` and `fa.mdx` overview files. Add child articles inside that project folder when needed.
+6. Save as draft while working. **Publish** validates, saves, and publishes the bilingual project/article together.
+7. Review the real-site preview in both languages, then run validation and build checks.
+8. Commit the authored content and push the branch:
+
+```sh
+npm run content:validate
+npm run content:check-links
+npm run check
+npm run build
+git status
+git add content/ public/images/ README.md README.fa.md
+git commit -m "content: update portfolio"
+git push origin HEAD
+```
+
+The editor does not commit, push, or deploy. Review the Git diff before committing. Draft content remains out of public routes until it is explicitly published.
+
+### Easy Content walkthrough
+
+<a href="public/images/Home%20page%20edit%20helper.JPG"><img src="public/images/Home%20page%20edit%20helper.JPG" alt="Easy Content homepage JSON editor" width="720"></a>
+
+<a href="public/images/Article%20edit%20helper.JPG"><img src="public/images/Article%20edit%20helper.JPG" alt="Easy Content bilingual article editor" width="720"></a>
+
 ## Upstream credits and license
 
 This project is based on the [Astro Multilingual Portfolio Template](https://github.com/nicremo/astro-multilingual-portfolio-template) by Fabian Bitzer. The upstream [MIT license](LICENSE.md), copyright notice, and attribution are retained. See the upstream README for the original template context and visual reference. New features and documentation in this repository are described here and in `design/`.
@@ -81,16 +134,17 @@ tests/fixtures/      Isolated fictional examples; never loaded by production
 ## Personalizing the portfolio
 
 1. Edit `content/site.json` with the site URL and English/Persian title and description.
-2. Set `visible: true` and add localized `displayName`, `title`, `intro`, `summary`, and CTA text in `content/profile.json`.
-3. Replace `content/media/profile/placeholder.svg` and update `profile.image` to the main-site portrait path, such as `media/profile/profile.svg`. Add optional `resumeImage` when the résumé should use a different portrait; otherwise the résumé falls back to `profile.image`.
-4. Add verified email, phone, location, and `{ label, url }` social links in `content/contact.json`.
-5. Add skill records to `content/skills/entries.json`.
-6. Add employment or education records to their corresponding `entries.json` files.
-7. Add important milestones to `content/journey/entries.json`.
-8. Add projects as hubs under `content/blog/projects/<project-id>/` and connect related journey/article IDs in the hub `entry.json`.
-9. Add bilingual MDX articles under `content/blog/en/` and `content/blog/fa/`.
-10. Enable `content/resume/config.json` only after the profile and résumé data are verified.
-11. Run content validation, link checks, type checking, and a production build.
+2. Set `visible: true` and identity/portrait fields in `content/profile.json`.
+3. Add localized greeting, display name, title, introduction, summary, and CTA text in `content/home.json`.
+4. Import or replace the portrait under `content/media/` and update `profile.image` to a canonical path such as `media/profile/profile.svg`. Add optional `resumeImage` when the résumé should use a different portrait; otherwise the résumé falls back to `profile.image`.
+5. Add verified email, phone, location, and `{ label, url }` social links in `content/contact.json`.
+6. Add skill records to `content/skills/entries.json`.
+7. Add employment or education records to their corresponding `entries.json` files.
+8. Add important milestones to `content/journey/entries.json`.
+9. Add projects as hubs under `content/blog/projects/<project-id>/` and connect related journey/article IDs in the hub `entry.json`.
+10. Add bilingual MDX articles inside their project hub when appropriate.
+11. Enable `content/resume/config.json` only after the profile and résumé data are verified.
+12. Run content validation, link checks, type checking, and a production build.
 
 The JSON schemas in `src/utils/portfolio-content.ts` are the source of truth. Keep stable IDs, provide both `en` and `fa` locale objects for records, and never invent employment, education, certifications, contact details, metrics, or outcomes.
 
@@ -104,11 +158,11 @@ Journey records support `employment`, `milestone`, `education`, `certification`,
 
 ## Projects
 
-Projects require a stable lowercase `id`, `translationId`, maturity label, localized copy, technologies, visibility, and priority. Optional `image`, `repository`, `externalUrl`, `journeyIds`, and `articleIds` connect the project to other content. Featured projects appear in the homepage grid. Project articles belong under `content/blog/{locale}/projects/{project-id}/` and can have multiple articles per project.
+Projects use one bilingual hub under `content/blog/projects/{project-id}/` with automatic IDs, a shared `draft`/`published` status, localized copy, technologies, visibility, and priority. Optional `image`, `repository`, `externalUrl`, `journeyIds`, and `articleIds` connect the project to other content. The homepage and `/blog/projects/` read this same source; `content/projects/entries.json` is not a runtime project source. Featured projects appear in the homepage grid. Child articles live under `articles/{article-slug}/` inside the project hub and are shown with their parent project.
 
 ## Blog and documentation
 
-The folder hierarchy becomes the URL hierarchy:
+The folder hierarchy becomes the URL hierarchy for regular articles:
 
 ```text
 content/blog/en/devops/docker/docker-basics.mdx
@@ -136,7 +190,20 @@ toc: true
 Start with a clear explanation.
 ```
 
-Use matching translated files in `content/blog/fa/`, preserve `translationId`, and keep drafts out of published routes. Mermaid code blocks, Markmap content, KaTeX math, internal article links, images, and PDF attachments are supported by the existing reader components. `npm run content:new` creates a draft scaffold.
+Use matching translated files in `content/blog/fa/`, preserve `translationId`, and keep drafts out of published routes. For a project, use this structure:
+
+```text
+content/blog/projects/my-project/
+├── entry.json
+├── en.mdx
+├── fa.mdx
+└── articles/
+    └── architecture/
+        ├── en.mdx
+        └── fa.mdx
+```
+
+Mermaid code blocks, Markmap content, KaTeX math, internal article links, images, and PDF attachments are supported by the existing reader components. `npm run content:new` creates a draft scaffold.
 
 ## Localization
 

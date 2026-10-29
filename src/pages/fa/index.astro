@@ -11,6 +11,6 @@ const pageTitle = portfolio().site.locales.fa.title;
 const pageDescription = portfolio().site.locales.fa.description;
 ---
 
-<Layout title={pageTitle} description={pageDescription}>
+<Layout title={pageTitle} description={pageDescription} contentContext={{ type: 'home', locale: lang }}>
   <HomeSurface lang={lang} data={portfolio()} />
 </Layout>

@@ -6,6 +6,8 @@
 
 [![پیش‌نمایش پورتفولیو](public/images/portfolio-preview.jpg)](public/images/portfolio-preview.jpg)
 
+<a href="README.md"><strong>English README →</strong></a>
+
 این پروژه یک چارچوب قابل استفادهٔ مجدد برای ساخت وب‌سایت شخصی توسعه‌دهندگان، مهندسان، طراحان و تیم‌های فنی است. سایت از مسیرهای انگلیسی و فارسی، چیدمان راست‌به‌چپ و چپ‌به‌راست، حالت روشن و تاریک، وبلاگ MDX و محتوای متمرکز در پوشهٔ `content/` پشتیبانی می‌کند.
 
 این پروژه بر پایهٔ [Astro Multilingual Portfolio Template](https://github.com/nicremo/astro-multilingual-portfolio-template) اثر Fabian Bitzer شکل گرفته است. طراحی اولیه، ساختار واکنش‌گرا، تغییر پوسته، ناوبری چندزبانه و مجوز MIT پروژهٔ مادر حفظ شده و قابلیت‌های محتوایی، انتشار فنی، اعتبارسنجی، رزومه و مهارت‌های Agent به آن افزوده شده‌اند.
@@ -58,6 +60,59 @@ npm run build
 npm run preview
 ```
 
+## حالت Easy Content
+
+Easy Content ابزار محلی ویرایش محتوای JSON و پروژه‌های دوزبانه است. این قابلیت به‌صورت پیش‌فرض خاموش است و هیچ‌وقت در build تولیدی فعال نمی‌شود.
+
+### شروع سایت قابل ویرایش
+
+```sh
+npm run dev:content
+```
+
+سپس `http://localhost:4321/fa/` یا `/en/` را باز کنید. نوار ویرایش سایت بر اساس زبانی که از آن وارد شده‌اید، لینک‌های فارسی یا انگلیسی نشان می‌دهد.
+
+### پیش‌نمایش همراه با ویرایش
+
+```sh
+npm run build
+npm run preview:content
+```
+
+برای پیش‌نمایش فقط‌خواندنی از `npm run preview` استفاده کنید. مقدار `EASY_CONTENT_MODE=true` را روی سرور عمومی یا deployment فعال نکنید، چون Easy Content در working tree محلی فایل می‌نویسد.
+
+### روند پیشنهادی نویسندگی
+
+1. `npm run dev:content` را اجرا کنید یا ابتدا build بگیرید و سپس `npm run preview:content` را اجرا کنید.
+2. سایت را به زبان فارسی یا انگلیسی باز کنید.
+3. از نوار ویرایش، **محتوای صفحهٔ اصلی**، **پروفایل و پرتره** یا **ویرایش وبلاگ** را انتخاب کنید.
+4. متن صفحهٔ اصلی در `content/home.json` قرار دارد. هویت و تصویر پروفایل در `content/profile.json` است. تصویر را از ویرایشگر پروفایل وارد کنید تا در `content/media/` ذخیره و مسیر آن خودکار ثبت شود.
+5. از ویرایش وبلاگ یک هاب پروژه بسازید. هر پروژه یک پوشه با `entry.json` و فایل‌های هم‌سطح `en.mdx` و `fa.mdx` است. مقاله‌های فرزند را داخل همان پوشه اضافه کنید.
+6. هنگام کار، پروژه را به‌صورت پیش‌نویس ذخیره کنید. دکمهٔ **انتشار** هر دو زبان را اعتبارسنجی، ذخیره و منتشر می‌کند.
+7. پیش‌نمایش واقعی را در هر دو زبان بررسی کنید و سپس آزمون‌های اعتبارسنجی و build را اجرا کنید.
+8. در پایان تغییرات را بررسی، commit و push کنید:
+
+```sh
+npm run content:validate
+npm run content:check-links
+npm run check
+npm run build
+git status
+git add content/ public/images/ README.md README.fa.md
+git commit -m "content: update portfolio"
+git push origin HEAD
+```
+
+ویرایشگر خودش commit، push یا deploy نمی‌کند. پیش از commit حتماً diff را بررسی کنید. محتوای draft تا زمان انتشار صریح در مسیر عمومی قرار نمی‌گیرد.
+
+### تصاویر راهنما
+
+<a href="public/images/Home%20page%20edit%20helper.JPG"><img src="public/images/Home%20page%20edit%20helper.JPG" alt="ویرایش JSON صفحهٔ اصلی در Easy Content" width="720"></a>
+
+<a href="public/images/Article%20edit%20helper.JPG"><img src="public/images/Article%20edit%20helper.JPG" alt="ویرایش مقالهٔ دوزبانه در Easy Content" width="720"></a>
+
+راهنمای انگلیسی: [README.md](README.md)
+
 ## ساختار مخزن
 
 ```text
@@ -75,13 +130,14 @@ tests/fixtures/      نمونه‌های ساختگی ایزوله برای آز
 اطلاعات عمومی مالک سایت فقط باید در `content/` قرار بگیرد:
 
 1. عنوان، توضیح و آدرس سایت را در `content/site.json` تنظیم کنید.
-2. در `content/profile.json` مقدار `visible` را فعال کرده و نام، عنوان، معرفی و خلاصهٔ فارسی و انگلیسی را اضافه کنید.
-3. تصویر جایگزین را با تصویر خود عوض کنید و مسیر `profile.image` را به تصویر اصلی سایت، مانند `media/profile/profile.svg`، تغییر دهید. اگر تصویر جداگانه‌ای برای رزومه لازم است، `resumeImage` را اضافه کنید؛ در غیر این صورت رزومه از `profile.image` استفاده می‌کند.
+2. در `content/profile.json` مقدار `visible` و اطلاعات هویتی و تصویر را تنظیم کنید.
+3. سلام، نام نمایشی، عنوان، معرفی، خلاصه و دکمه‌های صفحهٔ اصلی را در `content/home.json` بنویسید.
 4. ایمیل، تلفن، مکان و لینک‌های اجتماعی تأییدشده را در `content/contact.json` وارد کنید.
-5. مهارت‌ها را در `content/skills/entries.json` و سوابق را در فایل‌های `experience`، `education` و `certifications` اضافه کنید.
-6. نقاط عطف مهم را در `content/journey/entries.json` و پروژه‌ها را به‌صورت هاب در `content/blog/projects/<project-id>/` ثبت کنید.
-7. مقالهٔ انگلیسی و ترجمهٔ فارسی را در مسیرهای متناظر `content/blog/en/` و `content/blog/fa/` قرار دهید.
-8. پس از بررسی واقعی اطلاعات، رزومه را در `content/resume/config.json` فعال کنید.
+5. تصویر را در `content/media/` قرار دهید یا از ویرایشگر پروفایل وارد کنید و مسیر `profile.image` را مانند `media/profile/profile.svg` تنظیم کنید. در صورت نیاز `resumeImage` را جداگانه اضافه کنید.
+6. مهارت‌ها را در `content/skills/entries.json` و سوابق را در فایل‌های `experience`، `education` و `certifications` اضافه کنید.
+7. نقاط عطف مهم را در `content/journey/entries.json` و پروژه‌ها را به‌صورت هاب در `content/blog/projects/<project-id>/` ثبت کنید.
+8. مقاله‌های دوزبانه را داخل همان هاب پروژه یا مسیرهای موضوعی وبلاگ قرار دهید.
+9. پس از بررسی واقعی اطلاعات، رزومه را در `content/resume/config.json` فعال کنید.
 
 شناسه‌ها باید پایدار باشند، رکوردهای عمومی ترجمهٔ `en` و `fa` داشته باشند و هیچ ادعای تأییدنشده، عدد ساختگی، سابقهٔ جعلی یا اطلاعات تماس فرضی اضافه نشود.
 
@@ -93,10 +149,14 @@ tests/fixtures/      نمونه‌های ساختگی ایزوله برای آز
 
 رویدادهای Journey می‌توانند از نوع استخدام، نقطهٔ عطف، تحصیل، گواهی، دستاورد، پروژه، آموزش، متن‌باز یا سایر موارد باشند. این بخش برای نقاط عطف مهم حرفه‌ای است، نه گزارش کارهای روزمره.
 
-پروژه‌ها با شناسهٔ پایدار، `translationId`، برچسب بلوغ، فناوری‌ها، توضیحات دوزبانه و اولویت تعریف می‌شوند. تصاویر، مخزن، لینک بیرونی، رویدادهای مرتبط و مقاله‌های مرتبط اختیاری هستند. مقاله‌های هر پروژه در مسیر زیر قرار می‌گیرند و یک پروژه می‌تواند چند مقاله داشته باشد:
+پروژه‌ها با یک منبع اصلی در وبلاگ تعریف می‌شوند و صفحهٔ اصلی نیز همان منبع را می‌خواند. `content/projects/entries.json` منبع اجرای پروژه‌ها نیست. هر پروژه می‌تواند چند مقاله داشته باشد:
 
 ```text
-content/blog/fa/projects/<project-id>/<article-slug>.mdx
+content/blog/projects/<project-id>/
+├── entry.json
+├── en.mdx
+├── fa.mdx
+└── articles/<article-slug>/{en.mdx,fa.mdx}
 ```
 
 ## وبلاگ و MDX

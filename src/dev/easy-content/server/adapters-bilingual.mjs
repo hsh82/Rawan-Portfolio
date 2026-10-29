@@ -238,15 +238,11 @@ function normalizeShared(input, current, context, documents) {
 }
 
 function allowedProjectRecord(existing, input) {
-  const allowed = ['favorite', 'favoriteAt', 'featured', 'publication', 'maturity', 'category', 'secondaryCategories', 'role', 'technologies', 'icon', 'image', 'imageAlt', 'publishedAt', 'updatedAt', 'repository', 'externalUrl', 'priority', 'journeyIds', 'relatedSkillIds', 'relatedProjectIds', 'articleIds'];
+  const allowed = ['favorite', 'favoriteAt', 'featured', 'category', 'secondaryCategories', 'role', 'technologies', 'icon', 'image', 'imageAlt', 'publishedAt', 'updatedAt', 'repository', 'externalUrl', 'priority', 'journeyIds', 'relatedSkillIds', 'relatedProjectIds', 'articleIds'];
   const next = { ...existing };
   for (const key of allowed) if (input && Object.prototype.hasOwnProperty.call(input, key)) next[key === 'category' ? 'projectCategory' : key] = input[key];
   if (next.favoriteAt == null) delete next.favoriteAt;
   return next;
-}
-
-function assertProjectPublication(record) {
-  if (!['public-ready', 'public-sanitized'].includes(record.publication)) throw new Error('Review the project publication status before publishing');
 }
 
 export function saveEntity(input) {
@@ -275,7 +271,6 @@ export function saveEntity(input) {
   if (context.type === 'project') {
     const record = projectRecord(projectIdFor(context));
     if (!record) throw new Error('Project does not exist');
-    if (input.publish) assertProjectPublication(record);
     Object.assign(shared, allowedProjectRecord(record, input.shared?.project || {}));
     if (input.publish) { shared.visible = true; if (!shared.publishedAt) shared.publishedAt = today(); }
     else if (input.unpublish) shared.visible = false;
@@ -289,19 +284,22 @@ export function saveEntity(input) {
 }
 
 function createSource({ shared, locale, title, description, body }) {
-  return serializeDocument({ kind: shared.kind === 'overview' ? 'article' : shared.kind, title, description, slug: shared.slug, locale, category: shared.category, subcategory: shared.subcategory, tags: shared.tags, pubDate: shared.pubDate, draft: true, featured: shared.featured, translationId: shared.translationId, toc: shared.toc }, body || `\n## ${title}\n\n${description}\n`);
+  return serializeDocument({ kind: shared.kind === 'overview' ? 'article' : shared.kind, title, description, slug: shared.slug, locale, category: shared.category, subcategory: shared.subcategory, tags: shared.tags, pubDate: shared.pubDate, draft: shared.status !== 'published', featured: shared.featured, translationId: shared.translationId, toc: shared.toc }, body || `\n## ${title}\n\n${description}\n`);
 }
 
 export function createProject(input) {
-  const requestedId = input.id && input.id !== 'overview' ? input.id : (input.title?.en || input.title?.fa);
+  const requestedId = input.title?.en || input.title?.fa;
   const id = safeSlug(requestedId);
   if (id === 'overview') throw new Error('Project ID "overview" is reserved for the public overview URL; use a project-specific ID');
   if (projectRecord(id)) throw new Error(`Project slug already exists: ${id}`);
-  const shared = { id, kind: 'overview', translationId: id, slug: 'overview', category: 'projects', projectCategory: input.category || 'devops-delivery', subcategory: id, status: 'draft', visible: false, pubDate: today(), tags: input.tags || [], featured: false, toc: true, favorite: Boolean(input.favorite), favoriteAt: input.favorite ? (input.favoriteAt || today()) : undefined, publication: 'requires-review', maturity: 'under-development', secondaryCategories: [], icon: input.icon && ICON_IDS.includes(input.icon) ? input.icon : undefined, role: { en: input.role?.en || 'Project', fa: input.role?.fa || 'پروژه' }, technologies: input.technologies || [], journeyIds: [], relatedSkillIds: [], relatedProjectIds: [], articleIds: [], priority: 0 };
+  if (input.publish && ['en', 'fa'].some(locale => !input.title?.[locale]?.trim() || !input.description?.[locale]?.trim())) throw new Error('Publish requires an English and Persian title and summary');
+  const status = input.publish === true ? 'published' : 'draft';
+  const shared = { id, kind: 'overview', translationId: id, slug: 'overview', category: 'projects', projectCategory: input.category || 'devops-delivery', subcategory: id, status, visible: status === 'published', pubDate: today(), tags: input.tags || [], featured: false, toc: true, favorite: Boolean(input.favorite), favoriteAt: input.favorite ? (input.favoriteAt || today()) : undefined, publication: 'requires-review', maturity: 'under-development', secondaryCategories: [], icon: input.icon && ICON_IDS.includes(input.icon) ? input.icon : undefined, role: { en: input.role?.en || 'Project', fa: input.role?.fa || 'پروژه' }, technologies: input.technologies || [], journeyIds: [], relatedSkillIds: [], relatedProjectIds: [], articleIds: [], priority: 0 };
   const entityPath = `projects/${id}`;
   const titles = { en: input.title?.en || id, fa: input.title?.fa || id };
   const descriptions = { en: input.description?.en || 'Draft project.', fa: input.description?.fa || 'پروژهٔ پیش‌نویس.' };
   const files = [{ file: entryFile(entityPath), source: writeJson(shared) }, ...BLOG_LOCALES.map(locale => ({ file: pathForEntity(entityPath, locale), source: createSource({ shared, locale, title: titles[locale], description: descriptions[locale], body: locale === input.locale ? input.body : undefined }) }))];
+  if (input.publish) for (const locale of BLOG_LOCALES) validateSource(files.find(item => item.file === pathForEntity(entityPath, locale)).source, 'Project overview', locale, 'overview');
   writeTransaction(files);
   return { id, route: `/en/blog/projects/${id}/overview/`, editorRoute: `/dev/content/edit/project/${id}/` };
 }
@@ -312,13 +310,16 @@ export function createArticle(input) {
   const slug = safeSlug(input.slug || input.title?.en || input.title?.fa);
   if (slug === 'overview') throw new Error('The overview slug is reserved for the project mother document');
   const entityPath = `projects/${project}/articles/${slug}`;
-  const shared = { id: `${project}/${slug}`, kind: 'article', translationId: input.translationId || `${project}-${slug}`, slug, category: 'projects', subcategory: project, status: 'draft', pubDate: today(), tags: input.tags || [], featured: false, toc: true };
+  if (input.publish && ['en', 'fa'].some(locale => !input.title?.[locale]?.trim() || !input.description?.[locale]?.trim())) throw new Error('Publish requires an English and Persian title and summary');
+  const status = input.publish === true ? 'published' : 'draft';
+  const shared = { id: `${project}/${slug}`, kind: 'article', translationId: input.translationId || `${project}-${slug}`, slug, category: 'projects', subcategory: project, status, pubDate: today(), tags: input.tags || [], featured: false, toc: true };
   const files = [{ file: entryFile(entityPath), source: writeJson(shared) }];
   for (const locale of BLOG_LOCALES) {
     const file = pathForEntity(entityPath, locale);
     if (existsSync(file)) throw new Error(`Article already exists: ${locale}/${project}/${slug}`);
     files.push({ file, source: createSource({ shared, locale, title: input.title?.[locale] || slug, description: input.description?.[locale] || 'Draft article.', body: locale === input.locale ? input.body : undefined }) });
   }
+  if (input.publish) for (const locale of BLOG_LOCALES) validateSource(files.find(item => item.file === pathForEntity(entityPath, locale)).source, 'Article', locale, slug);
   writeTransaction(files);
   return { project, slug, route: `/en/blog/projects/${project}/${slug}/`, editorRoute: `/dev/content/edit/article/${project}/${slug}/` };
 }

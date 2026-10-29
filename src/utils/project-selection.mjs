@@ -24,7 +24,7 @@ const compareProjects = (a, b) => {
 };
 
 export const selectHomepageProjects = (projects, limit = 6) => projects
-  .filter(project => project?.visible !== false && !['requires-review', 'planned-or-experimental'].includes(project?.publication))
+  .filter(project => project?.visible !== false && project?.status !== 'draft' && (project?.status || !['requires-review', 'planned-or-experimental'].includes(project?.publication)))
   .sort(compareProjects)
   .slice(0, Math.max(0, limit));
 

@@ -2,8 +2,7 @@ import { localizedValue, portfolio, publicItems, publicMediaPath } from './portf
 import { isFavoriteProject, selectHomepageProjects, sortProjects } from './project-selection.mjs';
 import type { Locale } from './i18n';
 
-export const publishedProjects = () => publicItems(portfolio().projects as any[])
-  .filter(project => !['requires-review', 'planned-or-experimental'].includes(project.publication));
+export const publishedProjects = () => publicItems(portfolio().projects as any[]);
 
 export const favoriteProjects = () => sortProjects(publishedProjects().filter(isFavoriteProject));
 

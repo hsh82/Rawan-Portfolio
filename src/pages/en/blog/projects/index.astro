@@ -1,0 +1,17 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+import ProjectGrid from '../../../../components/platform/ProjectGrid.astro';
+import { publishedProjects } from '../../../../utils/content-api';
+const lang = 'en' as const;
+const projects = publishedProjects();
+---
+<Layout lang={lang} title="Projects · Blog" description="Published project hubs and their technical articles.">
+  <section class="tracked-section py-16 md:py-24">
+    <div class="mx-auto max-w-container px-6">
+      <p class="eyebrow">Project hubs</p>
+      <h1 class="font-heading text-h1 mt-3">Projects</h1>
+      <p class="mt-5 mb-10 max-w-3xl text-lg text-secondary/70 dark:text-white/70">Every project shown here is read from the same Blog project hub used by the homepage.</p>
+      <ProjectGrid lang={lang} projects={projects} showFilters />
+    </div>
+  </section>
+</Layout>

@@ -12,12 +12,12 @@ Create one project hub with a shared `entry.json` using the existing schema. The
   "status": "published",
   "favorite": true,
   "favoriteAt": "2026-10-29",
-  "publication": "public-ready",
+  "status": "draft",
   "role": { "en": "Engineer", "fa": "مهندس" }
 }
 ```
 
-Then create `en.mdx` and `fa.mdx` in the same project folder. The project card, homepage selection, Blog favorite section, breadcrumbs, and child-article list are derived automatically. The project remains available at `/{locale}/blog/projects/{project-id}/overview/`.
+Then create `en.mdx` and `fa.mdx` in the same project folder. The editor derives the project ID from the title and generates the `overview` URL automatically. Save as Draft while either translation is incomplete; Publish validates both translations and makes the project public. The project card, homepage selection, Blog listing, breadcrumbs, and child-article list are derived automatically. The project remains available at `/{locale}/blog/projects/{project-id}/overview/`.
 
 ## Add a child article
 

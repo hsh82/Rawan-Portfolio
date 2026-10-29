@@ -13,7 +13,7 @@ import { portfolio } from '../utils/portfolio-content';
 import favicon from '../assets/favicon.png';
 import Analytics from '@vercel/analytics/astro';
 import ContentActionBar from '../dev/easy-content/editor/ContentActionBar.astro';
-interface ContentContext { type: 'blog' | 'project' | 'article'; locale: Locale; projectId?: string; articleId?: string; title?: string; projectTitle?: string; }
+interface ContentContext { type: 'home' | 'blog' | 'project' | 'article'; locale: Locale; projectId?: string; articleId?: string; title?: string; projectTitle?: string; }
 interface Props { title?: string; description?: string; lang?: Locale; translationId?: string; alternates?: Partial<Record<Locale, string>>; type?: 'website' | 'article'; image?: string; published?: Date; updated?: Date; contentContext?: ContentContext; }
 const lang = localeOf(Astro.props.lang || Astro.currentLocale);
 const siteCopy: any = portfolio().site.locales[lang];

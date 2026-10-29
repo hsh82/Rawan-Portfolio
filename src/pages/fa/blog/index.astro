@@ -1,7 +1,7 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
 import BlogIndex from '../../../components/blog/BlogIndex.astro';
-import { published, landing, isProjectOverview } from '../../../utils/blog';
+import { published, landing, isProjectArticle } from '../../../utils/blog';
 import { favoriteProjects } from '../../../utils/content-api';
 import Callout from '../../../components/blog/Callout.astro';
 import Tabs from '../../../components/blog/Tabs.astro';
@@ -13,7 +13,7 @@ import CodeBlock from '../../../components/blog/CodeBlock.astro';
 import { render } from 'astro:content';
 import { t } from '../../../utils/i18n';
 const lang = 'fa';
-const articles = (await published(lang)).filter(article => !isProjectOverview(article));
+const articles = (await published(lang)).filter(isProjectArticle);
 const landingArticle = await landing(lang);
 const landingRender = landingArticle ? await render(landingArticle) : undefined;
 const favorites = favoriteProjects();
