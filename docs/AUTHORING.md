@@ -1,29 +1,30 @@
 # Content authoring
 
-Projects are knowledge hubs, not only cards. Keep metadata in `content/projects/entries.json`, write the rich project document at `content/blog/{locale}/projects/{project-id}/overview.mdx`, and place focused articles beside it.
+Projects are knowledge hubs, not only cards. Keep shared metadata in `content/blog/projects/{project-id}/entry.json`, write the localized overview in sibling `en.mdx` and `fa.mdx`, and place focused articles in `articles/<slug>/`.
 
 ## Add a project
 
-Add one bilingual record to `content/projects/entries.json` using the existing schema. The author-facing selection fields are:
+Create one project hub with a shared `entry.json` using the existing schema. The author-facing selection fields are:
 
 ```json
 {
   "id": "devops",
-  "visible": true,
+  "status": "published",
   "favorite": true,
   "favoriteAt": "2026-10-29",
   "publication": "public-ready",
-  "locales": { "en": { "title": "DevOps", "description": "..." }, "fa": { "title": "دواپس", "description": "..." } }
+  "role": { "en": "Engineer", "fa": "مهندس" }
 }
 ```
 
-Then create `overview.mdx` in both locale folders. The project card, homepage selection, Blog favorite section, breadcrumbs, and child-article list are derived automatically.
+Then create `en.mdx` and `fa.mdx` in the same project folder. The project card, homepage selection, Blog favorite section, breadcrumbs, and child-article list are derived automatically. The project remains available at `/{locale}/blog/projects/{project-id}/overview/`.
 
 ## Add a child article
 
 ```text
-content/blog/en/projects/devops/cicd.mdx
-content/blog/fa/projects/devops/cicd.mdx
+content/blog/projects/devops/articles/cicd/entry.json
+content/blog/projects/devops/articles/cicd/en.mdx
+content/blog/projects/devops/articles/cicd/fa.mdx
 ```
 
 Use the normal article frontmatter and keep the same `translationId` in both locales:
@@ -55,7 +56,7 @@ Run `npm run content:validate`, `npm run content:check-links`, `npm run test:con
 
 For local, developer-only editing, run `npm run dev:content`. On the Blog landing and project/article pages, this adds a contextual action bar below the normal site Header. Edit and creation actions open a full-page file-backed editor in Astro development mode; there is no popup editor. It requires no CMS or database and never commits, pushes, deploys, or writes outside the canonical `content/` tree. Read `design/architecture/easy-content.md` before using it.
 
-The editor supports the Blog landing, project mother documents, and child project articles. Home editing is intentionally disabled. Projects keep their registry metadata and localized `overview.mdx` synchronized; child articles are created beside the overview, and creating from an article resolves the same parent Project. Source mode is authoritative for advanced MDX. Visual mode is a lightweight preview/editor for basic Markdown and becomes read-only when advanced components are present. Use Diff, Git status, and Validate before saving or publishing locally. New projects and articles default to drafts.
+The Studio at `/dev/content/` supports the Site, Profile, Contact, Résumé, Experience, Education, Certifications, Skills, Journey, Blog landing, project hubs, and child articles. General, English, and Persian fields share one editor route. Project card metadata and localized overview MDX remain in the same hub; child articles resolve the same parent Project. Source mode is authoritative for advanced MDX. Visual preview is read-only. Use Diff, Git status, and Validate before saving or publishing locally. New projects and articles default to drafts.
 
 Uploaded images are stored under `content/media/` and mirrored to `public/media/` for the current dev session. Use the returned logical `/media/...` path in the article or project content. The API accepts only loopback, same-origin requests and checks file revisions to prevent overwriting an external edit.
 

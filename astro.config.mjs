@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { defineConfig } from 'astro/config';
+import { loadEnv } from 'vite';
 import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
 import preact from '@astrojs/preact';
@@ -15,8 +16,13 @@ const siteContent = JSON.parse(readFileSync(resolve('content/site.json'), 'utf8'
 const configuredLocale = siteContent?.defaultLocale;
 const defaultLocale = configuredLocale === 'fa' ? 'fa' : 'en';
 
+const loadedEnv = loadEnv(process.env.NODE_ENV || 'development', process.cwd(), '');
+// Explicit process environment values (used by dev:content and CI) take
+// precedence over values loaded from .env.
+const easyContentEnabled = (process.env.EASY_CONTENT_MODE ?? loadedEnv.EASY_CONTENT_MODE) === 'true';
+
 export default defineConfig({
-  site: process.env.SITE_URL || 'https://example.invalid/',
+  site: process.env.SITE_URL || loadedEnv.SITE_URL || 'https://example.invalid/',
   output: 'static',
   trailingSlash: 'always',
 
@@ -33,7 +39,7 @@ export default defineConfig({
 
   // Integrations
   markdown: { remarkPlugins: [remarkGfm, remarkMath], rehypePlugins: [rehypeKatex], shikiConfig: { themes: { light: 'github-light', dark: 'github-dark' } } },
-  integrations: [tailwind(), mdx(), easyContentAstroIntegration(), sitemap({
+  integrations: [tailwind(), mdx(), easyContentAstroIntegration({ enabled: easyContentEnabled }), sitemap({
     filter: (page) => !/\/(?:en|fa)\/(?:contact|resume)\/$/.test(new URL(page).pathname)
   }), preact({
     compat: true
@@ -54,9 +60,9 @@ export default defineConfig({
       cssCodeSplit: true
     },
     define: {
-      'import.meta.env.EASY_CONTENT_MODE': JSON.stringify(process.env.EASY_CONTENT_MODE === 'true' ? 'true' : 'false'),
+      'import.meta.env.EASY_CONTENT_MODE': JSON.stringify(easyContentEnabled ? 'true' : 'false'),
     },
-    plugins: [easyContentVitePlugin()],
+    plugins: [easyContentVitePlugin({ enabled: easyContentEnabled })],
     ssr: {
       external: ['aos']
     }

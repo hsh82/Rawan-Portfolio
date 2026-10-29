@@ -1,5 +1,5 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { contentPath, readText, revisionOf, safeSlug, writeTransaction } from './security.mjs';
+import { contentPath, moveToTrash, readText, revisionOf, safeSlug, writeTransaction } from './security.mjs';
 import { parseDocument, serializeDocument, updateFrontmatter } from './frontmatter.mjs';
 import { ICON_IDS } from '../../../utils/icon-registry.mjs';
 import { BLOG_LOCALES } from '../../../utils/blog-layout.mjs';
@@ -7,11 +7,19 @@ import { BLOG_LOCALES } from '../../../utils/blog-layout.mjs';
 const jsonPath = name => contentPath(name, 'entries.json');
 const readJson = file => JSON.parse(readFileSync(file, 'utf8'));
 const writeJson = value => JSON.stringify(value, null, 2) + '\n';
-const localized = (value, locale) => value?.[locale] || value?.en || {};
 const today = () => new Date().toISOString().slice(0, 10);
 
 function projectRecord(id) {
-  return readJson(jsonPath('projects')).find(project => project.id === id);
+  const file = contentPath('blog', 'projects', safeSlug(id), 'entry.json');
+  return existsSync(file) ? readJson(file) : undefined;
+}
+
+function projectIds() {
+  const directory = contentPath('blog', 'projects');
+  if (!existsSync(directory)) return [];
+  return readdirSync(directory, { withFileTypes: true })
+    .filter(item => item.isDirectory() && existsSync(contentPath('blog', 'projects', item.name, 'entry.json')))
+    .map(item => item.name);
 }
 
 function projectIdFor(context) {
@@ -20,7 +28,7 @@ function projectIdFor(context) {
 
 function entityPathFor(context) {
   if (context.type === 'blog') return 'landing';
-  if (context.type === 'project') return `projects/${safeSlug(projectIdFor(context))}/overview`;
+  if (context.type === 'project') return `projects/${safeSlug(projectIdFor(context))}`;
   if (context.type === 'article') return `projects/${safeSlug(context.project || context.projectId)}/articles/${safeSlug(context.slug || context.articleId)}`;
   throw new Error('Unsupported Easy Content entity');
 }
@@ -160,6 +168,9 @@ export function contextForPath(pathname) {
 }
 
 export function editorContextForPath(pathname) {
+  if (/^\/dev\/content\/?$/.test(pathname)) return { type: 'studio', id: 'home', mode: 'browse', returnPath: '/en/' };
+  const resource = pathname.match(/^\/dev\/content\/edit\/resource\/([a-z-]+)(?:\/([a-z0-9-]+))?\/?$/);
+  if (resource) return { type: 'resource', resource: resource[1], id: resource[2] || undefined, mode: 'edit', returnPath: '/en/' };
   const blog = pathname.match(/^\/dev\/content\/(edit|new)\/blog\/?$/);
   if (blog) return blog[1] === 'edit' ? { type: 'blog', id: 'landing', mode: 'edit', returnPath: '/en/blog/' } : { type: 'unsupported', id: 'blog', reason: 'Blog creation is not supported' };
   const project = pathname.match(/^\/dev\/content\/(edit|new)\/project(?:\/([a-z0-9-]+))?\/?$/);
@@ -181,10 +192,18 @@ export function editorContextForPath(pathname) {
 }
 
 export function contentTree() {
-  return readJson(jsonPath('projects')).map(project => ({
-    type: 'project', id: project.id, title: localized(project.locales, 'en').title || project.id, titleFa: localized(project.locales, 'fa').title || project.id,
-    draft: project.visible === false, children: projectChildren(project.id).map(article => ({ type: 'article', id: `${project.id}/${article.slug}`, slug: article.slug, title: article.title, draft: article.draft })),
-  }));
+  return projectIds().map(id => {
+    const project = projectRecord(id) || {};
+    const en = existsSync(pathForEntity(`projects/${id}`, 'en')) ? readDocument(pathForEntity(`projects/${id}`, 'en')).document.frontmatter : {};
+    const fa = existsSync(pathForEntity(`projects/${id}`, 'fa')) ? readDocument(pathForEntity(`projects/${id}`, 'fa')).document.frontmatter : {};
+    return {
+      type: 'project', id,
+      title: en.title || id,
+      titleFa: fa.title || id,
+      draft: project.status !== 'published',
+      children: projectChildren(id).map(article => ({ type: 'article', id: `${id}/${article.slug}`, slug: article.slug, title: article.title, draft: article.draft })),
+    };
+  });
 }
 
 function validateSource(source, type, locale, expectedSlug) {
@@ -253,20 +272,16 @@ export function saveEntity(input) {
   const writes = [{ file: files.entry, source: writeJson(shared) }, ...BLOG_LOCALES.map(locale => ({ file: pathForEntity(files.entityPath, locale), source: nextDocuments[locale].source }))];
 
   if (context.type === 'project') {
-    const projectsFile = jsonPath('projects');
-    const registry = readJson(projectsFile);
-    const index = registry.findIndex(item => item.id === projectIdFor(context));
-    if (index < 0) throw new Error('Project does not exist');
-    if (input.publish) assertProjectPublication(registry[index]);
-    const nextProject = allowedProjectRecord(registry[index], input.shared?.project || {});
-    nextProject.locales = { ...nextProject.locales, en: { ...nextProject.locales?.en, title: nextDocuments.en.parsed.frontmatter.title, description: nextDocuments.en.parsed.frontmatter.description }, fa: { ...nextProject.locales?.fa, title: nextDocuments.fa.parsed.frontmatter.title, description: nextDocuments.fa.parsed.frontmatter.description } };
-    if (input.publish) { nextProject.visible = true; if (!nextProject.publishedAt) nextProject.publishedAt = today(); }
-    else if (input.unpublish) nextProject.visible = false;
-    nextProject.updatedAt = today();
-    if (nextProject.favorite && !nextProject.favoriteAt) nextProject.favoriteAt = today();
-    if (nextProject.icon && !ICON_IDS.includes(nextProject.icon)) throw new Error(`Unknown icon: ${nextProject.icon}`);
-    const nextRegistry = [...registry]; nextRegistry[index] = nextProject;
-    writes.unshift({ file: projectsFile, source: writeJson(nextRegistry) });
+    const record = projectRecord(projectIdFor(context));
+    if (!record) throw new Error('Project does not exist');
+    if (input.publish) assertProjectPublication(record);
+    Object.assign(shared, allowedProjectRecord(record, input.shared?.project || {}));
+    if (input.publish) { shared.visible = true; if (!shared.publishedAt) shared.publishedAt = today(); }
+    else if (input.unpublish) shared.visible = false;
+    shared.updatedAt = today();
+    if (shared.favorite && !shared.favoriteAt) shared.favoriteAt = today();
+    if (shared.icon && !ICON_IDS.includes(shared.icon)) throw new Error(`Unknown icon: ${shared.icon}`);
+    writes[0] = { file: files.entry, source: writeJson(shared) };
   }
   writeTransaction(writes);
   return { ...readEntity(context), saved: true };
@@ -278,13 +293,12 @@ function createSource({ shared, locale, title, description, body }) {
 
 export function createProject(input) {
   const id = safeSlug(input.id || input.title?.en || input.title?.fa);
-  const projectsFile = jsonPath('projects');
-  const registry = readJson(projectsFile);
-  if (registry.some(project => project.id === id)) throw new Error(`Project slug already exists: ${id}`);
-  const shared = { id, kind: 'overview', translationId: id, slug: 'overview', category: 'projects', subcategory: id, status: 'draft', pubDate: today(), tags: input.tags || [], featured: false, toc: true };
-  const record = { id, visible: false, favorite: Boolean(input.favorite), favoriteAt: input.favorite ? (input.favoriteAt || today()) : undefined, featured: false, translationId: id, publication: 'requires-review', maturity: 'under-development', category: input.category || 'devops-delivery', secondaryCategories: [], icon: input.icon && ICON_IDS.includes(input.icon) ? input.icon : undefined, role: { en: input.role?.en || 'Project', fa: input.role?.fa || 'پروژه' }, locales: { en: { title: input.title?.en || id, description: input.description?.en || 'Draft project.' }, fa: { title: input.title?.fa || id, description: input.description?.fa || 'پروژهٔ پیش‌نویس.' } }, technologies: input.technologies || [], journeyIds: [], relatedSkillIds: [], relatedProjectIds: [], articleIds: [], priority: 0 };
-  const entityPath = `projects/${id}/overview`;
-  const files = [{ file: projectsFile, source: writeJson([...registry, record]) }, { file: entryFile(entityPath), source: writeJson(shared) }, ...BLOG_LOCALES.map(locale => ({ file: pathForEntity(entityPath, locale), source: createSource({ shared, locale, title: record.locales[locale].title, description: record.locales[locale].description, body: locale === input.locale ? input.body : undefined }) }))];
+  if (projectRecord(id)) throw new Error(`Project slug already exists: ${id}`);
+  const shared = { id, kind: 'overview', translationId: id, slug: 'overview', category: 'projects', subcategory: id, status: 'draft', visible: false, pubDate: today(), tags: input.tags || [], featured: false, toc: true, favorite: Boolean(input.favorite), favoriteAt: input.favorite ? (input.favoriteAt || today()) : undefined, publication: 'requires-review', maturity: 'under-development', secondaryCategories: [], icon: input.icon && ICON_IDS.includes(input.icon) ? input.icon : undefined, role: { en: input.role?.en || 'Project', fa: input.role?.fa || 'پروژه' }, technologies: input.technologies || [], journeyIds: [], relatedSkillIds: [], relatedProjectIds: [], articleIds: [], priority: 0 };
+  const entityPath = `projects/${id}`;
+  const titles = { en: input.title?.en || id, fa: input.title?.fa || id };
+  const descriptions = { en: input.description?.en || 'Draft project.', fa: input.description?.fa || 'پروژهٔ پیش‌نویس.' };
+  const files = [{ file: entryFile(entityPath), source: writeJson(shared) }, ...BLOG_LOCALES.map(locale => ({ file: pathForEntity(entityPath, locale), source: createSource({ shared, locale, title: titles[locale], description: descriptions[locale], body: locale === input.locale ? input.body : undefined }) }))];
   writeTransaction(files);
   return { id, route: `/en/blog/projects/${id}/overview/`, editorRoute: `/dev/content/edit/project/${id}/` };
 }
@@ -314,4 +328,65 @@ export function createJourney(input) {
   const entry = { id, visible: false, type: input.type || 'milestone', current: false, locales: { en: { title: input.title?.en || id, description: input.description?.en || 'Draft story.' }, fa: { title: input.title?.fa || id, description: input.description?.fa || 'روایت پیش‌نویس.' } }, organization: '', location: '', technologies: [], projectIds: [], articleIds: [], links: [], documents: [], priority: 0 };
   writeTransaction([{ file, source: writeJson([...entries, entry]) }]);
   return { id, route: `/${input.locale || 'en'}/journey/${id}/` };
+}
+
+function referencesForProject(id) {
+  const references = [];
+  const jsonFiles = [
+    ['journey', jsonPath('journey')],
+    ['resume', contentPath('resume', 'config.json')],
+  ];
+  for (const [name, file] of jsonFiles) {
+    if (!existsSync(file)) continue;
+    const value = readJson(file);
+    const items = Array.isArray(value) ? value : [value];
+    for (const item of items) {
+      for (const [field, candidate] of Object.entries(item || {})) {
+        if (Array.isArray(candidate) && candidate.includes(id)) references.push(`${name}/${item.id || 'config'}:${field}`);
+      }
+    }
+  }
+  for (const otherId of projectIds()) {
+    if (otherId === id) continue;
+    const project = projectRecord(otherId) || {};
+    if (project.relatedProjectIds?.includes(id)) references.push(`project/${otherId}:relatedProjectIds`);
+  }
+  return references;
+}
+
+function referencesForArticle(project, slug) {
+  const id = `${project}/${slug}`;
+  const references = [];
+  const journeyFile = jsonPath('journey');
+  if (existsSync(journeyFile)) for (const item of readJson(journeyFile)) if (item.articleIds?.includes(id)) references.push(`journey/${item.id}:articleIds`);
+  const hub = projectRecord(project);
+  if (hub?.articleIds?.includes(id)) references.push(`project/${project}:articleIds`);
+  return references;
+}
+
+/**
+ * Deletion is intentionally narrow and recoverable: source files are moved to
+ * ignored local trash, never recursively removed. Projects with child articles
+ * or incoming references are blocked instead of cascaded.
+ */
+export function deleteEntity(input) {
+  const context = input.context || {};
+  if (!['project', 'article'].includes(context.type)) throw new Error('Only a project or child article can be deleted here');
+  const current = readEntity(context);
+  if (current.revision !== input.expectedRevision) throw Object.assign(new Error('Content changed outside Easy Content Mode'), { code: 409 });
+  if (context.type === 'project') {
+    const project = projectIdFor(context);
+    const children = projectChildren(project);
+    if (children.length) throw new Error(`Delete or move the ${children.length} child article${children.length === 1 ? '' : 's'} before deleting this project`);
+    const references = referencesForProject(project);
+    if (references.length) throw new Error(`Cannot delete this project; it is referenced by ${references.join(', ')}`);
+    const target = contentPath('blog', 'projects', safeSlug(project));
+    return { deleted: true, target: moveToTrash(target, `project-${project}`) };
+  }
+  const project = safeSlug(context.project || context.projectId);
+  const slug = safeSlug(context.slug || context.articleId);
+  const references = referencesForArticle(project, slug);
+  if (references.length) throw new Error(`Cannot delete this article; it is referenced by ${references.join(', ')}`);
+  const target = contentPath('blog', 'projects', project, 'articles', slug);
+  return { deleted: true, target: moveToTrash(target, `article-${project}-${slug}`) };
 }

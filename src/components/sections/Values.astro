@@ -4,11 +4,13 @@ import EmptyState from '../platform/EmptyState.astro';
 
 interface Props {
   lang: string | undefined;
+  profileData?: any;
 }
 
 const { lang } = Astro.props;
-const profile = localizedValue(portfolio().profile.locales, lang === 'fa' ? 'fa' : 'en');
-const about = (portfolio().profile as any).about?.[lang === 'fa' ? 'fa' : 'en'];
+const profileData: any = Astro.props.profileData || portfolio().profile;
+const profile = localizedValue(profileData.locales, lang === 'fa' ? 'fa' : 'en');
+const about = profileData.about?.[lang === 'fa' ? 'fa' : 'en'];
 ---
 
 <section id="about" class="tracked-section py-16 md:py-24 bg-neutral-bg dark:bg-neutral-dark/60">

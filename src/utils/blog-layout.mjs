@@ -32,6 +32,10 @@ export function normalizeBlogEntryId(entry) {
 
   const entity = parts.slice(0, -1);
   if (entity.join('/') === 'landing') return `${locale}/_index`;
+  // A project hub owns its overview document. Keeping `overview` in the
+  // collection id preserves the established public URL while allowing the
+  // canonical files to live directly in `projects/<id>/`.
+  if (entity[0] === 'projects' && entity.length === 2) return `${locale}/projects/${entity[1]}/overview`;
   if (entity[0] === 'projects' && entity[2] === 'articles') {
     return `${locale}/projects/${entity[1]}/${entity[3]}`;
   }

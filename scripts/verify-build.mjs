@@ -4,8 +4,10 @@ import { normalizeBlogEntryId } from '../src/utils/blog-layout.mjs';
 const root = new URL('../', import.meta.url).pathname;
 const dist = join(root, 'dist');
 const content = join(root, 'content/blog');
-const projectsFile = join(root, 'content/projects/entries.json');
-const projects = existsSync(projectsFile) ? JSON.parse(readFileSync(projectsFile, 'utf8')) : [];
+const projectRoot = join(root, 'content/blog/projects');
+const projects = existsSync(projectRoot) ? readdirSync(projectRoot, { withFileTypes: true })
+  .filter(entry => entry.isDirectory() && existsSync(join(projectRoot, entry.name, 'entry.json')))
+  .map(entry => JSON.parse(readFileSync(join(projectRoot, entry.name, 'entry.json'), 'utf8'))) : [];
 const walk = dir => readdirSync(dir, { withFileTypes: true }).flatMap(entry => entry.isDirectory() ? walk(join(dir, entry.name)) : [join(dir, entry.name)]);
 const files = existsSync(content) ? walk(content).filter(file => /\.mdx?$/.test(file) && !normalizeBlogEntryId(relative(content, file)).endsWith('/_index')) : [];
 const sitemap = readFileSync(join(dist, 'sitemap-0.xml'), 'utf8');

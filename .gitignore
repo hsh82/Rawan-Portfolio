@@ -29,6 +29,7 @@ browser-cache/
 .cache/
 .tmp/
 tmp/
+.easy-content-trash/
 
 # Generated résumé PDFs; source data and generator remain tracked
 public/resume/*.pdf

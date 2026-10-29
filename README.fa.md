@@ -79,7 +79,7 @@ tests/fixtures/      نمونه‌های ساختگی ایزوله برای آز
 3. تصویر جایگزین را با تصویر خود عوض کنید و مسیر `profile.image` را به تصویر اصلی سایت، مانند `media/profile/profile.svg`، تغییر دهید. اگر تصویر جداگانه‌ای برای رزومه لازم است، `resumeImage` را اضافه کنید؛ در غیر این صورت رزومه از `profile.image` استفاده می‌کند.
 4. ایمیل، تلفن، مکان و لینک‌های اجتماعی تأییدشده را در `content/contact.json` وارد کنید.
 5. مهارت‌ها را در `content/skills/entries.json` و سوابق را در فایل‌های `experience`، `education` و `certifications` اضافه کنید.
-6. نقاط عطف مهم را در `content/journey/entries.json` و پروژه‌ها را در `content/projects/entries.json` ثبت کنید.
+6. نقاط عطف مهم را در `content/journey/entries.json` و پروژه‌ها را به‌صورت هاب در `content/blog/projects/<project-id>/` ثبت کنید.
 7. مقالهٔ انگلیسی و ترجمهٔ فارسی را در مسیرهای متناظر `content/blog/en/` و `content/blog/fa/` قرار دهید.
 8. پس از بررسی واقعی اطلاعات، رزومه را در `content/resume/config.json` فعال کنید.
 

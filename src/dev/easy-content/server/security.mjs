@@ -5,6 +5,7 @@ import { dirname, relative, resolve, sep } from 'node:path';
 export const repositoryRoot = resolve(process.cwd());
 export const contentRoot = resolve(repositoryRoot, 'content');
 export const mediaRoot = resolve(contentRoot, 'media');
+export const trashRoot = resolve(repositoryRoot, '.easy-content-trash');
 export const sessionToken = randomBytes(24).toString('hex');
 
 export function isInside(root, candidate) {
@@ -84,6 +85,20 @@ export function writeTransaction(files) {
     }
     throw error;
   }
+}
+
+/** Move a canonical content file or directory to ignored local trash. */
+export function moveToTrash(file, label = 'content') {
+  if (!isInside(contentRoot, file)) throw new Error('Only canonical content may be moved to trash');
+  if (!existsSync(file)) throw new Error('Content does not exist');
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const target = resolve(trashRoot, `${stamp}-${label}`, relative(contentRoot, file));
+  if (!isInside(trashRoot, target)) throw new Error('Invalid trash target');
+  mkdirSync(dirname(target), { recursive: true });
+  renameSync(file, target);
+  const manifest = resolve(trashRoot, `${stamp}-${label}`, 'manifest.json');
+  writeFileSync(manifest, `${JSON.stringify({ original: relative(repositoryRoot, file).replaceAll('\\', '/'), trashedAt: new Date().toISOString() }, null, 2)}\n`, { encoding: 'utf8', mode: 0o600 });
+  return target;
 }
 
 export function safeSlug(value) {

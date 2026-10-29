@@ -1,4 +1,4 @@
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { z } from 'zod';
 import type { Locale } from './i18n';
@@ -24,7 +24,7 @@ const projectCaseStudyCopySchema = z.object({
   lessons: z.array(z.string().min(1)).default([]),
 });
 const projectDiagramCopySchema = z.object({ title: z.string().min(1), steps: z.array(z.string().min(1)).min(2).max(6) });
-const projectSchema = z.object({
+export const projectSchema = z.object({
   id: z.string().regex(/^[a-z0-9-]+$/),
   visible: z.boolean().default(true),
   featured: z.boolean().default(false),
@@ -65,11 +65,52 @@ function read<T>(path: string, schema: z.ZodType<T>, fallback: T): T {
 }
 function list(path: string, schema: z.ZodType<any>) { return read(path, z.array(schema), []); }
 
+function frontmatterValue(source: string, field: string) {
+  const match = source.match(new RegExp(`^${field}:\\s*(.+?)\\s*$`, 'm'));
+  if (!match) return '';
+  const value = match[1].trim();
+  try { return JSON.parse(value); } catch { return value.replace(/^['"]|['"]$/g, ''); }
+}
+
+/**
+ * Projects are published documents, not a second JSON registry. Shared card
+ * metadata belongs to the project hub's entry.json; each sibling MDX file is
+ * authoritative for its translated title and summary.
+ */
+function projectHubs() {
+  const directory = resolve(root, 'blog', 'projects');
+  if (!existsSync(directory)) return [];
+  return readdirSync(directory, { withFileTypes: true })
+    .filter(item => item.isDirectory())
+    .map(item => {
+      const projectRoot = resolve(directory, item.name);
+      const entry = resolve(projectRoot, 'entry.json');
+      if (!existsSync(entry)) return null;
+      const shared = JSON.parse(readFileSync(entry, 'utf8'));
+      const locales = Object.fromEntries(['en', 'fa'].map(locale => {
+        const file = resolve(projectRoot, `${locale}.mdx`);
+        const source = existsSync(file) ? readFileSync(file, 'utf8') : '';
+        return [locale, {
+          title: frontmatterValue(source, 'title'),
+          description: frontmatterValue(source, 'description'),
+        }];
+      }));
+      return projectSchema.parse({
+        ...shared,
+        // Publication is represented once in shared metadata. `visible` is
+        // retained only as a normalized runtime compatibility property.
+        visible: shared.status === 'published',
+        locales,
+      });
+    })
+    .filter((project): project is z.infer<typeof projectSchema> => Boolean(project));
+}
+
 export const portfolio = () => ({
   site: read('site.json', siteSchema, { siteUrl: '', defaultLocale: 'en', locales: { en: { title: 'Rawan Portfolio', description: 'A reusable bilingual portfolio.', homeLabel: 'Portfolio' }, fa: { title: 'پورتفولیوی راوان', description: 'پورتفولیویی دوزبانه برای آثار حرفه‌ای.', homeLabel: 'کارنامه' } } }),
   profile: read('profile.json', profileSchema, { visible: false, name: '', locales: { en: {}, fa: {} } }),
   contact: read('contact.json', contactSchema, { email: '', phone: '', location: '', socials: [], locales: { en: {}, fa: {} } }),
-  projects: list('projects/entries.json', projectSchema),
+  projects: projectHubs(),
   journey: list('journey/entries.json', journeySchema),
   experience: list('experience/entries.json', recordSchema),
   education: list('education/entries.json', recordSchema),
@@ -87,7 +128,7 @@ export function validatePortfolioContent() {
   const journeyIds = new Set(data.journey.map(item => item.id));
   const skillIds = new Set(data.skills.map(item => item.id));
   const duplicates = data.projects.length !== ids.size;
-  if (duplicates) throw new Error('Duplicate project IDs in content/projects/entries.json');
+  if (duplicates) throw new Error('Duplicate project IDs in content/blog/projects');
   for (const item of data.projects) {
     if (item.featured && !item.visible) throw new Error(`Featured project ${item.id} must be visible`);
     if (item.visible && ['requires-review', 'planned-or-experimental'].includes(item.publication)) throw new Error(`Private project ${item.id} cannot be visible`);

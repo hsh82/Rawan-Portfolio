@@ -4,7 +4,7 @@ import { portfolio } from '../../utils/portfolio-content';
 import { ShieldCheck, GitMerge, ServerCog } from '@lucide/astro';
 import EmptyState from '../platform/EmptyState.astro';
 const lang = Astro.props.lang as Locale;
-const profile: any = portfolio().profile;
+const profile: any = Astro.props.profileData || portfolio().profile;
 const areas = profile.focus?.[lang] || profile.focus?.en || [];
 const icons: any[] = [ShieldCheck, GitMerge, ServerCog];
 ---

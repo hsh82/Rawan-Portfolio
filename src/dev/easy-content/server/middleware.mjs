@@ -9,7 +9,9 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { repositoryRoot, assertLocalRequest, sessionToken, mediaRoot, safePath, writeAtomic } from './security.mjs';
-import { contentTree, contextForPath, editorContextForPath, createArticle, createJourney, createProject, readEntity, saveEntity } from './adapters-bilingual.mjs';
+import { contentTree, contextForPath, editorContextForPath, createArticle, createJourney, createProject, deleteEntity, readEntity, saveEntity } from './adapters-bilingual.mjs';
+import { createResource, deleteResource, readResource, resourceCatalog, resourceDependencies, resourcePreviewUrl, saveResource } from './resources.mjs';
+import { createPreviewSession, previewSession } from './preview-sessions.mjs';
 
 const execFileAsync = promisify(execFile);
 const MAX_BODY = 1_500_000;
@@ -18,6 +20,9 @@ const MAX_UPLOAD_BODY = Math.ceil(MAX_ASSET / 3) * 4 + 300_000;
 const editorRoot = resolve(dirname(new URL(import.meta.url).pathname), '..', 'editor');
 const editorHtml = readFileSync(resolve(editorRoot, 'editor-bilingual.html'), 'utf8');
 const editorScript = readFileSync(resolve(editorRoot, 'editor-bilingual.js'), 'utf8');
+const editorDeleteScript = readFileSync(resolve(editorRoot, 'editor-delete.js'), 'utf8');
+const studioHtml = readFileSync(resolve(editorRoot, 'studio.html'), 'utf8');
+const studioScript = readFileSync(resolve(editorRoot, 'studio.js'), 'utf8');
 
 function json(res, status, payload) {
   res.statusCode = status;
@@ -132,19 +137,36 @@ async function renderPreview(input) {
   return renderPreact(evaluated.default({}));
 }
 
+function previewFrame(res, id) {
+  const session = previewSession(id);
+  if (!session) return text(res, 404, 'text/plain; charset=utf-8', 'Preview expired. Refresh it from Easy Content Studio.');
+  const snapshot = JSON.stringify(session).replaceAll('<', '\\u003c');
+  const page = resourcePreviewUrl(session.resource, session.locale);
+  const html = `<!doctype html><html lang="${session.locale}" dir="${session.locale === 'fa' ? 'rtl' : 'ltr'}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body,iframe{margin:0;width:100%;height:100%;border:0}#notice{position:fixed;z-index:2;top:.5rem;inset-inline-start:.5rem;padding:.35rem .55rem;border-radius:.4rem;background:#075fca;color:#fff;font:12px system-ui;box-shadow:0 .25rem 1rem #0003}</style></head><body><span id="notice">Unsaved local preview</span><iframe id="site" src="${page}"></iframe><script>const session=${snapshot};const frame=document.querySelector('#site');const copy=session.value?.locales?.[session.locale]||session.value?.locales?.en||{};frame.addEventListener('load',()=>{const d=frame.contentDocument;if(!d)return;const set=(selector,value)=>{const el=d.querySelector(selector);if(el&&typeof value==='string')el.textContent=value};if(session.resource==='profile'){set('#start h1',copy.displayName);set('#start h1 + p',copy.title);set('#start h1 + p + p',copy.intro);set('#start h1 + p + p + p',copy.summary);set('#about h2',session.value?.about?.[session.locale]?.title);set('#about h2 + p',session.value?.about?.[session.locale]?.description||copy.description)}if(session.resource==='contact'){set('#contact h1',copy.title);set('#contact h1 + p',copy.intro)}if(session.resource==='site'){d.title=session.value?.locales?.[session.locale]?.title||d.title;const meta=d.querySelector('meta[name="description"]');if(meta)meta.content=session.value?.locales?.[session.locale]?.description||meta.content}})</script></body></html>`;
+  return text(res, 200, 'text/html; charset=utf-8', html);
+}
+
 export function easyContentMiddleware({ editorOnly = false } = {}) {
   return async (req, res, next) => {
     try {
       const url = requestPath(req);
-      const isEditorRequest = url.pathname === '/__easy-content/editor.js' || url.pathname.startsWith('/dev/content/');
+      const isPreviewRoute = url.pathname.startsWith('/dev/content/preview/');
+      const isEditorRequest = url.pathname === '/__easy-content/editor.js' || url.pathname === '/__easy-content/editor-delete.js' || url.pathname === '/__easy-content/studio.js' || (!isPreviewRoute && url.pathname.startsWith('/dev/content/'));
+      if (editorOnly && isPreviewRoute) {
+        assertLocalRequest(req);
+        const id = url.pathname.split('/').filter(Boolean).at(-1);
+        return previewFrame(res, id);
+      }
       if (editorOnly && !isEditorRequest) return next();
       if (editorOnly) {
         assertLocalRequest(req);
         if (req.method === 'GET' && url.pathname === '/__easy-content/editor.js') return text(res, 200, 'text/javascript; charset=utf-8', editorScript);
+        if (req.method === 'GET' && url.pathname === '/__easy-content/editor-delete.js') return text(res, 200, 'text/javascript; charset=utf-8', editorDeleteScript);
+        if (req.method === 'GET' && url.pathname === '/__easy-content/studio.js') return text(res, 200, 'text/javascript; charset=utf-8', studioScript);
         if (req.method === 'GET' && url.pathname.startsWith('/dev/content/')) {
           const context = editorContextForPath(url.pathname, url.search);
           if (context.type === 'unsupported') return text(res, 404, 'text/plain; charset=utf-8', context.reason || 'unsupported content type');
-          return text(res, 200, 'text/html; charset=utf-8', editorHtml);
+          return text(res, 200, 'text/html; charset=utf-8', ['studio', 'resource'].includes(context.type) ? studioHtml : editorHtml);
         }
         return next();
       }
@@ -163,6 +185,18 @@ export function easyContentMiddleware({ editorOnly = false } = {}) {
         const context = JSON.parse(url.searchParams.get('context') || '{}');
         return json(res, 200, { entity: readEntity(context) });
       }
+      if (req.method === 'GET' && operation === 'catalog') {
+        requireToken(req);
+        return json(res, 200, { resources: resourceCatalog(), projects: contentTree() });
+      }
+      if (req.method === 'GET' && operation === 'resource') {
+        requireToken(req);
+        return json(res, 200, { entity: readResource({ resource: url.searchParams.get('resource'), id: url.searchParams.get('id') || undefined }) });
+      }
+      if (req.method === 'GET' && operation === 'references') {
+        requireToken(req);
+        return json(res, 200, { references: resourceDependencies(url.searchParams.get('resource'), url.searchParams.get('id')) });
+      }
       if (req.method === 'GET' && operation === 'git-status') {
         requireToken(req);
         return json(res, 200, await gitStatus());
@@ -175,7 +209,14 @@ export function easyContentMiddleware({ editorOnly = false } = {}) {
         requireToken(req);
         return json(res, 200, { html: await renderPreview(await body(req)) });
       }
+      if (req.method === 'POST' && operation === 'preview-session') {
+        requireToken(req);
+        const input = await body(req);
+        return json(res, 200, { id: createPreviewSession({ resource: input.resource, id: input.id, value: input.value, locale: input.locale === 'fa' ? 'fa' : 'en', revision: input.revision }) });
+      }
       if (req.method === 'GET' && operation === 'editor.js') return text(res, 200, 'text/javascript; charset=utf-8', editorScript);
+      if (req.method === 'GET' && operation === 'editor-delete.js') return text(res, 200, 'text/javascript; charset=utf-8', editorDeleteScript);
+      if (req.method === 'GET' && operation === 'studio.js') return text(res, 200, 'text/javascript; charset=utf-8', studioScript);
       if (req.method === 'GET' && operation === 'tree') {
         requireToken(req);
         return json(res, 200, { tree: contentTree() });
@@ -187,6 +228,10 @@ export function easyContentMiddleware({ editorOnly = false } = {}) {
       if (req.method !== 'POST') return next();
       requireToken(req);
       if (operation === 'save') return json(res, 200, { entity: saveEntity(await body(req)) });
+      if (operation === 'delete-entity') return json(res, 200, deleteEntity(await body(req)));
+      if (operation === 'save-resource') return json(res, 200, { entity: saveResource(await body(req)) });
+      if (operation === 'create-resource') return json(res, 201, { entity: createResource(await body(req)) });
+      if (operation === 'delete-resource') return json(res, 200, deleteResource(await body(req)));
       if (operation === 'create-project') return json(res, 201, createProject(await body(req)));
       if (operation === 'create-article') return json(res, 201, createArticle(await body(req)));
       if (operation === 'create-entry' || operation === 'create-journey') return json(res, 201, createJourney(await body(req)));

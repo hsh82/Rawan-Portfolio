@@ -26,7 +26,28 @@ const frontmatter = (source) => {
 const requiredLocales = (entry, source) => {
   if (!entry.locales?.en || !entry.locales?.fa) throw new Error(`${source}:${entry.id || 'entry'} needs en and fa locale values`);
 };
-const projects = entries('projects/entries.json');
+const quoted = (source, field) => {
+  const match = source.match(new RegExp(`^${field}:\\s*(.+?)\\s*$`, 'm'));
+  if (!match) return '';
+  try { return JSON.parse(match[1]); } catch { return match[1].replace(/^['"]|['"]$/g, ''); }
+};
+const projects = (() => {
+  const directory = resolve(root, 'blog', 'projects');
+  if (!existsSync(directory)) return [];
+  return readdirSync(directory, { withFileTypes: true }).filter(item => item.isDirectory()).map(item => {
+    const projectRoot = resolve(directory, item.name);
+    const entry = resolve(projectRoot, 'entry.json');
+    if (!existsSync(entry)) throw new Error(`Project hub ${item.name} needs entry.json`);
+    const shared = JSON.parse(readFileSync(entry, 'utf8'));
+    const locales = Object.fromEntries(['en', 'fa'].map(locale => {
+      const file = resolve(projectRoot, `${locale}.mdx`);
+      if (!existsSync(file)) throw new Error(`Project hub ${item.name} needs ${locale}.mdx`);
+      const source = readFileSync(file, 'utf8');
+      return [locale, { title: quoted(source, 'title'), description: quoted(source, 'description') }];
+    }));
+    return { ...shared, visible: shared.status === 'published', locales };
+  });
+})();
 const journey = entries('journey/entries.json');
 const skills = entries('skills/entries.json');
 const ids = new Set();
@@ -55,6 +76,7 @@ for (const project of projects) {
   if (project.visible) {
     for (const locale of ['en', 'fa']) {
       const candidates = [
+        resolve(root, 'blog', 'projects', project.id, `${locale}.mdx`),
         resolve(root, 'blog', 'projects', project.id, 'overview', `${locale}.mdx`),
         resolve(root, 'blog', locale, 'projects', project.id, 'overview.mdx'),
       ];

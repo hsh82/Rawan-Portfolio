@@ -15,7 +15,7 @@ Use this skill when maintaining the local developer-only content editor under `s
 
 - Home edits are constrained to the localized profile fields exposed by the adapter.
 - Blog landing content lives in `content/blog/{en,fa}/_index.mdx`.
-- A project is one canonical record in `content/projects/entries.json` plus a mother document at `content/blog/{locale}/projects/{id}/overview.mdx`.
+- A project is one canonical Blog hub at `content/blog/projects/{id}/`: shared card/publication data in `entry.json` and localized overview documents in `en.mdx` and `fa.mdx`. Public URLs still end in `/overview/`.
 - Child articles are inferred from the project folder. The `overview` slug is reserved.
 - Journey creation starts hidden; edit only verified milestone copy.
 - Drafts stay out of the public collections until they are intentionally published through the editor and pass the normal validators.
@@ -24,6 +24,6 @@ Use this skill when maintaining the local developer-only content editor under `s
 
 The editor is a native Astro/DOM implementation because this repository does not ship a full MDX editor dependency. Source mode is authoritative. Visual mode previews common Markdown and becomes read-only when it detects advanced MDX components, preserving those components in source mode. The block menu inserts the existing safe component vocabulary; it does not attempt to edit arbitrary JSX.
 
-Use the Metadata tab for localized titles, descriptions, tags, project icons, favorites, and draft status. Use Media to upload safe image formats to a project-scoped content path. Use Changes to inspect Git status and the Diff mode before saving. Run Validate before review and commit.
+Use the Studio at `/dev/content/` for structured site/profile/contact/career JSON. It provides General, English, Persian, and lossless JSON Source views plus a local read-only homepage preview. Use the dedicated document editor for project hubs and MDX articles. Use Media to upload safe image formats to a project-scoped content path. Use Changes to inspect Git status and the Diff mode before saving. Run Validate before review and commit.
 
 After changes, run `npm run content:validate`, `npm run content:check-links`, `npm run test:easy-content`, `npm run check`, `npm run build`, and `npm run test` as appropriate.

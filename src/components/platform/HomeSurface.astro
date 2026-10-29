@@ -1,0 +1,28 @@
+---
+import type { Locale } from '../../utils/i18n';
+import { t } from '../../utils/i18n';
+import Hero from '../sections/Hero.astro';
+import Values from '../sections/Values.astro';
+import FocusAreas from '../sections/FocusAreas.astro';
+import Skills from '../sections/Skills.astro';
+import FooterCTA from '../sections/FooterCTA.astro';
+import JourneyTimeline from './JourneyTimeline.astro';
+import ExperienceList from './ExperienceList.astro';
+import ProjectGrid from './ProjectGrid.astro';
+import ContactPanel from './ContactPanel.astro';
+import { selectHomepageProjects } from '../../utils/project-selection.mjs';
+
+interface Props { lang: Locale; data: any; preview?: boolean; }
+const { lang, data, preview = false } = Astro.props;
+const featuredProjects = selectHomepageProjects(data.projects || [], 6);
+---
+
+<Hero lang={lang} profileData={data.profile} />
+<Values lang={lang} profileData={data.profile} />
+<Skills lang={lang} entries={data.skills} />
+<FocusAreas lang={lang} profileData={data.profile} />
+<section id="experience" class="tracked-section py-16 md:py-24"><div class="mx-auto max-w-container px-6"><h2 class="mb-10 font-heading text-h2">{t('nav.experience', lang)}</h2><ExperienceList lang={lang} entries={data.experience} /></div></section>
+<section id="projects" class="tracked-section py-16 md:py-24 bg-neutral-bg dark:bg-neutral-dark/60"><div class="mx-auto max-w-container px-6"><div class="mb-10 flex flex-wrap items-end justify-between gap-4"><h2 class="font-heading text-h2">{t('nav.projects', lang)}</h2>{!preview && <a class="font-medium text-primary hover:underline" href={`/${lang}/projects/`}>{lang === 'fa' ? 'مشاهدهٔ همهٔ پروژه‌ها ←' : 'View all projects →'}</a>}</div><ProjectGrid lang={lang} projects={featuredProjects} featuredOnly limit={6} /></div></section>
+<section id="journey" class="tracked-section py-16 md:py-24"><div class="mx-auto max-w-container px-6"><h2 class="mb-10 font-heading text-h2">{t('nav.journey', lang)}</h2><JourneyTimeline lang={lang} entries={data.journey} limit={3} /></div></section>
+<div id="contact" class="tracked-section py-16 md:py-24 bg-neutral-bg dark:bg-neutral-dark/60"><div class="mx-auto max-w-3xl px-6"><ContactPanel lang={lang} contactData={data.contact} resumeData={data.resume} /></div></div>
+{!preview && <FooterCTA lang={lang} />}

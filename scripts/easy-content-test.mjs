@@ -3,6 +3,7 @@ import { parseDocument, updateFrontmatter } from '../src/dev/easy-content/server
 import { isInside, safePath, safeSlug } from '../src/dev/easy-content/server/security.mjs';
 import { contextForPath, editorContextForPath, readEntity, saveEntity } from '../src/dev/easy-content/server/adapters-bilingual.mjs';
 import { contentActions, editorCapabilities } from '../src/dev/easy-content/context.mjs';
+import { readResource, resourceCatalog } from '../src/dev/easy-content/server/resources.mjs';
 
 assert.equal(safeSlug(' CI/CD Pipeline '), 'ci-cd-pipeline');
 assert.throws(() => safePath(process.cwd(), '..'), /Unsafe path segment/);
@@ -28,6 +29,8 @@ assert.deepEqual(contentActions({ type: 'article', locale: 'fa', projectId: 'dev
 assert.equal(editorContextForPath('/dev/content/new/article/devops').project, 'devops');
 assert.equal(editorContextForPath('/dev/content/new/article/devops').mode, 'new');
 assert.equal(editorContextForPath('/dev/content/edit/home').type, 'unsupported');
+assert.equal(editorContextForPath('/dev/content/').type, 'studio');
+assert.equal(editorContextForPath('/dev/content/edit/resource/profile/').type, 'resource');
 assert.equal(editorCapabilities('home'), null);
 assert.throws(() => saveEntity({ context: { type: 'home' } }), /unsupported content type/);
 
@@ -36,5 +39,7 @@ assert.equal(landing.shared.status, 'published');
 assert.ok(landing.locales.en.source.includes('Project journal'));
 assert.ok(landing.locales.fa.source.includes('دفترچهٔ پروژه‌ها'));
 assert.equal(editorContextForPath('/dev/content/edit/blog/').locale, undefined);
+assert.ok(resourceCatalog().some(resource => resource.id === 'profile'));
+assert.equal(readResource({ resource: 'profile' }).resource, 'profile');
 
 console.log('Easy Content security and frontmatter behavior passed.');

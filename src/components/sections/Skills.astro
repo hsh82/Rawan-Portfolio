@@ -3,8 +3,8 @@ import type { Locale } from '../../utils/i18n';
 import { localizedValue, portfolio, publicItems } from '../../utils/portfolio-content';
 import { categoryIcons, technologyIcon } from '../../utils/skill-icons';
 import EmptyState from '../platform/EmptyState.astro';
-const lang = Astro.currentLocale as Locale;
-const entries: any[] = publicItems(portfolio().skills as any[]);
+const lang = (Astro.props.lang || Astro.currentLocale || 'en') as Locale;
+const entries: any[] = publicItems((Astro.props.entries || portfolio().skills) as any[]);
 ---
 <section id="skills" class="tracked-section skills-section py-16 md:py-24">
   <div class="mx-auto max-w-container px-6">

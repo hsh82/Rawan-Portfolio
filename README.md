@@ -87,7 +87,7 @@ tests/fixtures/      Isolated fictional examples; never loaded by production
 5. Add skill records to `content/skills/entries.json`.
 6. Add employment or education records to their corresponding `entries.json` files.
 7. Add important milestones to `content/journey/entries.json`.
-8. Add projects to `content/projects/entries.json` and connect related journey/article IDs.
+8. Add projects as hubs under `content/blog/projects/<project-id>/` and connect related journey/article IDs in the hub `entry.json`.
 9. Add bilingual MDX articles under `content/blog/en/` and `content/blog/fa/`.
 10. Enable `content/resume/config.json` only after the profile and résumé data are verified.
 11. Run content validation, link checks, type checking, and a production build.
