@@ -83,6 +83,7 @@ function projectHubs() {
   return readdirSync(directory, { withFileTypes: true })
     .filter(item => item.isDirectory())
     .map(item => {
+      if (item.name === 'overview') throw new Error('Invalid project hub ID: overview is reserved for the overview URL');
       const projectRoot = resolve(directory, item.name);
       const entry = resolve(projectRoot, 'entry.json');
       if (!existsSync(entry)) return null;
@@ -100,6 +101,7 @@ function projectHubs() {
         // Publication is represented once in shared metadata. `visible` is
         // retained only as a normalized runtime compatibility property.
         visible: shared.status === 'published',
+        category: shared.projectCategory || (shared.category === 'projects' ? 'devops-delivery' : shared.category),
         locales,
       });
     })

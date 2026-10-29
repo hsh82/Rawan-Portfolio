@@ -4,7 +4,7 @@
   "translationId": "blog-landing",
   "slug": "blog",
   "category": "blog",
-  "status": "published",
+  "status": "draft",
   "pubDate": "2026-10-29",
   "tags": [
     "projects",

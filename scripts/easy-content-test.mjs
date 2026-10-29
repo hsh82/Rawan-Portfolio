@@ -35,7 +35,7 @@ assert.equal(editorCapabilities('home'), null);
 assert.throws(() => saveEntity({ context: { type: 'home' } }), /unsupported content type/);
 
 const landing = readEntity({ type: 'blog', id: 'landing' });
-assert.equal(landing.shared.status, 'published');
+assert.equal(landing.shared.status, 'draft');
 assert.ok(landing.locales.en.source.includes('Project journal'));
 assert.ok(landing.locales.fa.source.includes('دفترچهٔ پروژه‌ها'));
 assert.equal(editorContextForPath('/dev/content/edit/blog/').locale, undefined);

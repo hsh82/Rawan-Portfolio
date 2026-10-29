@@ -88,7 +88,7 @@ function diffHtml(before, after) {
 function request(path, options = {}) { return fetch(`${api}/${path}`, { ...options, headers: { 'Content-Type':'application/json', 'x-easy-content-token':token, ...(options.headers || {}) } }).then(async response => { const data = await response.json(); if (!response.ok) throw Object.assign(new Error(data.error || 'Easy Content request failed'), { status:response.status }); return data; }); }
 function templateFor(type, project, slug, locale, title = '', description = '') {
   const realSlug = type === 'project' ? 'overview' : slug;
-  return `---\nkind: ${type === 'project' ? 'overview' : 'article'}\ntitle: ${quote(title)}\ndescription: ${quote(description)}\nslug: ${realSlug}\nlocale: ${locale}\ncategory: projects\nsubcategory: ${project || ''}\ntags: []\npubDate: ${today()}\ndraft: true\nfeatured: false\ntranslationId: ${project || 'article'}-${realSlug}\ntoc: true\n---\n\n## ${title}\n\n${description}\n`;
+  return `---\nkind: article\ntitle: ${quote(title)}\ndescription: ${quote(description)}\nslug: ${realSlug}\nlocale: ${locale}\ncategory: projects\nsubcategory: ${project || ''}\ntags: []\npubDate: ${today()}\ndraft: true\nfeatured: false\ntranslationId: ${project || 'article'}-${realSlug}\ntoc: true\n---\n\n## ${title}\n\n${description}\n`;
 }
 function localeBuffer(locale) { return entity?.locales?.[locale] || { source:templateFor(context.type, context.project, context.slug === 'new' ? '' : context.slug, locale), document:{frontmatter:{}}, revision:'' }; }
 function markDirty(locale = null) { if (locale) dirtyLocales.add(locale); else dirtyGeneral = true; state.textContent = text.unsaved; if (activeLocale) localStorage.setItem(`easy-content:recovery:${context?.id || 'new'}`, JSON.stringify(collectPayload(false))); }
@@ -105,8 +105,9 @@ function syncActiveFields() {
   entity.locales[activeLocale] = buffer; if (changed) dirtyLocales.add(activeLocale);
 }
 function sharedForm() {
-  const shared = { ...entity.shared, status:currentStatus(), slug:$('#slug').value.trim(), category:$('#category').value.trim(), pubDate:$('#pub-date').value || today(), tags:$('#tags').value.split(',').map(value => value.trim()).filter(Boolean), featured:$('#featured').checked, toc:$('#toc').checked };
-  if (context.type === 'project') shared.project = { ...(entity.metadata || {}), icon:$('#icon').value.trim() || undefined, publication:$('#publication').value, favorite:$('#favorite').checked, favoriteAt:$('#favorite').checked ? ($('#favorite-at').value || today()) : null };
+  const category = $('#category').value.trim();
+  const shared = { ...entity.shared, status:currentStatus(), slug:$('#slug').value.trim(), category:context.type === 'project' ? 'projects' : category, pubDate:$('#pub-date').value || today(), tags:$('#tags').value.split(',').map(value => value.trim()).filter(Boolean), featured:$('#featured').checked, toc:$('#toc').checked };
+  if (context.type === 'project') shared.project = { ...(entity.metadata || {}), category, icon:$('#icon').value.trim() || undefined, publication:$('#publication').value, favorite:$('#favorite').checked, favoriteAt:$('#favorite').checked ? ($('#favorite-at').value || today()) : null };
   return shared;
 }
 function collectPayload(publish, unpublish = false) {
@@ -120,7 +121,7 @@ function renderState() {
 }
 function renderGeneral() {
   const shared = entity.shared || {}; const metadata = entity.metadata || {};
-  $('#slug').value = shared.slug || (context.mode === 'new' ? '' : context.project || context.slug || ''); $('#slug').readOnly = context.mode !== 'new'; $('#status').value = currentStatus(); $('#pub-date').value = String(shared.pubDate || today()).slice(0,10); $('#tags').value = (shared.tags || []).join(', '); $('#category').value = shared.category || (context.type === 'blog' ? 'blog' : 'projects'); $('#featured').checked = Boolean(shared.featured); $('#toc').checked = shared.toc !== false;
+  $('#slug').value = context.type === 'project' && context.mode === 'new' ? '' : (shared.slug || (context.mode === 'new' ? '' : context.project || context.slug || '')); $('#slug').readOnly = context.mode !== 'new'; $('#status').value = currentStatus(); $('#pub-date').value = String(shared.pubDate || today()).slice(0,10); $('#tags').value = (shared.tags || []).join(', '); $('#category').value = context.type === 'project' ? (metadata.projectCategory || metadata.category || 'devops-delivery') : (shared.category || (context.type === 'blog' ? 'blog' : 'projects')); $('#featured').checked = Boolean(shared.featured); $('#toc').checked = shared.toc !== false;
   $('#project-settings').classList.toggle('hidden', context.type !== 'project'); $('#icon').value = metadata.icon || ''; $('#publication').value = metadata.publication || 'requires-review'; $('#favorite').checked = Boolean(metadata.favorite); $('#favorite-at').value = metadata.favoriteAt ? String(metadata.favoriteAt).slice(0,10) : ''; $('#parent').textContent = context.type === 'article' ? `Parent project: ${context.project}` : '';
 }
 function renderLocale() {

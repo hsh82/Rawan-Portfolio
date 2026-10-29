@@ -19,7 +19,10 @@ const frontmatter = (source) => {
   const fields = {};
   for (const line of match?.[1]?.split('\n') || []) {
     const value = line.match(/^([A-Za-z][A-Za-z0-9]*):\s*(.*?)\s*$/);
-    if (value) fields[value[1]] = value[2].replace(/^['"]|['"]$/g, '');
+    if (value) {
+      const raw = value[2].replace(/^['"]|['"]$/g, '');
+      fields[value[1]] = raw === 'true' ? true : raw === 'false' ? false : raw;
+    }
   }
   return fields;
 };
@@ -35,6 +38,7 @@ const projects = (() => {
   const directory = resolve(root, 'blog', 'projects');
   if (!existsSync(directory)) return [];
   return readdirSync(directory, { withFileTypes: true }).filter(item => item.isDirectory()).map(item => {
+    if (item.name === 'overview') throw new Error('Invalid project hub ID: overview is reserved for the overview URL');
     const projectRoot = resolve(directory, item.name);
     const entry = resolve(projectRoot, 'entry.json');
     if (!existsSync(entry)) throw new Error(`Project hub ${item.name} needs entry.json`);
@@ -45,7 +49,7 @@ const projects = (() => {
       const source = readFileSync(file, 'utf8');
       return [locale, { title: quoted(source, 'title'), description: quoted(source, 'description') }];
     }));
-    return { ...shared, visible: shared.status === 'published', locales };
+    return { ...shared, visible: shared.status === 'published', category: shared.projectCategory || (shared.category === 'projects' ? 'devops-delivery' : shared.category), locales };
   });
 })();
 const journey = entries('journey/entries.json');
@@ -106,6 +110,7 @@ for (const file of blogFiles()) {
   const fields = frontmatter(readFileSync(file, 'utf8'));
   const locale = pathInfo.locale;
   if (!['en', 'fa'].includes(locale) || fields.locale !== locale) throw new Error(`Blog file ${relativePath} must use a matching en/fa locale`);
+  if (fields.kind === 'overview') throw new Error(`Blog MDX ${relativePath} must use kind: article; overview is reserved for the public route role`);
   if (!fields.title || !fields.description || !fields.translationId || !fields.pubDate) throw new Error(`Blog file ${relativePath} needs title, description, translationId, and pubDate frontmatter`);
   if (Number.isNaN(Date.parse(fields.pubDate)) || (fields.updatedDate && Number.isNaN(Date.parse(fields.updatedDate)))) throw new Error(`Blog file ${relativePath} has an invalid publication date`);
   const key = `${locale}:${fields.translationId}`;

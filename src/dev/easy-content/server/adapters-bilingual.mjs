@@ -210,6 +210,7 @@ function validateSource(source, type, locale, expectedSlug) {
   const parsed = parseDocument(source);
   if (!parsed.hasFrontmatter) throw new Error(`${type} (${locale}) needs frontmatter`);
   if (!parsed.frontmatter.title || !parsed.frontmatter.description) throw new Error(`${type} (${locale}) needs a title and description`);
+  if (type === 'Project overview' && parsed.frontmatter.kind === 'overview') throw new Error(`Project overview (${locale}) must use kind: article in MDX frontmatter; overview is the URL role, not a collection kind`);
   if (!parsed.frontmatter.slug || !/^[a-z0-9-]+$/.test(String(parsed.frontmatter.slug))) throw new Error(`${type} (${locale}) needs a lowercase slug`);
   if (expectedSlug && parsed.frontmatter.slug !== expectedSlug) throw new Error(`${type} (${locale}) slug cannot be changed here`);
   if (parsed.frontmatter.pubDate && Number.isNaN(Date.parse(String(parsed.frontmatter.pubDate)))) throw new Error(`${type} (${locale}) publication date is invalid`);
@@ -218,7 +219,7 @@ function validateSource(source, type, locale, expectedSlug) {
 
 function localizedFrontmatter(shared, document, locale, status) {
   const frontmatter = document.frontmatter;
-  return { kind: shared.kind, title: String(frontmatter.title || ''), description: String(frontmatter.description || ''), slug: shared.slug, locale, category: shared.category, subcategory: shared.subcategory, tags: shared.tags || [], pubDate: shared.pubDate || today(), updatedDate: shared.updatedDate, cover: shared.cover, coverAlt: frontmatter.coverAlt, author: shared.author, draft: status !== 'published', featured: Boolean(shared.featured), translationId: shared.translationId, toc: shared.toc !== false };
+  return { kind: shared.kind === 'overview' ? 'article' : shared.kind, title: String(frontmatter.title || ''), description: String(frontmatter.description || ''), slug: shared.slug, locale, category: shared.category, subcategory: shared.subcategory, tags: shared.tags || [], pubDate: shared.pubDate || today(), updatedDate: shared.updatedDate, cover: shared.cover, coverAlt: frontmatter.coverAlt, author: shared.author, draft: status !== 'published', featured: Boolean(shared.featured), translationId: shared.translationId, toc: shared.toc !== false };
 }
 
 function normalizeShared(input, current, context, documents) {
@@ -239,7 +240,7 @@ function normalizeShared(input, current, context, documents) {
 function allowedProjectRecord(existing, input) {
   const allowed = ['favorite', 'favoriteAt', 'featured', 'publication', 'maturity', 'category', 'secondaryCategories', 'role', 'technologies', 'icon', 'image', 'imageAlt', 'publishedAt', 'updatedAt', 'repository', 'externalUrl', 'priority', 'journeyIds', 'relatedSkillIds', 'relatedProjectIds', 'articleIds'];
   const next = { ...existing };
-  for (const key of allowed) if (input && Object.prototype.hasOwnProperty.call(input, key)) next[key] = input[key];
+  for (const key of allowed) if (input && Object.prototype.hasOwnProperty.call(input, key)) next[key === 'category' ? 'projectCategory' : key] = input[key];
   if (next.favoriteAt == null) delete next.favoriteAt;
   return next;
 }
@@ -288,13 +289,15 @@ export function saveEntity(input) {
 }
 
 function createSource({ shared, locale, title, description, body }) {
-  return serializeDocument({ kind: shared.kind, title, description, slug: shared.slug, locale, category: shared.category, subcategory: shared.subcategory, tags: shared.tags, pubDate: shared.pubDate, draft: true, featured: shared.featured, translationId: shared.translationId, toc: shared.toc }, body || `\n## ${title}\n\n${description}\n`);
+  return serializeDocument({ kind: shared.kind === 'overview' ? 'article' : shared.kind, title, description, slug: shared.slug, locale, category: shared.category, subcategory: shared.subcategory, tags: shared.tags, pubDate: shared.pubDate, draft: true, featured: shared.featured, translationId: shared.translationId, toc: shared.toc }, body || `\n## ${title}\n\n${description}\n`);
 }
 
 export function createProject(input) {
-  const id = safeSlug(input.id || input.title?.en || input.title?.fa);
+  const requestedId = input.id && input.id !== 'overview' ? input.id : (input.title?.en || input.title?.fa);
+  const id = safeSlug(requestedId);
+  if (id === 'overview') throw new Error('Project ID "overview" is reserved for the public overview URL; use a project-specific ID');
   if (projectRecord(id)) throw new Error(`Project slug already exists: ${id}`);
-  const shared = { id, kind: 'overview', translationId: id, slug: 'overview', category: 'projects', subcategory: id, status: 'draft', visible: false, pubDate: today(), tags: input.tags || [], featured: false, toc: true, favorite: Boolean(input.favorite), favoriteAt: input.favorite ? (input.favoriteAt || today()) : undefined, publication: 'requires-review', maturity: 'under-development', secondaryCategories: [], icon: input.icon && ICON_IDS.includes(input.icon) ? input.icon : undefined, role: { en: input.role?.en || 'Project', fa: input.role?.fa || 'پروژه' }, technologies: input.technologies || [], journeyIds: [], relatedSkillIds: [], relatedProjectIds: [], articleIds: [], priority: 0 };
+  const shared = { id, kind: 'overview', translationId: id, slug: 'overview', category: 'projects', projectCategory: input.category || 'devops-delivery', subcategory: id, status: 'draft', visible: false, pubDate: today(), tags: input.tags || [], featured: false, toc: true, favorite: Boolean(input.favorite), favoriteAt: input.favorite ? (input.favoriteAt || today()) : undefined, publication: 'requires-review', maturity: 'under-development', secondaryCategories: [], icon: input.icon && ICON_IDS.includes(input.icon) ? input.icon : undefined, role: { en: input.role?.en || 'Project', fa: input.role?.fa || 'پروژه' }, technologies: input.technologies || [], journeyIds: [], relatedSkillIds: [], relatedProjectIds: [], articleIds: [], priority: 0 };
   const entityPath = `projects/${id}`;
   const titles = { en: input.title?.en || id, fa: input.title?.fa || id };
   const descriptions = { en: input.description?.en || 'Draft project.', fa: input.description?.fa || 'پروژهٔ پیش‌نویس.' };
