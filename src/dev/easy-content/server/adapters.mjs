@@ -65,7 +65,7 @@ function readJourney(locale, id) {
   return { type: 'journey', id, locale, metadata: entry, source: '', revision: revisionOf(readText(file)) };
 }
 
-export function contextForPath(pathname) {
+function contextForPath(pathname) {
   const match = pathname.match(/^\/(en|fa)(?:\/|$)/);
   const locale = match?.[1] || 'en';
   const rest = pathname.replace(/^\/(en|fa)\/?/, '').replace(/\/$/, '');
@@ -87,7 +87,7 @@ function localeFromSearch(search) {
   return locale === 'fa' ? 'fa' : 'en';
 }
 
-export function editorContextForPath(pathname, search = '') {
+function editorContextForPath(pathname, search = '') {
   const locale = localeFromSearch(search);
   const blog = pathname.match(/^\/dev\/content\/(edit|new)\/blog\/?$/);
   if (blog) return blog[1] === 'edit'
@@ -114,7 +114,7 @@ export function editorContextForPath(pathname, search = '') {
   return { type: 'unsupported', id: pathname, locale, reason: 'unsupported content type' };
 }
 
-export function contentTree(locale = 'en') {
+function contentTree(locale = 'en') {
   return readJson(jsonPath('projects')).map(project => ({
     type: 'project',
     id: project.id,
@@ -130,7 +130,7 @@ export function contentTree(locale = 'en') {
   }));
 }
 
-export function readEntity(context) {
+function readEntity(context) {
   if (context.type === 'home') throw new Error('unsupported content type');
   if (context.type === 'blog') return readLanding(context.locale);
   if (context.type === 'project') return readProject(context.locale, context.project || context.id);
@@ -172,7 +172,7 @@ function assertProjectPublication(record, locale, publish) {
   }
 }
 
-export function saveEntity(input) {
+function saveEntity(input) {
   const context = input.context;
   const source = String(input.source ?? '');
   if (context.type === 'home') throw new Error('unsupported content type');
@@ -231,7 +231,7 @@ export function saveEntity(input) {
   throw new Error('Unsupported Easy Content entity');
 }
 
-export function createProject(input) {
+function createProject(input) {
   const id = safeSlug(input.id || input.title?.en || input.title?.fa);
   const projectsFile = jsonPath('projects');
   const registry = readJson(projectsFile);
@@ -256,7 +256,7 @@ export function createProject(input) {
   return { id, route: `/${locale}/blog/projects/${id}/overview/`, editorRoute: `/dev/content/edit/project/${id}/?locale=${locale}` };
 }
 
-export function createArticle(input) {
+function createArticle(input) {
   const project = safeSlug(input.project);
   if (!projectRecord(project)) throw new Error(`Parent project does not exist: ${project}`);
   const slug = safeSlug(input.slug || input.title?.en || input.title?.fa);
@@ -275,7 +275,7 @@ export function createArticle(input) {
   return { project, slug, route: `/${locale}/blog/projects/${project}/${slug}/`, editorRoute: `/dev/content/edit/article/${project}/${slug}/?locale=${locale}` };
 }
 
-export function createJourney(input) {
+function createJourney(input) {
   const id = safeSlug(input.id || input.title?.en || input.title?.fa);
   const file = jsonPath('journey');
   const entries = readJson(file);
@@ -284,3 +284,8 @@ export function createJourney(input) {
   writeTransaction([{ file, source: writeJson([...entries, entry]) }]);
   return { id, route: `/${input.locale || 'en'}/journey/${id}/` };
 }
+
+// Compatibility import for older local integrations. The bilingual adapter is
+// the only active implementation used by Easy Content.
+void [contextForPath, editorContextForPath, contentTree, readEntity, saveEntity, createProject, createArticle, createJourney];
+export { contextForPath, editorContextForPath, contentTree, readEntity, saveEntity, createProject, createArticle, createJourney } from './adapters-bilingual.mjs';

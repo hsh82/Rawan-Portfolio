@@ -1,13 +1,11 @@
 export function editorPath(context, mode = 'edit') {
-  const locale = context.locale === 'fa' ? 'fa' : 'en';
-  const query = `?locale=${locale}`;
-  if (context.type === 'blog') return `/dev/content/edit/blog/${query}`;
+  if (context.type === 'blog') return '/dev/content/edit/blog/';
   if (context.type === 'project') return mode === 'new'
-    ? `/dev/content/new/project/${query}`
-    : `/dev/content/edit/project/${context.projectId || context.id}/${query}`;
+    ? '/dev/content/new/project/'
+    : `/dev/content/edit/project/${context.projectId || context.id}/`;
   if (context.type === 'article') return mode === 'new'
-    ? `/dev/content/new/article/${context.projectId}/${query}`
-    : `/dev/content/edit/article/${context.projectId}/${context.articleId || context.slug}/${query}`;
+    ? `/dev/content/new/article/${context.projectId}/`
+    : `/dev/content/edit/article/${context.projectId}/${context.articleId || context.slug}/`;
   return null;
 }
 

@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { ICON_IDS } from '../src/utils/icon-registry.mjs';
+import { parseBlogEntryPath } from '../src/utils/blog-layout.mjs';
 
 const root = resolve(process.cwd(), 'content');
 const read = (file, fallback) => existsSync(resolve(root, file)) ? JSON.parse(readFileSync(resolve(root, file), 'utf8')) : fallback;
@@ -53,8 +54,12 @@ for (const project of projects) {
   for (const field of ['publishedAt', 'updatedAt', 'favoriteAt']) if (project[field] && Number.isNaN(Date.parse(project[field]))) throw new Error(`Project ${project.id} has an invalid ${field}: ${project[field]}`);
   if (project.visible) {
     for (const locale of ['en', 'fa']) {
-      const article = resolve(root, 'blog', locale, 'projects', project.id, 'overview.mdx');
-      if (!existsSync(article)) throw new Error(`Visible project ${project.id} needs a ${locale} overview article`);
+      const candidates = [
+        resolve(root, 'blog', 'projects', project.id, 'overview', `${locale}.mdx`),
+        resolve(root, 'blog', locale, 'projects', project.id, 'overview.mdx'),
+      ];
+      const article = candidates.find(existsSync);
+      if (!article) throw new Error(`Visible project ${project.id} needs a ${locale} overview article`);
       const source = readFileSync(article, 'utf8');
       if (/^draft:\s*true\s*$/m.test(source)) throw new Error(`Visible project ${project.id} overview is still a draft: ${locale}`);
       if (!source.includes(`subcategory: ${project.id}`)) throw new Error(`Project overview category mismatch: ${locale}/${project.id}`);
@@ -71,11 +76,13 @@ for (const event of journey) {
   for (const id of event.projectIds || []) if (!ids.has(id)) throw new Error(`Journey ${event.id} references missing project ${id}`);
 }
 const articleTranslationIds = new Set();
+const unifiedEntities = new Map();
 for (const file of blogFiles()) {
   const relativePath = file.slice(resolve(root, 'blog').length + 1).replaceAll('\\', '/');
+  const pathInfo = parseBlogEntryPath(relativePath);
   const parts = relativePath.replace(/\.mdx?$/, '').split('/');
   const fields = frontmatter(readFileSync(file, 'utf8'));
-  const locale = parts[0];
+  const locale = pathInfo.locale;
   if (!['en', 'fa'].includes(locale) || fields.locale !== locale) throw new Error(`Blog file ${relativePath} must use a matching en/fa locale`);
   if (!fields.title || !fields.description || !fields.translationId || !fields.pubDate) throw new Error(`Blog file ${relativePath} needs title, description, translationId, and pubDate frontmatter`);
   if (Number.isNaN(Date.parse(fields.pubDate)) || (fields.updatedDate && Number.isNaN(Date.parse(fields.updatedDate)))) throw new Error(`Blog file ${relativePath} has an invalid publication date`);
@@ -83,6 +90,27 @@ for (const file of blogFiles()) {
   if (articleTranslationIds.has(key)) throw new Error(`Duplicate blog translation identifier ${key} in ${relativePath}`);
   articleTranslationIds.add(key);
   const kind = fields.kind || 'article';
+  if (pathInfo.layout === 'unified') {
+    const entity = unifiedEntities.get(pathInfo.entityPath) || { locales: new Set(), files: [] };
+    entity.locales.add(locale); entity.files.push({ locale, file, fields }); unifiedEntities.set(pathInfo.entityPath, entity);
+    const entryFile = resolve(root, 'blog', pathInfo.entityPath, 'entry.json');
+    if (!existsSync(entryFile)) throw new Error(`Unified blog entity ${pathInfo.entityPath} needs entry.json`);
+    const shared = JSON.parse(readFileSync(entryFile, 'utf8'));
+    if (!shared.translationId || !shared.slug || !shared.status) throw new Error(`Unified blog entity ${pathInfo.entityPath} needs shared id, slug, and status`);
+    if (fields.translationId !== shared.translationId || fields.slug !== shared.slug || fields.category !== shared.category) throw new Error(`Generated frontmatter does not match shared metadata: ${relativePath}`);
+    if ((shared.status === 'published') !== (fields.draft !== true)) throw new Error(`Shared status and locale draft flag disagree: ${pathInfo.entityPath}/${locale}`);
+    if (shared.status === 'published' && ['requires-review', 'planned-or-experimental'].includes(shared.publication)) throw new Error(`Non-public unified blog entity is published: ${pathInfo.entityPath}`);
+    if (pathInfo.entityPath === 'landing') continue;
+    const unifiedParts = pathInfo.entityPath.split('/');
+    if (fields.category === 'projects') {
+      const projectId = unifiedParts[1];
+      const project = projectById.get(projectId);
+      if (!project) throw new Error(`Blog file ${relativePath} references missing parent project ${projectId}`);
+      if (!fields.subcategory || fields.subcategory !== projectId) throw new Error(`Blog file ${relativePath} needs subcategory: ${projectId}`);
+      if (!fields.draft && (!project.visible || ['requires-review', 'planned-or-experimental'].includes(project.publication))) throw new Error(`Published blog file ${relativePath} belongs to a non-public project`);
+    }
+    continue;
+  }
   if (kind === 'landing') {
     if (parts.at(-1) !== '_index') throw new Error(`Blog landing file ${relativePath} must be named _index.mdx`);
     continue;
@@ -97,6 +125,9 @@ for (const file of blogFiles()) {
   } else if (fields.subcategory && parts[2] !== fields.subcategory) {
     throw new Error(`Blog file ${relativePath} has a subcategory/folder mismatch`);
   }
+}
+for (const [entityPath, entity] of unifiedEntities) {
+  for (const locale of ['en', 'fa']) if (!entity.locales.has(locale)) throw new Error(`Unified blog entity ${entityPath} needs both ${locale} and its other translation`);
 }
 const profile = read('profile.json', {});
 const resume = read('resume/config.json', {});

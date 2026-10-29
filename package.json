@@ -16,6 +16,7 @@
     "content:validate": "node scripts/content-validate.mjs",
     "content:check-links": "node scripts/content-check-links.mjs",
     "content:new": "node scripts/content-new.mjs",
+    "content:migrate-bilingual": "node scripts/content-migrate-bilingual.mjs",
     "resume:generate": "node scripts/resume-generate.mjs",
     "media:publish": "node scripts/media-publish.mjs",
     "test": "npm run content:validate && npm run content:check-links && npm run test:content-api && npm run test:easy-content && npm run test:static"

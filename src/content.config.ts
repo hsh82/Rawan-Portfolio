@@ -1,8 +1,8 @@
 import { defineCollection, z } from 'astro:content';
-import { glob } from 'astro/loaders';
+import { bilingualBlogLoader } from './content/blog-loader.mjs';
 
 const blog = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: './content/blog', generateId: ({ entry }) => entry.replace(/\.(md|mdx)$/, '') }),
+  loader: bilingualBlogLoader(),
   schema: ({ image }) => z.object({
     kind: z.enum(['article', 'landing']).default('article'),
     title: z.string().min(1),

@@ -2,16 +2,22 @@ import { execFile } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, relative, resolve } from 'node:path';
 import { promisify } from 'node:util';
+import { evaluate } from '@mdx-js/mdx';
+import * as preactRuntime from 'preact/jsx-runtime';
+import { render as renderPreact } from 'preact-render-to-string';
+import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import { repositoryRoot, assertLocalRequest, sessionToken, mediaRoot, safePath, writeAtomic } from './security.mjs';
-import { contentTree, contextForPath, editorContextForPath, createArticle, createJourney, createProject, readEntity, saveEntity } from './adapters.mjs';
+import { contentTree, contextForPath, editorContextForPath, createArticle, createJourney, createProject, readEntity, saveEntity } from './adapters-bilingual.mjs';
 
 const execFileAsync = promisify(execFile);
 const MAX_BODY = 1_500_000;
 const MAX_ASSET = 12 * 1024 * 1024;
 const MAX_UPLOAD_BODY = Math.ceil(MAX_ASSET / 3) * 4 + 300_000;
 const editorRoot = resolve(dirname(new URL(import.meta.url).pathname), '..', 'editor');
-const editorHtml = readFileSync(resolve(editorRoot, 'editor.html'), 'utf8');
-const editorScript = readFileSync(resolve(editorRoot, 'editor.js'), 'utf8');
+const editorHtml = readFileSync(resolve(editorRoot, 'editor-bilingual.html'), 'utf8');
+const editorScript = readFileSync(resolve(editorRoot, 'editor-bilingual.js'), 'utf8');
 
 function json(res, status, payload) {
   res.statusCode = status;
@@ -104,6 +110,28 @@ function listMedia(directory = mediaRoot) {
   });
 }
 
+const previewElement = (tag, props = {}, children) => preactRuntime.jsx(tag, children === undefined ? props : { ...props, children });
+const previewComponents = {
+  Callout: ({ children, title, type }) => previewElement('aside', { class: `preview-callout preview-callout-${type || 'note'}` }, [title && previewElement('strong', {}, title), previewElement('div', {}, children)]),
+  Figure: ({ src, alt, caption }) => previewElement('figure', {}, [previewElement('img', { src, alt: alt || '' }), caption && previewElement('figcaption', {}, caption)]),
+  AttachmentDownload: ({ children, href, label }) => previewElement('a', { href, download: true }, label || children || 'Download attachment'),
+  MermaidDiagram: ({ children, label }) => previewElement('div', { class: 'preview-diagram' }, label || children || 'Mermaid diagram'),
+  MindMap: ({ children, label }) => previewElement('div', { class: 'preview-diagram' }, label || children || 'Mind map'),
+  CodeBlock: ({ children, language }) => previewElement('pre', {}, previewElement('code', { 'data-language': language || '' }, children)),
+  Tabs: ({ children }) => previewElement('div', { class: 'preview-tabs' }, children),
+};
+
+async function renderPreview(input) {
+  const evaluated = await evaluate(String(input.source || ''), {
+    ...preactRuntime,
+    baseUrl: import.meta.url,
+    remarkPlugins: [remarkGfm, remarkMath],
+    rehypePlugins: [rehypeKatex],
+    useMDXComponents: () => previewComponents,
+  });
+  return renderPreact(evaluated.default({}));
+}
+
 export function easyContentMiddleware({ editorOnly = false } = {}) {
   return async (req, res, next) => {
     try {
@@ -143,10 +171,14 @@ export function easyContentMiddleware({ editorOnly = false } = {}) {
         requireToken(req);
         return json(res, 200, await validateContent());
       }
+      if (req.method === 'POST' && operation === 'preview') {
+        requireToken(req);
+        return json(res, 200, { html: await renderPreview(await body(req)) });
+      }
       if (req.method === 'GET' && operation === 'editor.js') return text(res, 200, 'text/javascript; charset=utf-8', editorScript);
       if (req.method === 'GET' && operation === 'tree') {
         requireToken(req);
-        return json(res, 200, { tree: contentTree(url.searchParams.get('locale') === 'fa' ? 'fa' : 'en') });
+        return json(res, 200, { tree: contentTree() });
       }
       if (req.method === 'GET' && operation === 'media') {
         requireToken(req);

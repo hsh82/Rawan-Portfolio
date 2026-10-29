@@ -1,12 +1,13 @@
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { normalizeBlogEntryId } from '../src/utils/blog-layout.mjs';
 const root = new URL('../', import.meta.url).pathname;
 const dist = join(root, 'dist');
 const content = join(root, 'content/blog');
 const projectsFile = join(root, 'content/projects/entries.json');
 const projects = existsSync(projectsFile) ? JSON.parse(readFileSync(projectsFile, 'utf8')) : [];
 const walk = dir => readdirSync(dir, { withFileTypes: true }).flatMap(entry => entry.isDirectory() ? walk(join(dir, entry.name)) : [join(dir, entry.name)]);
-const files = existsSync(content) ? walk(content).filter(file => /\.mdx?$/.test(file) && !file.endsWith('/_index.mdx') && !file.endsWith('/_index.md')) : [];
+const files = existsSync(content) ? walk(content).filter(file => /\.mdx?$/.test(file) && !normalizeBlogEntryId(relative(content, file)).endsWith('/_index')) : [];
 const sitemap = readFileSync(join(dist, 'sitemap-0.xml'), 'utf8');
 for (const file of walk(dist).filter(file => file.endsWith('.html'))) {
   const html = readFileSync(file, 'utf8');
@@ -57,7 +58,7 @@ for (const locale of ['en', 'fa']) {
 let published = 0;
 for (const file of files) {
   const body = readFileSync(file, 'utf8');
-  const id = relative(content, file).replace(/\.mdx?$/, '').replaceAll('\\', '/');
+  const id = normalizeBlogEntryId(relative(content, file));
   const route = `/${id.split('/')[0]}/blog/${id.split('/').slice(1).join('/')}/`;
   const output = join(dist, route, 'index.html');
   const isDraft = /^draft:\s*true\s*$/m.test(body);

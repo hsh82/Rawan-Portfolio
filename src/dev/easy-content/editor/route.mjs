@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { editorContextForPath } from '../server/adapters.mjs';
+import { editorContextForPath } from '../server/adapters-bilingual.mjs';
 
 const editorHtml = readFileSync(new URL('./editor.html', import.meta.url), 'utf8');
 
