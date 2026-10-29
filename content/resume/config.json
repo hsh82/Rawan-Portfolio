@@ -3,7 +3,7 @@
   "filenameSlug": "hamed-sheikhan",
   "portrait": true,
   "locales": ["en", "fa"],
-  "include": { "experience": true, "education": true, "certifications": true, "skills": true, "projects": true, "journey": false },
+  "include": { "experience": true, "education": true, "certifications": true, "skills": true, "projects": true, "journey": true },
   "projectLimit": 4,
   "projectIds": [],
   "journeyIds": []
