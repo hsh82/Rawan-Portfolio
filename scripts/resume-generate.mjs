@@ -6,11 +6,9 @@ import { selectHomepageProjects } from '../src/utils/project-selection.mjs';
 
 const root = resolve(process.cwd());
 const contentRoot = resolve(root, 'content');
-const read = (file) => JSON.parse(readFileSync(resolve(contentRoot, file), 'utf8'));
-const config = read('resume/config.json');
-const profile = read('profile.json');
-const site = read('site.json');
-const contact = read('contact.json');
+const sourceData = readPortfolioSource(contentRoot);
+const profile = { ...sourceData.profile, locales: { ...(sourceData.profile.locales || {}), ...(sourceData.home?.locales || {}) } };
+const { site, contact, resume: config } = sourceData;
 
 if (!config.enabled || !profile.visible) {
   console.log('Résumé PDFs skipped: enable resume/config.json only after verified public profile information is available.');
