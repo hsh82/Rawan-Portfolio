@@ -13,7 +13,7 @@ interface Props {
   icon?: string;
 }
 
-const { category, image, imageAlt = '', diagram, compact = false, icon } = Astro.props;
+const { category, lang, image, imageAlt = '', diagram, compact = false, icon } = Astro.props;
 const icons: Record<string, any> = {
   'devops-delivery': GitMerge,
   'infrastructure-automation': ServerCog,
@@ -32,7 +32,7 @@ const Icon = icon ? technologyIcon(icon) : icons[category] || Braces;
     </ol>
   </figure>
 ) : image ? (
-  <div class="project-cover project-cover--image"><img src={image} alt={imageAlt} loading="lazy" /></div>
+  <div class="project-cover project-cover--image" data-card-image><img src={image} alt={imageAlt || (lang === 'fa' ? 'تصویر پروژه' : 'Project image')} loading="lazy" onerror="this.closest('[data-card-image]')?.classList.add('is-broken')" /><span class="project-cover__fallback" aria-hidden="true"><Icon size={compact ? 30 : 42} strokeWidth={1.5} /></span></div>
 ) : (
   <div class={`project-cover project-cover--${category}`} aria-hidden="true">
     <span class="project-cover__orbit"></span>

@@ -38,15 +38,13 @@ export function bilingualBlogLoader() {
     name: 'rawan-bilingual-blog-loader',
     load: async (context) => {
       const originalParseData = context.parseData;
-      context.parseData = ({ id, data, filePath }) => originalParseData({
-        id,
-        filePath,
-        data: {
-          ...sharedMetadata(filePath),
-          ...data,
-          id,
-        },
-      });
+      context.parseData = ({ id, data, filePath }) => {
+        const shared = sharedMetadata(filePath);
+        const merged = { ...shared, ...data, id };
+        for (const field of ['image', 'icon']) if (Object.prototype.hasOwnProperty.call(shared, field)) merged[field] = shared[field];
+        if (shared.imageAlt && typeof shared.imageAlt === 'object') merged.imageAlt = shared.imageAlt[data.locale] || data.imageAlt;
+        return originalParseData({ id, filePath, data: merged });
+      };
       await loader.load(context);
     },
   };

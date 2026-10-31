@@ -122,3 +122,25 @@ export function updateFrontmatter(source, updates) {
   const lineEnding = parsed.lineEnding || '\n';
   return `---${lineEnding}${output.join(lineEnding)}${lineEnding}---${lineEnding}${parsed.body.replace(/^(?:\r\n|\n|\r)?/, lineEnding)}`;
 }
+
+export function removeFrontmatterFields(source, keys) {
+  const parsed = parseDocument(source);
+  if (!parsed.hasFrontmatter) return source;
+  const removals = new Set(keys);
+  const lines = parsed.rawFrontmatter.split(/\r\n|\n|\r/);
+  const fields = topLevelFields(parsed.rawFrontmatter);
+  const output = [];
+  let index = 0;
+  while (index < lines.length) {
+    const field = fields.find(candidate => candidate.start === index);
+    if (field) {
+      if (!removals.has(field.key)) output.push(...lines.slice(field.start, field.end));
+      index = field.end;
+      continue;
+    }
+    output.push(lines[index]);
+    index += 1;
+  }
+  const lineEnding = parsed.lineEnding || '\n';
+  return `---${lineEnding}${output.join(lineEnding)}${lineEnding}---${lineEnding}${parsed.body.replace(/^(?:\r\n|\n|\r)?/, lineEnding)}`;
+}

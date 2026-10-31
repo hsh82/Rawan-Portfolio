@@ -44,6 +44,8 @@ Publication is shared across both translations. Draft saves accept incomplete EN
 
 Project saves keep the canonical project record flat. The frontend sends only an editable project patch, while the server strips the legacy nested `project` wrapper, preserves unsupported fields from disk, rejects excessively nested payloads, and offers `npm run content:normalize-project-metadata` for reviewed, backed-up repair of affected entries.
 
+Card media follows the same ownership rule: `entry.json` is canonical for shared `image` and `icon`, while each locale’s MDX mirrors those fields for Source-mode discoverability. `image` accepts a `media/...` path inside `content/media` or an HTTPS URL; `icon` must be registered. `imageAlt` is localized in `entry.json` and mirrored as one scalar value per locale. Saves reject present-but-conflicting mirrors, normalize both locale sources together, and preserve legacy files that omit mirrors until their next save.
+
 ## Safety model
 
 The API accepts only loopback requests with a matching origin/host and a per-process token for reads and mutations. Logical contexts are resolved from locale routes; clients cannot submit arbitrary filesystem paths. Path segments reject traversal, NUL bytes, separators, and symlink targets. Writes use temporary files and rename, while bilingual saves use a rollback transaction. Revisions are SHA-256 hashes of shared metadata and both localized sources. They produce a conflict response when any slice changed elsewhere.

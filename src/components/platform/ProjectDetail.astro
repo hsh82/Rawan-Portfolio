@@ -36,7 +36,7 @@ const articleHref = `/${lang}/blog/projects/${project.id}/overview/`;
       <p class="project-detail__intro">{study.intro}</p>
       <p class="project-detail__role"><strong>{lang === 'fa' ? 'نقش:' : 'Role:'}</strong> {project.role[lang]}</p>
     </div>
-    <ProjectVisual category={project.category} lang={lang} icon={project.icon} image={publicMediaPath(project.image)} imageAlt={project.imageAlt?.[lang]} />
+    <ProjectVisual category={project.category} lang={lang} icon={project.icon} image={publicMediaPath(project.image)} imageAlt={project.imageAlt?.[lang] || copy.title} />
   </header>
 
   <section class="project-detail__section"><p class="eyebrow">{lang === 'fa' ? 'زمینه' : 'Context'}</p><h2>{lang === 'fa' ? 'مسئله و زمینهٔ عملیاتی' : 'Problem and operating context'}</h2><p>{study.context}</p></section>

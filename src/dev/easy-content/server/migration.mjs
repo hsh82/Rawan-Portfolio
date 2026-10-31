@@ -42,6 +42,9 @@ function sharedFromDocuments(entityPath, documents) {
     tags: Array.isArray(source.tags) ? source.tags : [],
     author: source.author,
     cover: source.cover,
+    image: source.image,
+    imageAlt: { en: documents.en.document.frontmatter.imageAlt, fa: documents.fa.document.frontmatter.imageAlt },
+    icon: source.icon,
     featured: Boolean(source.featured),
     toc: source.toc !== false,
   };

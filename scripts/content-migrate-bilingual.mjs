@@ -42,6 +42,9 @@ function sharedFromDocuments(entityPath, documents) {
     tags: Array.isArray(source.tags) ? source.tags : [],
     author: source.author,
     cover: source.cover,
+    image: source.image,
+    imageAlt: { en: documents.en.document.frontmatter.imageAlt, fa: documents.fa.document.frontmatter.imageAlt },
+    icon: source.icon,
     featured: Boolean(source.featured),
     toc: source.toc !== false,
   };
@@ -99,7 +102,7 @@ try {
       }
       const files = [
         { file: migration.targetEntry, source: `${JSON.stringify(migration.shared, null, 2)}\n` },
-        ...BLOG_LOCALES.map(locale => ({ file: migration.targetFiles[locale], source: updateFrontmatter(migration.documents[locale].source, { ...migration.shared, kind: migration.shared.kind === 'overview' ? 'article' : migration.shared.kind, locale, draft: migration.shared.status !== 'published' }) })),
+        ...BLOG_LOCALES.map(locale => ({ file: migration.targetFiles[locale], source: updateFrontmatter(migration.documents[locale].source, { ...migration.shared, imageAlt: migration.shared.imageAlt?.[locale], kind: migration.shared.kind === 'overview' ? 'article' : migration.shared.kind, locale, draft: migration.shared.status !== 'published' }) })),
       ];
       writeTransaction(files);
     } catch (error) {

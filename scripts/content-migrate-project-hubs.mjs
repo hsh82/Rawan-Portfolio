@@ -66,7 +66,7 @@ for (const plan of plans) {
   writeFileSync(join(plan.rootDir, 'entry.json'), `${JSON.stringify(plan.shared, null, 2)}\n`);
   for (const locale of ['en', 'fa']) {
     const source = readFileSync(plan.sources[locale], 'utf8');
-    const next = updateFrontmatter(source, { ...plan.shared, locale, draft: plan.shared.status !== 'published' });
+    const next = updateFrontmatter(source, { ...plan.shared, imageAlt: plan.shared.imageAlt?.[locale], locale, draft: plan.shared.status !== 'published' });
     writeFileSync(join(plan.rootDir, `${locale}.mdx`), next);
   }
   const trash = join(root, '.easy-content-trash', `project-hub-${Date.now()}`, plan.id, 'overview');

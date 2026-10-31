@@ -2,6 +2,7 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { ICON_IDS } from '../src/utils/icon-registry.mjs';
 import { parseBlogEntryPath } from '../src/utils/blog-layout.mjs';
+import { isApprovedImageReference } from '../src/utils/blog-media.mjs';
 
 const root = resolve(process.cwd(), 'content');
 const read = (file, fallback) => existsSync(resolve(root, file)) ? JSON.parse(readFileSync(resolve(root, file), 'utf8')) : fallback;
@@ -69,9 +70,8 @@ for (const project of projects) {
   if (project.featured && !project.visible) throw new Error(`Featured project ${project.id} must be visible`);
   if (project.visible !== (project.status === 'published')) throw new Error(`Project ${project.id} visibility must match its draft/published status`);
   if (project.caseStudy && (!project.caseStudy.en || !project.caseStudy.fa)) throw new Error(`Project ${project.id} needs a bilingual case study`);
-  if (project.image && !project.image.startsWith('media/')) throw new Error(`Project ${project.id} image must reference content/media/`);
-  if (project.image && (!project.imageAlt?.en || !project.imageAlt?.fa)) throw new Error(`Project ${project.id} image needs English and Persian alt text`);
-  if (project.image && !existsSync(resolve(root, project.image))) throw new Error(`Missing project image: content/${project.image}`);
+  if (project.image && !isApprovedImageReference(project.image)) throw new Error(`Project ${project.id} image must be a local media path or HTTPS URL`);
+  if (project.image?.startsWith('media/') && !existsSync(resolve(root, project.image))) throw new Error(`Missing project image: content/${project.image}`);
   if (project.icon && !ICON_IDS.includes(project.icon)) throw new Error(`Project ${project.id} has an unknown icon: ${project.icon}`);
   const favorite = project.favorite ?? project.featured ?? false;
   if (project.favoriteAt && !favorite) throw new Error(`Project ${project.id} has favoriteAt but is not favorite; set favorite: true or remove favoriteAt`);
@@ -123,7 +123,13 @@ for (const file of blogFiles()) {
     if (!existsSync(entryFile)) throw new Error(`Unified blog entity ${pathInfo.entityPath} needs entry.json`);
     const shared = JSON.parse(readFileSync(entryFile, 'utf8'));
     if (!shared.translationId || !shared.slug || !shared.status) throw new Error(`Unified blog entity ${pathInfo.entityPath} needs shared id, slug, and status`);
+    if (shared.image && !isApprovedImageReference(shared.image)) throw new Error(`Unified blog entity ${pathInfo.entityPath} has an invalid image reference`);
+    if (shared.image?.startsWith('media/') && !existsSync(resolve(root, shared.image))) throw new Error(`Missing blog image: content/${shared.image}`);
+    if (shared.icon && !ICON_IDS.includes(shared.icon)) throw new Error(`Unified blog entity ${pathInfo.entityPath} has an unknown icon: ${shared.icon}`);
     if (fields.translationId !== shared.translationId || fields.slug !== shared.slug || fields.category !== shared.category) throw new Error(`Generated frontmatter does not match shared metadata: ${relativePath}`);
+    if (Object.prototype.hasOwnProperty.call(fields, 'image') && (fields.image || '') !== (shared.image || '')) throw new Error(`Generated image metadata does not match shared metadata: ${relativePath}`);
+    if (Object.prototype.hasOwnProperty.call(fields, 'icon') && (fields.icon || '') !== (shared.icon || '')) throw new Error(`Generated icon metadata does not match shared metadata: ${relativePath}`);
+    if (Object.prototype.hasOwnProperty.call(fields, 'imageAlt') && (fields.imageAlt || '') !== (shared.imageAlt?.[locale] || '')) throw new Error(`Generated imageAlt metadata does not match shared metadata: ${relativePath}`);
     if ((shared.status === 'published') !== (fields.draft !== true)) throw new Error(`Shared status and locale draft flag disagree: ${pathInfo.entityPath}/${locale}`);
     if (pathInfo.entityPath === 'landing') continue;
     const unifiedParts = pathInfo.entityPath.split('/');
