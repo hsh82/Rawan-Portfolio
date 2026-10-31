@@ -68,6 +68,18 @@ export function serializeDocument(frontmatter, body, order = Object.keys(frontma
   return `---\n${lines.join('\n')}\n---\n${body.replace(/^\n?/, '\n')}`;
 }
 
+/**
+ * Replace only the document body while preserving the original frontmatter
+ * bytes. Body-only editor payloads use this explicit conversion path so YAML
+ * values and unsupported metadata are never silently reconstructed.
+ */
+export function replaceBody(source, body) {
+  const parsed = parseDocument(source);
+  if (!parsed.hasFrontmatter) throw new Error('Cannot replace the body of a document without frontmatter');
+  const frontmatterEnd = source.length - parsed.body.length;
+  return `${source.slice(0, frontmatterEnd)}${String(body).replace(/^\n?/, '\n')}`;
+}
+
 export function updateFrontmatter(source, updates) {
   const parsed = parseDocument(source);
   if (!parsed.hasFrontmatter) return source;

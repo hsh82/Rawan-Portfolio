@@ -1,6 +1,6 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { contentPath, moveToTrash, readText, revisionOf, safeSlug, writeTransaction } from './security.mjs';
-import { parseDocument, serializeDocument, updateFrontmatter } from './frontmatter.mjs';
+import { parseDocument, replaceBody, serializeDocument, updateFrontmatter } from './frontmatter.mjs';
 import { ICON_IDS } from '../../../utils/icon-registry.mjs';
 import { BLOG_LOCALES } from '../../../utils/blog-layout.mjs';
 
@@ -206,15 +206,30 @@ export function contentTree() {
   });
 }
 
-function validateSource(source, type, locale, expectedSlug) {
+function validateSource(source, type, locale, expectedSlug, { requireContent = false } = {}) {
   const parsed = parseDocument(source);
   if (!parsed.hasFrontmatter) throw new Error(`${type} (${locale}) needs frontmatter`);
-  if (!parsed.frontmatter.title || !parsed.frontmatter.description) throw new Error(`${type} (${locale}) needs a title and description`);
+  if (requireContent && (!parsed.frontmatter.title || !parsed.frontmatter.description)) throw new Error(`${type} (${locale}) needs a title and description before publishing`);
   if (type === 'Project overview' && parsed.frontmatter.kind === 'overview') throw new Error(`Project overview (${locale}) must use kind: article in MDX frontmatter; overview is the URL role, not a collection kind`);
   if (!parsed.frontmatter.slug || !/^[a-z0-9-]+$/.test(String(parsed.frontmatter.slug))) throw new Error(`${type} (${locale}) needs a lowercase slug`);
   if (expectedSlug && parsed.frontmatter.slug !== expectedSlug) throw new Error(`${type} (${locale}) slug cannot be changed here`);
   if (parsed.frontmatter.pubDate && Number.isNaN(Date.parse(String(parsed.frontmatter.pubDate)))) throw new Error(`${type} (${locale}) publication date is invalid`);
   return parsed;
+}
+
+function sourceForSave(value, currentSource, type, locale) {
+  if (value !== undefined && (!value || typeof value !== 'object' || Array.isArray(value))) throw new Error(`${type} (${locale}) payload must contain source or body`);
+  const payload = value || {};
+  const hasSource = Object.prototype.hasOwnProperty.call(payload, 'source');
+  const hasBody = Object.prototype.hasOwnProperty.call(payload, 'body');
+  if (hasSource && hasBody) throw new Error(`${type} (${locale}) must provide either complete source or body, not both`);
+  if (!hasSource && !hasBody) return currentSource;
+  if (hasSource) {
+    if (typeof payload.source !== 'string' || !payload.source.trim()) throw new Error(`${type} (${locale}) source cannot be empty; restore the document before saving`);
+    return payload.source;
+  }
+  if (typeof payload.body !== 'string') throw new Error(`${type} (${locale}) body must be text`);
+  return replaceBody(currentSource, payload.body);
 }
 
 function localizedFrontmatter(shared, document, locale, status) {
@@ -237,9 +252,9 @@ function normalizeShared(input, current, context, documents) {
   return next;
 }
 
-function allowedProjectRecord(existing, input) {
+function allowedProjectRecord(input) {
   const allowed = ['favorite', 'favoriteAt', 'featured', 'category', 'secondaryCategories', 'role', 'technologies', 'icon', 'image', 'imageAlt', 'publishedAt', 'updatedAt', 'repository', 'externalUrl', 'priority', 'journeyIds', 'relatedSkillIds', 'relatedProjectIds', 'articleIds'];
-  const next = { ...existing };
+  const next = {};
   for (const key of allowed) if (input && Object.prototype.hasOwnProperty.call(input, key)) next[key === 'category' ? 'projectCategory' : key] = input[key];
   if (next.favoriteAt == null) delete next.favoriteAt;
   return next;
@@ -254,6 +269,7 @@ export function saveEntity(input) {
   const files = entityFiles(context);
   if (!files.unified) throw new Error('This entity uses the legacy locale-first layout. Run npm run content:migrate-bilingual before saving it.');
   const documents = Object.fromEntries(BLOG_LOCALES.map(locale => [locale, readDocument(files.files[locale])]));
+  if (input.locales !== undefined && (!input.locales || typeof input.locales !== 'object' || Array.isArray(input.locales))) throw new Error('Localized save payload must be an object keyed by en and fa');
   const sources = input.locales || {};
   const shared = normalizeShared(input.shared, current.shared, context, documents);
   if (input.publish) shared.status = 'published';
@@ -261,9 +277,9 @@ export function saveEntity(input) {
   else shared.status = current.shared.status;
   const nextDocuments = {};
   for (const locale of BLOG_LOCALES) {
-    const source = String(sources[locale]?.source ?? documents[locale].source);
+    const source = sourceForSave(sources[locale], documents[locale].source, context.type === 'blog' ? 'Blog landing' : context.type === 'project' ? 'Project overview' : 'Article', locale);
     const expectedSlug = context.type === 'blog' ? 'blog' : context.type === 'project' ? 'overview' : context.slug;
-    const parsed = validateSource(source, context.type === 'blog' ? 'Blog landing' : context.type === 'project' ? 'Project overview' : 'Article', locale, expectedSlug);
+    const parsed = validateSource(source, context.type === 'blog' ? 'Blog landing' : context.type === 'project' ? 'Project overview' : 'Article', locale, expectedSlug, { requireContent: input.publish === true });
     nextDocuments[locale] = { parsed, source: updateFrontmatter(source, localizedFrontmatter(shared, parsed, locale, shared.status)) };
   }
   const writes = [{ file: files.entry, source: writeJson(shared) }, ...BLOG_LOCALES.map(locale => ({ file: pathForEntity(files.entityPath, locale), source: nextDocuments[locale].source }))];
@@ -271,7 +287,7 @@ export function saveEntity(input) {
   if (context.type === 'project') {
     const record = projectRecord(projectIdFor(context));
     if (!record) throw new Error('Project does not exist');
-    Object.assign(shared, allowedProjectRecord(record, input.shared?.project || {}));
+    Object.assign(shared, allowedProjectRecord(input.shared?.project || {}));
     if (input.publish) { shared.visible = true; if (!shared.publishedAt) shared.publishedAt = today(); }
     else if (input.unpublish) shared.visible = false;
     shared.updatedAt = today();
@@ -299,7 +315,7 @@ export function createProject(input) {
   const titles = { en: input.title?.en || id, fa: input.title?.fa || id };
   const descriptions = { en: input.description?.en || 'Draft project.', fa: input.description?.fa || 'پروژهٔ پیش‌نویس.' };
   const files = [{ file: entryFile(entityPath), source: writeJson(shared) }, ...BLOG_LOCALES.map(locale => ({ file: pathForEntity(entityPath, locale), source: createSource({ shared, locale, title: titles[locale], description: descriptions[locale], body: locale === input.locale ? input.body : undefined }) }))];
-  if (input.publish) for (const locale of BLOG_LOCALES) validateSource(files.find(item => item.file === pathForEntity(entityPath, locale)).source, 'Project overview', locale, 'overview');
+  if (input.publish) for (const locale of BLOG_LOCALES) validateSource(files.find(item => item.file === pathForEntity(entityPath, locale)).source, 'Project overview', locale, 'overview', { requireContent: true });
   writeTransaction(files);
   return { id, route: `/en/blog/projects/${id}/overview/`, editorRoute: `/dev/content/edit/project/${id}/` };
 }
@@ -319,7 +335,7 @@ export function createArticle(input) {
     if (existsSync(file)) throw new Error(`Article already exists: ${locale}/${project}/${slug}`);
     files.push({ file, source: createSource({ shared, locale, title: input.title?.[locale] || slug, description: input.description?.[locale] || 'Draft article.', body: locale === input.locale ? input.body : undefined }) });
   }
-  if (input.publish) for (const locale of BLOG_LOCALES) validateSource(files.find(item => item.file === pathForEntity(entityPath, locale)).source, 'Article', locale, slug);
+  if (input.publish) for (const locale of BLOG_LOCALES) validateSource(files.find(item => item.file === pathForEntity(entityPath, locale)).source, 'Article', locale, slug, { requireContent: true });
   writeTransaction(files);
   return { project, slug, route: `/en/blog/projects/${project}/${slug}/`, editorRoute: `/dev/content/edit/article/${project}/${slug}/` };
 }
