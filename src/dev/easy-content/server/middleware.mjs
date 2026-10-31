@@ -117,17 +117,27 @@ function listMedia(directory = mediaRoot) {
 }
 
 const previewElement = (tag, props = {}, children) => preactRuntime.jsx(tag, children === undefined ? props : { ...props, children });
-const previewComponents = {
+export const previewComponents = {
   Callout: ({ children, title, type }) => previewElement('aside', { class: `preview-callout preview-callout-${type || 'note'}` }, [title && previewElement('strong', {}, title), previewElement('div', {}, children)]),
   Figure: ({ src, alt, caption }) => previewElement('figure', {}, [previewElement('img', { src, alt: alt || '' }), caption && previewElement('figcaption', {}, caption)]),
   AttachmentDownload: ({ children, href, label }) => previewElement('a', { href, download: true }, label || children || 'Download attachment'),
-  MermaidDiagram: ({ children, label }) => previewElement('div', { class: 'preview-diagram' }, label || children || 'Mermaid diagram'),
+  MermaidDiagram: ({ chart, label }) => {
+    const title = label || 'Diagram';
+    return previewElement('figure', { class: 'diagram mermaid-diagram', 'data-mermaid': '', 'data-chart': chart || '' }, [
+      previewElement('div', { class: 'diagram-toolbar' }, [
+        previewElement('span', {}, title),
+        previewElement('button', { type: 'button', 'data-enlarge': '', 'aria-label': `Enlarge ${title}` }, '⛶'),
+      ]),
+      previewElement('div', { class: 'diagram-stage', role: 'img', 'aria-label': title }, previewElement('p', { class: 'diagram-status' }, 'Rendering diagram…')),
+      previewElement('figcaption', {}, title),
+    ]);
+  },
   MindMap: ({ children, label }) => previewElement('div', { class: 'preview-diagram' }, label || children || 'Mind map'),
   CodeBlock: ({ children, language }) => previewElement('pre', {}, previewElement('code', { 'data-language': language || '' }, children)),
   Tabs: ({ children }) => previewElement('div', { class: 'preview-tabs' }, children),
 };
 
-async function renderPreview(input) {
+export async function renderPreview(input) {
   const evaluated = await evaluate(String(input.source || ''), {
     ...preactRuntime,
     baseUrl: import.meta.url,

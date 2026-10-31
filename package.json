@@ -15,6 +15,7 @@
     "test:content-api": "node scripts/content-query-test.mjs",
     "test:easy-content": "node scripts/easy-content-test.mjs",
     "test:easy-content-guide": "node scripts/easy-content-guide-test.mjs",
+    "test:mermaid": "node scripts/mermaid-rendering-test.mjs",
     "content:validate": "node scripts/content-validate.mjs",
     "content:check-links": "node scripts/content-check-links.mjs",
     "content:normalize-project-metadata": "node scripts/content-normalize-project-metadata.mjs",
@@ -23,7 +24,7 @@
     "content:migrate-project-hubs": "node scripts/content-migrate-project-hubs.mjs",
     "resume:generate": "node scripts/resume-generate.mjs",
     "media:publish": "node scripts/media-publish.mjs",
-    "test": "npm run content:validate && npm run content:check-links && npm run test:content-api && npm run test:easy-content && npm run test:easy-content-guide && npm run test:static"
+    "test": "npm run content:validate && npm run content:check-links && npm run test:content-api && npm run test:easy-content && npm run test:easy-content-guide && npm run test:mermaid && npm run test:static"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.14",

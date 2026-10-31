@@ -4,29 +4,10 @@ const { chart, label = 'Diagram' } = Astro.props;
 ---
 <figure class="diagram mermaid-diagram" data-mermaid data-chart={chart}>
   <div class="diagram-toolbar"><span>{label}</span><button type="button" data-enlarge aria-label={`Enlarge ${label}`}>⛶</button></div>
-  <div class="diagram-stage" role="img" aria-label={label}><pre>{chart}</pre></div>
+  <div class="diagram-stage" role="img" aria-label={label}><p class="diagram-status">Rendering diagram…</p></div>
   <figcaption>{label}</figcaption>
 </figure>
 <script>
-  const nodes = [...document.querySelectorAll<HTMLElement>('[data-mermaid]')];
-  if (nodes.length) {
-    let mermaid: typeof import('mermaid').default | undefined;
-    const render = async (figure: HTMLElement) => {
-      const stage = figure.querySelector<HTMLElement>('.diagram-stage')!;
-      const source = figure.dataset.chart || '';
-      const engine = mermaid ?? (mermaid = (await import('mermaid')).default);
-      engine.initialize({ startOnLoad: false, securityLevel: 'strict', theme: document.documentElement.classList.contains('dark') ? 'dark' : 'default' });
-      try { const { svg } = await engine.render(`mermaid-${Math.random().toString(36).slice(2)}`, source); stage.innerHTML = svg; }
-      catch { stage.textContent = source; }
-    };
-    const observer = new IntersectionObserver(async entries => {
-      const visible = entries.filter(entry => entry.isIntersecting);
-      if (!visible.length) return;
-      mermaid ||= (await import('mermaid')).default;
-      for (const entry of visible) { observer.unobserve(entry.target); const figure = entry.target as HTMLElement; figure.dataset.ready = 'true'; await render(figure); }
-    }, { rootMargin: '200px' });
-    nodes.forEach(node => observer.observe(node));
-    nodes.forEach(node => node.querySelector('[data-enlarge]')?.addEventListener('click', () => node.classList.toggle('diagram-expanded')));
-    new MutationObserver(() => { if (mermaid) nodes.filter(node => node.dataset.ready).forEach(render); }).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-  }
+  import { observeMermaidDiagrams } from './mermaid-renderer.js';
+  observeMermaidDiagrams(document);
 </script>
