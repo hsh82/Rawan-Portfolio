@@ -32,7 +32,7 @@ const Icon = icon ? technologyIcon(icon) : icons[category] || Braces;
     </ol>
   </figure>
 ) : image ? (
-  <div class="project-cover project-cover--image" data-card-image><img src={image} alt={imageAlt || (lang === 'fa' ? 'تصویر پروژه' : 'Project image')} loading="lazy" onerror="this.closest('[data-card-image]')?.classList.add('is-broken')" /><span class="project-cover__fallback" aria-hidden="true"><Icon size={compact ? 30 : 42} strokeWidth={1.5} /></span></div>
+  <div class="project-cover project-cover--image" data-card-image><img src={image} alt={imageAlt || (lang === 'fa' ? 'تصویر پروژه' : 'Project image')} loading="lazy" onerror="this.closest('[data-card-image]')?.classList.add('is-broken')" /><span class="project-cover__fallback" aria-hidden="true"><span class="project-cover__orbit"></span><span class="project-cover__line project-cover__line--one"></span><span class="project-cover__line project-cover__line--two"></span><span class="project-cover__icon"><Icon size={compact ? 30 : 42} strokeWidth={1.5} /></span></span></div>
 ) : (
   <div class={`project-cover project-cover--${category}`} aria-hidden="true">
     <span class="project-cover__orbit"></span>

@@ -25,6 +25,7 @@ assert.equal(ICON_IDS.length, 35);
 assert.equal(iconDefinition('shopping-bag').lucide, 'shopping-bag');
 assert.equal(iconCatalog().filter(icon => icon.node.length).length, ICON_IDS.length);
 assert.match(readFileSync(new URL('../src/components/blog/ArticleCard.astro', import.meta.url), 'utf8'), /data-card-image/);
+assert.match(readFileSync(new URL('../src/components/blog/ArticleCard.astro', import.meta.url), 'utf8'), /article-card__orbit/);
 assert.match(readFileSync(new URL('../src/components/platform/ProjectVisual.astro', import.meta.url), 'utf8'), /project-cover__fallback/);
 assert.match(readFileSync(new URL('../src/utils/skill-icons.ts', import.meta.url), 'utf8'), /shopping-bag/);
 

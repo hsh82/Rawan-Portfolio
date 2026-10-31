@@ -118,7 +118,7 @@ function diffHtml(before, after) {
 function request(path, options = {}) { return fetch(`${api}/${path}`, { ...options, headers: { 'Content-Type':'application/json', 'x-easy-content-token':token, ...(options.headers || {}) } }).then(async response => { const data = await response.json(); if (!response.ok) throw Object.assign(new Error(data.error || 'Easy Content request failed'), { status:response.status }); return data; }); }
 function templateFor(type, project, slug, locale, title = '', description = '') {
   const realSlug = type === 'project' ? 'overview' : slug;
-  return `---\nkind: article\ntitle: ${quote(title)}\ndescription: ${quote(description)}\nslug: ${realSlug}\nlocale: ${locale}\ncategory: projects\nsubcategory: ${project || ''}\ntags: []\npubDate: ${today()}\ndraft: true\nfeatured: false\ntranslationId: ${project || 'article'}-${realSlug}\ntoc: true\n---\n\n## ${title}\n\n${description}\n`;
+  return `---\nkind: article\ntitle: ${quote(title)}\ndescription: ${quote(description)}\nslug: ${realSlug}\nlocale: ${locale}\ncategory: projects\nsubcategory: ${project || ''}\ntags: []\npubDate: ${today()}\nimage: ""\nicon: ""\ndraft: true\nfeatured: false\ntranslationId: ${project || 'article'}-${realSlug}\ntoc: true\n---\n\n## ${title}\n\n${description}\n`;
 }
 function localeBuffer(locale) { return entity?.locales?.[locale] || { source:templateFor(context.type, context.project, context.slug === 'new' ? '' : context.slug, locale), document:{frontmatter:{}}, revision:'' }; }
 function markDirty(locale = null) { if (locale) dirtyLocales.add(locale); else dirtyGeneral = true; state.textContent = text.unsaved; if (activeLocale) localStorage.setItem(`easy-content:recovery:${context?.id || 'new'}`, JSON.stringify(collectPayload(false))); }

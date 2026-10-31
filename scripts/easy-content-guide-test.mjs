@@ -3,6 +3,8 @@ import { readFileSync } from 'node:fs';
 import { buildBlogPrompt, buildHomepagePrompt, BLOG_BLOCK_EXAMPLES, copyPrompt, guideForContext, HOMEPAGE_SECTION_MAP } from '../src/dev/easy-content/editor/ai-writing-guide.js';
 
 const bilingualHtml = readFileSync(new URL('../src/dev/easy-content/editor/editor-bilingual.html', import.meta.url), 'utf8');
+const bilingualScript = readFileSync(new URL('../src/dev/easy-content/editor/editor-bilingual.js', import.meta.url), 'utf8');
+const contentNew = readFileSync(new URL('../scripts/content-new.mjs', import.meta.url), 'utf8');
 const studioHtml = readFileSync(new URL('../src/dev/easy-content/editor/studio.html', import.meta.url), 'utf8');
 const middleware = readFileSync(new URL('../src/dev/easy-content/server/middleware.mjs', import.meta.url), 'utf8');
 
@@ -22,6 +24,7 @@ for (const [context, label, location] of contexts) {
   assert.match(prompt, new RegExp(label));
   assert.match(prompt, new RegExp(location.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   assert.match(prompt, /begin immediately at byte zero/);
+  assert.match(prompt, /image: ""[\s\S]*icon: ""|image and icon fields explicitly in both locale/i);
 }
 for (const block of ['Callout', 'Code', 'Image \/ Figure', 'Table', 'Mermaid', 'Markmap', 'Math']) assert.match(BLOG_BLOCK_EXAMPLES, new RegExp(block));
 assert.match(BLOG_BLOCK_EXAMPLES, /<Callout type="tip" title="Note">/);
@@ -29,6 +32,8 @@ assert.match(BLOG_BLOCK_EXAMPLES, /<Figure src="\/media\/projects\/project\/imag
 assert.match(BLOG_BLOCK_EXAMPLES, /<MermaidDiagram label="Diagram" chart=\{`flowchart LR/);
 assert.match(BLOG_BLOCK_EXAMPLES, /<MindMap label="Map" content=\{`# Topic/);
 assert.match(BLOG_BLOCK_EXAMPLES, /\$\$\nE = mc\^2/);
+assert.match(bilingualScript, /image: ""\\nicon: ""/);
+assert.match(contentNew, /image: ""\\nicon: ""/);
 
 assert.equal(guideForContext({ surface: 'home', resource: 'home' }).label, 'Homepage · home');
 assert.equal(guideForContext({ surface: 'blog', context: { type: 'project' } }).label, 'Project overview / project hub');

@@ -361,7 +361,7 @@ export function saveEntity(input) {
 }
 
 function createSource({ shared, locale, title, description, body }) {
-  return serializeDocument({ kind: shared.kind === 'overview' ? 'article' : shared.kind, title, description, slug: shared.slug, locale, category: shared.category, subcategory: shared.subcategory, tags: shared.tags, pubDate: shared.pubDate, image: shared.image, imageAlt: shared.imageAlt?.[locale], icon: shared.icon, draft: shared.status !== 'published', featured: shared.featured, translationId: shared.translationId, toc: shared.toc }, body || `\n## ${title}\n\n${description}\n`);
+  return serializeDocument({ kind: shared.kind === 'overview' ? 'article' : shared.kind, title, description, slug: shared.slug, locale, category: shared.category, subcategory: shared.subcategory, tags: shared.tags, pubDate: shared.pubDate, image: shared.image ?? '', imageAlt: shared.imageAlt?.[locale], icon: shared.icon ?? '', draft: shared.status !== 'published', featured: shared.featured, translationId: shared.translationId, toc: shared.toc }, body || `\n## ${title}\n\n${description}\n`);
 }
 
 export function createProject(input) {
