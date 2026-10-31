@@ -4,10 +4,20 @@
   "translationId": "project-camran-cashback-mvp",
   "slug": "overview",
   "category": "projects",
-  "projectCategory": "software-open-source",
+  "subcategory": "camran-cashback-mvp",
   "status": "published",
-  "visible": true,
+  "pubDate": "2026-10-29",
+  "tags": [],
+  "image": "https://raw.githubusercontent.com/hsh82/camran/main/public/images/dashbords/cash-back-shop.webp",
+  "icon": "shopping-bag",
+  "imageAlt": {
+    "en": "Camran multi-merchant cashback application preview",
+    "fa": "Camran multi-merchant cashback application preview"
+  },
   "featured": false,
+  "toc": true,
+  "projectCategory": "software-open-source",
+  "visible": true,
   "publication": "public-ready",
   "maturity": "academic-mvp",
   "secondaryCategories": [],
@@ -34,6 +44,7 @@
   "articleIds": [],
   "priority": 140,
   "favorite": true,
-  "favoriteAt": "2026-10-29",
-  "icon": "next-js"
+  "favoriteAt": "2026-10-31",
+  "publishedAt": "2026-10-31",
+  "updatedAt": "2026-10-31"
 }

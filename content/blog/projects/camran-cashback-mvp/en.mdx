@@ -1,17 +1,123 @@
 ---
-kind: article
-title: "Camran — Cashback Demo MVP"
-description: "An educational Next.js and TypeScript MVP exploring customer, merchant, admin, POS, and support experiences; it is a demonstration, not a production payment system."
+kind: "article"
+title: "Camran — Multi-Merchant Cashback MVP"
+description: "An educational cashback-network concept brought to life through a Next.js prototype with customer, merchant, admin, POS, and support interfaces."
 slug: "overview"
 locale: "en"
 category: "projects"
 subcategory: "camran-cashback-mvp"
 tags: []
-pubDate: 2026-10-29
+pubDate: "2026-10-29"
 draft: false
 featured: false
 translationId: "project-camran-cashback-mvp"
 toc: true
+image: "https://raw.githubusercontent.com/hsh82/camran/main/public/images/dashbords/cash-back-shop.webp"
+imageAlt: "Camran multi-merchant cashback application preview"
+icon: "shopping-bag"
 ---
 
-Camran is an academic and product-concept demonstration built on a Shadboard-derived foundation. It brings several role-based interfaces into one coherent MVP so the product model and user flows can be explored without presenting simulated payment flows as a production service.
+<Callout type="tip" title="">Try demo in : [Demo site](https://camran.vercel.app/)</Callout>
+
+
+**What if cashback earned at one store could be spent at another?**
+
+That question is the starting point for **Camran**, an educational e-commerce project combining a multi-merchant loyalty business model with an interactive web prototype. The work explores how independent merchants could participate in a shared rewards network—and how such a service would need to feel from the perspectives of customers, merchants, administrators, checkout operators, and support teams.
+
+<Callout type="tip" title="Project scope: educational MVP">Camran demonstrates product concepts and simulated purchasing, cashback, and wallet experiences. It is **not** a live payment service, bank-connected wallet, or production settlement platform.</Callout>
+
+<Figure src="https://raw.githubusercontent.com/hsh82/camran/main/public/images/dashbords/cash-back-shop.webp" alt="Camran project visual associated with the merchant cashback experience" caption="Camran — the cashback concept from the merchant side." />
+
+## The problem: rewards locked inside one store
+
+A store-specific cashback scheme can encourage repeat purchases, but it also restricts where accumulated credit has value. For customers, a separate reward balance at every shop becomes fragmented. For independent merchants, running individual loyalty programs creates additional operational and promotional work.
+
+Camran's proposed answer is a **shared loyalty network**: rewards earned through one participating merchant could be redeemed at another. That shift makes cashback a network-level product instead of an isolated store promotion.
+
+The concept also raises practical questions: Who funds a reward? How is redemption coordinated across merchants? What information should a customer see? Which management tools would the operator need? The prototype explores the experience and organizational roles; it does not claim to have solved production financial settlement.
+
+## From purchase to shared cashback
+
+The following is a **conceptual user journey**, not a live financial transaction diagram.
+
+<MermaidDiagram label="Camran — Conceptual cashback journey" chart={`flowchart LR
+  A[Explore participating stores] --> B[Simulated purchase]
+  B --> C[Cashback credit shown]
+  C --> D[Shared wallet view]
+  D --> E[Proposed redemption at another store]
+  F[Merchant campaign view] -.-> B
+  G[Admin oversight] -.-> D`} />
+
+<Figure src="https://raw.githubusercontent.com/hsh82/camran/main/public/images/dashbords/cash-back-costomer.jpg" alt="Camran customer-facing cashback concept illustration from the project assets" caption="Customer-facing cashback concept and rewards experience." />
+
+## Five interfaces, one product model
+
+Instead of explaining the business idea through a static presentation alone, the MVP provides role-oriented screens to explore the same service from different operational perspectives.
+
+| Interface | Experience represented in the demo |
+| --- | --- |
+| Customer | Stores, simulated purchases, cashback balance, and activity |
+| Merchant | Store information, orders, and promotional or reward scenarios |
+| Administrator | Platform-level management and oversight concepts |
+| POS | A checkout-oriented view of purchases and rewards |
+| Support | A service and customer-assistance perspective |
+
+### Customer experience
+
+The customer interface makes the proposed value visible: discover merchants, follow a shopping journey, and understand how a cashback balance would appear. These are demonstration flows, not verified purchases.
+
+<Figure src="https://raw.githubusercontent.com/hsh82/camran/main/public/images/dashbords/client-dashbord.png" alt="Screenshot of the Camran customer dashboard" caption="Customer dashboard — the customer-facing interface in the MVP." />
+
+### Merchant experience
+
+A shared loyalty service cannot work as a customer-only app. Merchant-oriented views are needed to illustrate how stores might participate, monitor activity, and present offers.
+
+<Figure src="https://raw.githubusercontent.com/hsh82/camran/main/public/images/dashbords/shop-dashbord.png" alt="Screenshot of the Camran merchant dashboard" caption="Merchant dashboard — store-oriented management screens." />
+
+### Platform administration
+
+The administrative perspective brings together oversight of a network rather than just one storefront. The prototype uses dedicated visuals to communicate this responsibility without implying that production reconciliation or fraud controls already exist.
+
+<Figure src="https://raw.githubusercontent.com/hsh82/camran/main/public/images/dashbords/admin-dashbord.png" alt="Screenshot of the Camran administrative dashboard" caption="Administration dashboard — network management perspective." />
+
+
+### Point of sale and support
+
+The POS and support screens extend the concept beyond a conventional customer dashboard. They make the operational touchpoints of a future service easier to discuss and evaluate.
+
+<Figure src="https://raw.githubusercontent.com/hsh82/camran/main/public/images/dashbords/pos-dashbord.png" alt="Screenshot of the Camran point-of-sale dashboard" caption="POS dashboard — checkout and reward-related demonstration interface." />
+
+<Figure src="https://raw.githubusercontent.com/hsh82/camran/main/public/images/dashbords/chat-dashbord.png" alt="Screenshot of the Camran chat or support dashboard" caption="Support dashboard — customer-assistance interface." />
+
+## Implementation choices and engineering trade-offs
+
+The academic project combines business-model analysis with a web-based demonstration built using **Next.js, React, TypeScript, Tailwind CSS, and shadcn/ui**. Its interface builds on the open-source **Shadboard** project rather than beginning with an entirely original dashboard foundation.
+
+| Decision | Benefit for this MVP | Boundary or trade-off |
+| --- | --- | --- |
+| Start from Shadboard | Accelerates the creation of multiple dashboard views | Requires adaptation to Camran's workflows and inherits upstream design choices |
+| Organize interfaces by role | Makes a multi-sided service easier to understand | Does not prove the underlying permission model is production-ready |
+| Demonstrate a shared cashback wallet | Makes the cross-merchant value proposition tangible | Real liabilities, settlement, reconciliation, and fraud prevention remain unresolved |
+| Prioritize interactive simulation | Enables product exploration without a live financial integration | Simulated activity cannot establish payment reliability or commercial success |
+
+The business report also considers **WordPress, WooCommerce, and Dokan** as possible commerce components. Their exact integration with the public Next.js demonstration is not independently verified, so they should not be treated as a confirmed production backend.
+
+## Business model: value for both sides
+
+The proposal examines a platform connecting customers and independent merchants. Customers would gain broader opportunities to use rewards; merchants could participate in a collective loyalty experience rather than creating separate systems. The study considers merchant subscriptions, commissions, promotional campaigns, and analytics as **possible revenue streams**, not revenue already earned.
+
+The critical dependency is network participation: cashback becomes more useful only when enough relevant merchants accept it, and participation remains viable only when reward costs and merchant benefits are balanced.
+
+## What was delivered—and what was not
+
+**Delivered for demonstration:** a product concept, business-model research, a navigable multi-role web interface, and simulated purchase, cashback, wallet, campaign, and operational journeys.
+
+**Not demonstrated as production capabilities:** real banking integrations, live payment settlement, regulated financial custody, tested merchant-to-merchant reconciliation, comprehensive identity security, fraud controls, or validated customer-retention improvements.
+
+A credible next stage would be a limited merchant pilot with explicit rules for funding, redemption, reconciliation, security, and support, followed by measurement of actual customer and merchant behavior.
+
+## Outcome
+
+Camran translates a multi-sided loyalty proposal into an inspectable product experience. Its value is in connecting **business-model design, role-based user journeys, and frontend prototyping** while keeping the boundary between an interactive MVP and a financial production platform explicit.
+
+**Project links:** [Source repository](https://github.com/hsh82/camran) · [Shadboard — original dashboard foundation](https://github.com/Qualiora/shadboard) · [Demo website](https://camran.vercel.app/)

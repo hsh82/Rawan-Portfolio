@@ -1,17 +1,131 @@
 ---
-kind: article
-title: "Rahban — Remote Desktop Access Gateway"
-description: "An internal browser-based remote-access pilot extending the RustGuac ecosystem with identity, secrets, virtual-machine integration, a refined interface, and containerized delivery."
+kind: "article"
+title: "Rahban — One Gateway for Enterprise Remote Access"
+description: "Meet Rahban, a browser-based remote-access application that brings sessions, identity, credentials, VM power control, recordings, and reporting into one managed workspace."
 slug: "overview"
 locale: "en"
 category: "projects"
 subcategory: "rahban-access-gateway"
 tags: []
-pubDate: 2026-10-29
+pubDate: "2026-10-29"
 draft: false
 featured: false
 translationId: "project-rahban-access-gateway"
 toc: true
+icon: "server"
+image: "media/projects/rahban-access-gateway/session-user-macnie-acsses.jpg"
 ---
 
-Rahban is the focused project hub for a browser-based remote-access gateway. The original work centers on integrating identity, secrets, virtual-machine management, interface and PWA behavior, and reproducible Docker delivery around the upstream RustGuac and guacd core. It remains an internal pilot rather than a claim of production-hardened remote-desktop infrastructure.
+**Remote access should be a managed workflow—not a collection of server passwords, VPN instructions, and disconnected administration tools.**
+
+**Rahban** is a browser-based remote-access application designed to give engineering and IT teams one place to reach their authorized Windows and Linux machines, manage connections, work with virtual machines, and review session activity. The product brings day-to-day remote access and the administrative controls behind it into a single interface that can also be installed as a Progressive Web App (PWA).
+
+A developer can open an approved SSH or RDP session without handling the machine's underlying password. An administrator can organize connections by team, manage identities, and inspect session history. An infrastructure operator can check a virtual machine's power state without switching to a separate vCenter interface.
+
+<Callout type="tip" title="Product status">Rahban is a functioning **internal pilot application**, not a publicly available SaaS offering or a fully production-hardened enterprise service. The screenshots below have been redacted for public presentation. The initial rollout focused on internal engineering users; broader customer access remains a future validation stage.</Callout>
+
+<Figure src="/media/projects/rahban-access-gateway/session-user-macnie-acsses.jpg" alt="Rahban browser application showing grouped remote-session tiles for Windows and Linux machines; identifying information redacted" caption="The Rahban Sessions workspace: approved connections presented as an organized, searchable application experience." />
+
+## Why organizations use a remote-access gateway
+
+In a growing organization, access to infrastructure is rarely a matter of one engineer connecting to one server. Developers need temporary access to test machines; operations teams maintain Windows and Linux environments; support staff troubleshoot systems; and selected partners may need access to a specific demonstration environment. Direct connections and separate credentials can become difficult to govern as machines and teams change.
+
+A remote-access gateway provides a **controlled point of entry**. Instead of distributing every target's credentials or requiring each user to operate a different remote-access client, the organization can place authentication, authorization, session entry, and activity records behind an application. This approach is particularly useful for environments with many machines, rotating users, mixed protocols, or compliance and operational oversight requirements.
+
+Rahban was designed around five practical needs:
+
+- **One workspace:** use a browser for authorized SSH, RDP, and supported remote or web-demo sessions.
+- **Controlled access:** organize connections by team, group, folder, and user role.
+- **Credential separation:** retrieve protected connection secrets server-side rather than exposing target passwords to end users.
+- **Operational visibility:** keep session histories, optional recordings, and reports in one place.
+- **Less tool-switching:** combine connection workflows with VMware virtual-machine power controls and identity administration.
+
+A gateway does not automatically replace network segmentation, VPN policy, endpoint security, or careful authorization. It creates a place where these access workflows can be managed more consistently.
+
+## The problem Rahban set out to solve
+
+The initial environment relied partly on a licensed third-party remote-access service. Its existing license covered a limited number of machines, while the infrastructure was expanding through automated VM provisioning and Infrastructure as Code. Registering every newly created machine in a separate proprietary access workflow increased the dependency on that service and complicated the desired automated lifecycle.
+
+The requirement was therefore broader than a remote desktop viewer: **build a deployable access application that fits the organization's identity, secrets, and virtualization systems** while providing a usable front end for daily engineering work.
+
+## The experience: connect, manage, review
+
+### 1. Find the right machine and start a session
+
+The Sessions area groups remote resources into recognizable tiles. Users work from a browser or the installable PWA rather than collecting local connection profiles. Windows machines can be reached through RDP, Linux systems through SSH, and supported demonstration environments through managed web sessions.
+
+### 2. Organize access around teams and projects
+
+The Connections workspace exposes folders, subfolders, connection types, search, and management actions. Group-aware visibility means the same application can serve multiple teams while presenting each person with the connections they are allowed to use.
+<Figure src="/media/projects/rahban-access-gateway/connectsion-group-managment-dsahboard.jpg" alt="Rahban Connections workspace with hierarchical folders and SSH and RDP connection management; hosts and personal identifiers redacted" caption="Connections management: structured folders and SSH/RDP entries help administrators organize access by responsibility." />
+
+### 3. Administer identities and integrations centrally
+
+Rahban integrates with **Keycloak** for OIDC sign-in. Its additional administration layer supports common Keycloak user and group operations from inside the application—including account enablement, password reset workflows, and group membership management—so administrators do not need to jump between consoles for routine tasks.
+
+The administration area also surfaces integration and system status. Sensitive machine credentials are handled through **HashiCorp Vault** rather than being given directly to a user opening a session.
+
+<Figure src="/media/projects/rahban-access-gateway/admin-dashboard.jpg" alt="Rahban administration workspace showing integration status cards and Keycloak user administration; account details and operational figures redacted" caption="Administration workspace: identity-management operations and integration status collected in the Rahban app." />
+
+### 4. Review recorded sessions when appropriate
+
+A managed gateway is valuable after a session ends, too. Rahban provides session history and recording playback for connections where recording is enabled. This helps authorized operators investigate operational events and review remote activity; recording access and retention still require appropriate policy and safeguards.
+
+<Figure src="/media/projects/rahban-access-gateway/record-serssion-area.jpg" alt="Rahban Recordings interface with a playback view of a Windows remote desktop; session contents obscured" caption="Recorded-session playback: an application-level view for reviewing authorized remote activity." />
+
+### 5. Understand usage through reports
+
+The Reports area brings together session summaries and history, with filtering and CSV export functionality. For infrastructure teams, this makes it easier to answer practical questions such as which connection was used, when a session occurred, and whether it completed.
+
+<Figure src="/media/projects/rahban-access-gateway/report-area.jpg" alt="Rahban Reports interface showing session overview cards, filters, and a session-history table; internal figures and identifiers redacted" caption="Reporting workspace: session analytics and audit-oriented history within the same application." />
+
+## How a Rahban session fits together
+
+<MermaidDiagram label="Rahban — Managed remote-access workflow" chart={`flowchart LR
+  U[Engineer or authorized operator] --> P[Rahban Web App or PWA]
+  P --> I[Keycloak identity check]
+  I --> A[Role and group access rules]
+  A --> S[Authorized session]
+  V[Vault-managed credentials] -.-> S
+  S --> G[guacd protocol gateway]
+  G --> T[Windows or Linux target]
+  S --> H[Session history and recording]
+  C[vCenter VM power controls] -.-> A`} />
+
+The diagram illustrates responsibilities, not every network hop. Rahban's application layer manages the user experience and access workflow; **guacd** handles the remote protocol connection. Keycloak manages identity, Vault protects connection credentials, and an optional vCenter integration provides authorized VM lifecycle actions.
+
+For controlled website demonstrations, the technical report also describes managed Chromium sessions delivered through the remote-session infrastructure. This could support demonstrations without granting direct access to the underlying environment, subject to suitable network restrictions and application policy.
+
+## What distinguishes the Rahban application
+
+Rahban was developed as a productized internal application, not simply an installation of an existing gateway. The project combined a custom interface and workflow with integrations and deployment work tailored to its operational setting.
+
+| Application capability | Practical value |
+| --- | --- |
+| Browser and installable PWA | Access approved resources without a separate desktop client for each protocol |
+| Keycloak user and group administration | Handle common identity tasks within the gateway interface |
+| Folder- and role-aware connections | Organize remote resources by team, project, or responsibility |
+| Vault-backed connection secrets | Avoid revealing target-machine credentials to the person starting a session |
+| VMware vCenter integration | Discover VM state and carry out permitted power actions alongside remote access |
+| Recordings and reports | Review activity and support operational oversight |
+| Containerized installation | Reproduce the application stack across environments with fewer manual setup steps |
+
+### Engineering foundations and original work
+
+The remote-session core builds on the open-source **[RustGuac](https://github.com/sol1/rustguac)** project and **Apache Guacamole's guacd** protocol service. Those foundations were selected after evaluating alternative products, including Apache Guacamole and Kasm Workspaces. **Rahban is the application built around and beyond that foundation**—with project-specific Keycloak administration, vCenter discovery and power operations, UI/PWA work, integration, packaging, and automated installation.
+
+The application stack described in the technical report includes a Rust/Axum service, guacd, Keycloak and PostgreSQL, Vault, local operational storage, and an optional vCenter connection through `govc`. Multi-stage container builds and Docker Compose packaging support repeatable deployment.
+
+The key trade-off is control versus operational responsibility. Owning the customized application reduces dependence on a per-machine licensed gateway and enables integration with the infrastructure lifecycle, but it also creates responsibility for upstream updates, security fixes, backups, monitoring, and the long-term maintenance of additional services.
+
+## From internal pilot toward a dependable platform
+
+Rahban progressed beyond a static UI concept: internal developers used the application for real remote sessions, and the report documents working identity, connection, recording, reporting, and VM-management workflows. This is evidence of useful pilot functionality—not a scalability benchmark, a security certification, or a production service-level guarantee.
+
+Before broad rollout, the next priorities are **security hardening, permission and secret-management review, monitoring, backup and restore testing, operational procedures, and controlled acceptance tests**. Wider customer use and a staged replacement of the former access service should follow only after those requirements are satisfied.
+
+## The outcome
+
+**Rahban turns remote access into an application-level workflow.** Its value is not merely opening a desktop in a browser; it is bringing together the identity, connection catalog, credentials, machine state, session evidence, and day-to-day usability that an engineering organization needs to manage remote systems coherently.
+
+The project demonstrates how a focused internal product can transform an infrastructure pain point into an integrated, deployable application—while retaining a clear distinction between a successful internal pilot and production-ready enterprise software.

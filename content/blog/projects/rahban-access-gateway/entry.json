@@ -8,6 +8,7 @@
   "status": "published",
   "pubDate": "2026-10-29",
   "tags": [],
+  "icon": "server",
   "featured": false,
   "toc": true,
   "projectCategory": "software-open-source",
@@ -129,7 +130,7 @@
   "priority": 160,
   "favorite": true,
   "favoriteAt": "2026-10-29",
-  "icon": "server",
   "publishedAt": "2026-10-31",
-  "updatedAt": "2026-10-31"
+  "updatedAt": "2026-10-31",
+  "image": "media/projects/rahban-access-gateway/session-user-macnie-acsses.jpg"
 }
