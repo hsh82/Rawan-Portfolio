@@ -26,6 +26,8 @@ editor-bilingual.html + editor-bilingual.js     canonical content/
 
 The editor is a full-page native DOM authoring workspace. Its Studio resource browser covers Site, Profile, Contact, Résumé, Experience, Education, Certifications, Skills, and Journey. Localized records have General/English/Persian tabs plus a lossless JSON Source view. Blog documents retain the dedicated bilingual MDX editor. Save operations use revisions and transactions; Source is authoritative for advanced MDX, while Visual is read-only. The Studio sends unsaved structured snapshots to a short-lived in-memory preview session, which renders the real reusable homepage composition in an isolated local iframe. The public Header remains a site Header; contextual authoring actions remain owned by `ContentActionBar.astro`.
 
+Both the Homepage Studio and bilingual Blog editor expose a read-only, context-aware AI Writing Assistant below the editing guidance area. Its prompt is generated from the verified homepage section map or the current Blog entity type, includes the actual supported MDX block syntax, and is copied locally with the Clipboard API plus a manual-selection fallback. It has no AI connection and cannot change editor state or save payloads.
+
 ## Adapter rules
 
 - Home: its underlying canonical site/profile/contact/career JSON is editable through the Studio; the public homepage itself is not an independent content file.

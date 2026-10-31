@@ -23,6 +23,7 @@ const editorScript = readFileSync(resolve(editorRoot, 'editor-bilingual.js'), 'u
 const editorDeleteScript = readFileSync(resolve(editorRoot, 'editor-delete.js'), 'utf8');
 const studioHtml = readFileSync(resolve(editorRoot, 'studio.html'), 'utf8');
 const studioScript = readFileSync(resolve(editorRoot, 'studio.js'), 'utf8');
+const aiWritingGuideScript = readFileSync(resolve(editorRoot, 'ai-writing-guide.js'), 'utf8');
 
 function json(res, status, payload) {
   res.statusCode = status;
@@ -151,7 +152,7 @@ export function easyContentMiddleware({ editorOnly = false } = {}) {
     try {
       const url = requestPath(req);
       const isPreviewRoute = url.pathname.startsWith('/dev/content/preview/');
-      const isEditorRequest = url.pathname === '/__easy-content/editor.js' || url.pathname === '/__easy-content/editor-delete.js' || url.pathname === '/__easy-content/studio.js' || (!isPreviewRoute && url.pathname.startsWith('/dev/content/'));
+      const isEditorRequest = url.pathname === '/__easy-content/editor.js' || url.pathname === '/__easy-content/editor-delete.js' || url.pathname === '/__easy-content/studio.js' || url.pathname === '/__easy-content/ai-writing-guide.js' || (!isPreviewRoute && url.pathname.startsWith('/dev/content/'));
       if (editorOnly && isPreviewRoute) {
         assertLocalRequest(req);
         const id = url.pathname.split('/').filter(Boolean).at(-1);
@@ -163,6 +164,7 @@ export function easyContentMiddleware({ editorOnly = false } = {}) {
         if (req.method === 'GET' && url.pathname === '/__easy-content/editor.js') return text(res, 200, 'text/javascript; charset=utf-8', editorScript);
         if (req.method === 'GET' && url.pathname === '/__easy-content/editor-delete.js') return text(res, 200, 'text/javascript; charset=utf-8', editorDeleteScript);
         if (req.method === 'GET' && url.pathname === '/__easy-content/studio.js') return text(res, 200, 'text/javascript; charset=utf-8', studioScript);
+        if (req.method === 'GET' && url.pathname === '/__easy-content/ai-writing-guide.js') return text(res, 200, 'text/javascript; charset=utf-8', aiWritingGuideScript);
         if (req.method === 'GET' && url.pathname.startsWith('/dev/content/')) {
           const context = editorContextForPath(url.pathname, url.search);
           if (context.type === 'unsupported') return text(res, 404, 'text/plain; charset=utf-8', context.reason || 'unsupported content type');
@@ -217,6 +219,7 @@ export function easyContentMiddleware({ editorOnly = false } = {}) {
       if (req.method === 'GET' && operation === 'editor.js') return text(res, 200, 'text/javascript; charset=utf-8', editorScript);
       if (req.method === 'GET' && operation === 'editor-delete.js') return text(res, 200, 'text/javascript; charset=utf-8', editorDeleteScript);
       if (req.method === 'GET' && operation === 'studio.js') return text(res, 200, 'text/javascript; charset=utf-8', studioScript);
+      if (req.method === 'GET' && operation === 'ai-writing-guide.js') return text(res, 200, 'text/javascript; charset=utf-8', aiWritingGuideScript);
       if (req.method === 'GET' && operation === 'tree') {
         requireToken(req);
         return json(res, 200, { tree: contentTree() });
