@@ -2,6 +2,8 @@ import { resolve } from 'node:path';
 import { z } from 'zod';
 import type { Locale } from './i18n';
 import { readPortfolioSource } from './portfolio-source.mjs';
+import { isApprovedImageReference } from './blog-media.mjs';
+import { ICON_IDS, isRegisteredIcon } from './icon-registry.mjs';
 
 const root = resolve(process.cwd(), 'content');
 const localizedText = z.object({ title: z.string().default(''), displayName: z.string().default(''), description: z.string().default(''), intro: z.string().default(''), summary: z.string().default(''), greeting: z.string().default(''), ctaExperience: z.string().default(''), ctaProjects: z.string().default(''), bullets: z.array(z.string()).default([]) }).partial();
@@ -14,6 +16,7 @@ const homeSchema = z.object({ focus: z.object({ en: z.array(z.object({ title: z.
 const contactSchema = z.object({ email: z.string().email().or(z.literal('')).default(''), phone: z.string().default(''), location: z.string().default(''), socials: z.array(link).default([]), locales: localized.default({ en: {}, fa: {} }) });
 const projectCategorySchema = z.enum(['devops-delivery', 'infrastructure-automation', 'networking-security', 'software-open-source', 'design-creative']);
 const localizedLabelSchema = z.object({ en: z.string().min(1), fa: z.string().min(1) });
+const localizedImageAltSchema = z.object({ en: z.string().min(1).optional(), fa: z.string().min(1).optional() }).refine(value => value.en || value.fa, 'imageAlt must contain at least one localized description');
 const projectCaseStudyCopySchema = z.object({
   intro: z.string().min(1),
   context: z.string().min(1),
@@ -38,9 +41,10 @@ export const projectSchema = z.object({
   role: localizedLabelSchema,
   locales: localized,
   technologies: z.array(z.string()).default([]),
-  image: z.string().optional(),
-  imageAlt: localizedLabelSchema.optional(),
-  icon: z.string().regex(/^[a-z0-9-]+$/).optional(),
+  imageAlt: localizedImageAltSchema.optional(),
+  icon: z.string().refine(value => ICON_IDS.includes(value), 'icon must be registered').optional(),
+  // Project card media is canonical in the hub entry; overview MDX mirrors it.
+  image: z.string().refine(isApprovedImageReference, 'image must be a local media path or HTTPS URL').optional(),
   publishedAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   favorite: z.boolean().default(false),
@@ -65,6 +69,8 @@ const source = () => readPortfolioSource(root);
 function projectHubs(raw: ReturnType<typeof readPortfolioSource>) {
   return raw.projects.map(shared => projectSchema.parse({
     ...shared,
+    // Keep public rendering resilient while content:validate still reports invalid metadata.
+    icon: isRegisteredIcon(shared.icon) ? shared.icon : undefined,
     // Publication is represented once in shared metadata. `visible` is
     // retained only as a normalized runtime compatibility property.
     visible: shared.status === 'published',

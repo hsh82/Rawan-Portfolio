@@ -26,6 +26,8 @@ editor-bilingual.html + editor-bilingual.js     canonical content/
 
 The editor is a full-page native DOM authoring workspace. Its Studio resource browser covers Site, Profile, Contact, Résumé, Experience, Education, Certifications, Skills, and Journey. Localized records have General/English/Persian tabs plus a lossless JSON Source view. Blog documents retain the dedicated bilingual MDX editor. Save operations use revisions and transactions; Source is authoritative for advanced MDX, while Visual is read-only. The Studio sends unsaved structured snapshots to a short-lived in-memory preview session, which renders the real reusable homepage composition in an isolated local iframe. The public Header remains a site Header; contextual authoring actions remain owned by `ContentActionBar.astro`.
 
+Both the Homepage Studio and bilingual Blog editor expose a read-only, context-aware AI Writing Assistant below the editing guidance area. Its prompt is generated from the verified homepage section map or the current Blog entity type, includes the actual supported MDX block syntax, and is copied locally with the Clipboard API plus a manual-selection fallback. It has no AI connection and cannot change editor state or save payloads.
+
 ## Adapter rules
 
 - Home: its underlying canonical site/profile/contact/career JSON is editable through the Studio; the public homepage itself is not an independent content file.
@@ -38,7 +40,11 @@ The action resolver exposes only `Edit Blog` + `New Project` on the Blog landing
 
 Project publishing updates the project hub and both localized overview sources together, keeps compatibility frontmatter synchronized, and validates registered icon IDs before changing status. Projects have only two states: `draft` and `published`; publication class and maturity are retained only as optional legacy metadata and are not editor controls. New project IDs are derived automatically from the English/Persian title, while the reserved `overview` URL is generated automatically. Save Draft keeps content private; Publish validates both locales and makes the project public; Unpublish returns it to draft. Project favorites and `favoriteAt` live in the hub entry, so homepage and Blog selection use the same source.
 
-Publication is shared across both translations. Draft saves accept incomplete EN/FA content. Publish validates both tabs and writes shared metadata plus both bodies atomically. The editor route has no locale query parameter; a language tab changes local editor state without reloading.
+Publication is shared across both translations. Draft saves accept incomplete EN/FA content as long as each saved document retains valid frontmatter and its stable slug. Publish validates both tabs and writes shared metadata plus both bodies atomically. The editor route has no locale query parameter; a language tab changes local editor state without reloading. Save payloads use complete MDX sources; an explicit body-only payload is reconstructed from the existing document's original frontmatter, while empty or ambiguous payloads are rejected. Harmless leading blank lines and a UTF-8 BOM are normalized only when a valid frontmatter block follows; malformed documents remain invalid.
+
+Project saves keep the canonical project record flat. The frontend sends only an editable project patch, while the server strips the legacy nested `project` wrapper, preserves unsupported fields from disk, rejects excessively nested payloads, and offers `npm run content:normalize-project-metadata` for reviewed, backed-up repair of affected entries.
+
+Card media follows the same ownership rule: `entry.json` is canonical for shared `image` and `icon`, while each locale’s MDX mirrors those fields for Source-mode discoverability. `image` accepts a `media/...` path inside `content/media` or an HTTPS URL; `icon` must be registered. `imageAlt` is localized in `entry.json` and mirrored as one scalar value per locale. Saves reject present-but-conflicting mirrors, normalize both locale sources together, and preserve legacy files that omit mirrors until their next save.
 
 ## Safety model
 

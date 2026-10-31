@@ -42,7 +42,7 @@ const usedCategories = Object.keys(categories).filter(category => projects.some(
       const articleHref = projectUrl(lang, project);
       return (
         <article class="project-card" data-project-card data-categories={[project.category, ...(project.secondaryCategories || [])].join(' ')}>
-          <ProjectVisual category={project.category} lang={lang} compact icon={project.icon} image={publicMediaPath(project.image)} imageAlt={project.imageAlt?.[lang]} />
+          <ProjectVisual category={project.category} lang={lang} compact icon={project.icon} image={publicMediaPath(project.image)} imageAlt={project.imageAlt?.[lang] || copy.title} />
           <div class="project-card__body">
             <div class="project-card__meta"><span>{label(categories, project.category)}</span><span>{label(maturity, project.maturity)}</span></div>
             <h2><a href={articleHref} class="stretched-link">{copy.title}</a></h2>

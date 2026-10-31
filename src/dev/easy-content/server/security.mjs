@@ -67,7 +67,7 @@ export function writeAtomic(file, source) {
 }
 
 export function writeTransaction(files) {
-  const originals = files.map(file => ({ file, source: readText(file), existed: existsSync(file) }));
+  const originals = files.map(({ file }) => ({ file, source: readText(file), existed: existsSync(file) }));
   const temps = [];
   try {
     for (const { file, source } of files) {
