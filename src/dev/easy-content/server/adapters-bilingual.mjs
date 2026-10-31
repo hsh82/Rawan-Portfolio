@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { contentPath, moveToTrash, readText, revisionOf, safeSlug, writeTransaction } from './security.mjs';
 import { parseDocument, replaceBody, serializeDocument, updateFrontmatter } from './frontmatter.mjs';
+import { assertSharedPayload, canonicalProjectMetadata, editableProjectPatch } from './project-metadata.mjs';
 import { ICON_IDS } from '../../../utils/icon-registry.mjs';
 import { BLOG_LOCALES } from '../../../utils/blog-layout.mjs';
 
@@ -89,7 +90,8 @@ function defaultShared(context, documents, record) {
 function readShared(context, documents, record, files) {
   if (files.unified && existsSync(files.entry)) {
     try {
-      return { ...defaultShared(context, documents, record), ...readJson(files.entry) };
+      const shared = { ...defaultShared(context, documents, record), ...readJson(files.entry) };
+      return context.type === 'project' ? canonicalProjectMetadata(shared) : shared;
     } catch {
       throw new Error(`Invalid shared metadata: content/blog/${files.entityPath}/entry.json`);
     }
@@ -104,13 +106,14 @@ export function readEntity(context) {
   const documents = Object.fromEntries(BLOG_LOCALES.map(locale => [locale, readDocument(files.files[locale])]));
   const record = context.type === 'project' ? projectRecord(projectIdFor(context)) : undefined;
   const shared = readShared(context, documents, record, files);
+  const metadata = context.type === 'project' && record ? canonicalProjectMetadata(record) : record;
   return {
     type: context.type,
     id: context.id,
     project: context.type === 'project' || context.type === 'article' ? projectIdFor(context) : undefined,
     slug: context.type === 'article' ? context.slug || context.articleId : shared.slug,
     shared,
-    metadata: record,
+    metadata,
     locales: Object.fromEntries(BLOG_LOCALES.map(locale => [locale, { source: documents[locale].source, document: documents[locale].document, revision: documents[locale].revision }])),
     revision: revisionOf(JSON.stringify({ shared, metadata: record, en: documents.en.source, fa: documents.fa.source })),
     articles: context.type === 'project' ? projectChildren(projectIdFor(context)) : undefined,
@@ -208,7 +211,7 @@ export function contentTree() {
 
 function validateSource(source, type, locale, expectedSlug, { requireContent = false } = {}) {
   const parsed = parseDocument(source);
-  if (!parsed.hasFrontmatter) throw new Error(`${type} (${locale}) needs frontmatter`);
+  if (!parsed.hasFrontmatter) throw new Error(`${type} (${locale}) needs valid frontmatter beginning with --- and ending with ---; leading blank lines and a UTF-8 BOM are allowed`);
   if (requireContent && (!parsed.frontmatter.title || !parsed.frontmatter.description)) throw new Error(`${type} (${locale}) needs a title and description before publishing`);
   if (type === 'Project overview' && parsed.frontmatter.kind === 'overview') throw new Error(`Project overview (${locale}) must use kind: article in MDX frontmatter; overview is the URL role, not a collection kind`);
   if (!parsed.frontmatter.slug || !/^[a-z0-9-]+$/.test(String(parsed.frontmatter.slug))) throw new Error(`${type} (${locale}) needs a lowercase slug`);
@@ -238,7 +241,9 @@ function localizedFrontmatter(shared, document, locale, status) {
 }
 
 function normalizeShared(input, current, context, documents) {
-  const next = { ...current, ...(input || {}) };
+  const payload = assertSharedPayload(input || {});
+  const { project: _project, ...sharedInput } = payload;
+  const next = { ...current, ...sharedInput };
   next.id = current.id || context.id;
   next.kind = current.kind || (context.type === 'blog' ? 'landing' : context.type === 'project' ? 'overview' : 'article');
   next.slug = current.slug || (context.type === 'blog' ? 'blog' : context.type === 'project' ? 'overview' : context.slug);
@@ -249,14 +254,6 @@ function normalizeShared(input, current, context, documents) {
   next.pubDate = next.pubDate || documents.en.document.frontmatter.pubDate || documents.fa.document.frontmatter.pubDate || today();
   next.toc = next.toc !== false;
   next.status = next.status === 'published' ? 'published' : 'draft';
-  return next;
-}
-
-function allowedProjectRecord(input) {
-  const allowed = ['favorite', 'favoriteAt', 'featured', 'category', 'secondaryCategories', 'role', 'technologies', 'icon', 'image', 'imageAlt', 'publishedAt', 'updatedAt', 'repository', 'externalUrl', 'priority', 'journeyIds', 'relatedSkillIds', 'relatedProjectIds', 'articleIds'];
-  const next = {};
-  for (const key of allowed) if (input && Object.prototype.hasOwnProperty.call(input, key)) next[key === 'category' ? 'projectCategory' : key] = input[key];
-  if (next.favoriteAt == null) delete next.favoriteAt;
   return next;
 }
 
@@ -287,7 +284,7 @@ export function saveEntity(input) {
   if (context.type === 'project') {
     const record = projectRecord(projectIdFor(context));
     if (!record) throw new Error('Project does not exist');
-    Object.assign(shared, allowedProjectRecord(input.shared?.project || {}));
+    Object.assign(shared, editableProjectPatch(input.shared?.project || {}));
     if (input.publish) { shared.visible = true; if (!shared.publishedAt) shared.publishedAt = today(); }
     else if (input.unpublish) shared.visible = false;
     shared.updatedAt = today();

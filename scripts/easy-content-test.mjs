@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { parseDocument, updateFrontmatter } from '../src/dev/easy-content/server/frontmatter.mjs';
+import { normalizeDocumentSource, parseDocument, updateFrontmatter } from '../src/dev/easy-content/server/frontmatter.mjs';
 import { isInside, safePath, safeSlug } from '../src/dev/easy-content/server/security.mjs';
 import { contextForPath, editorContextForPath, readEntity, saveEntity } from '../src/dev/easy-content/server/adapters-bilingual.mjs';
 import { contentActions, editorCapabilities } from '../src/dev/easy-content/context.mjs';
@@ -26,6 +26,23 @@ assert.equal(reparsed.frontmatter.title, 'Updated title');
 assert.equal(reparsed.frontmatter.custom, 'keep-me');
 assert.equal(reparsed.frontmatter.draft, true);
 assert.match(reparsed.body, /## Body/);
+
+const tick = String.fromCharCode(96);
+const fence = tick.repeat(3);
+const richBody = `\n# Engineering challenge\n\n| Field | Value |\n| --- | --- |\n| Mode | bilingual |\n\n---\n\n${fence}bash\necho ready\n${fence}\n\n<MermaidDiagram chart={${tick}flowchart LR\n  A --> B\n${tick}} />\n\nمتن فارسی\n`;
+const richSource = `---\nkind: article\ntitle: "Rich article"\ndescription: "Complete MDX"\nslug: rich-article\nlocale: en\ncategory: projects\ntranslationId: rich-article\npubDate: "2026-10-29"\ndraft: false\n---\n${richBody}`;
+for (const candidate of [richSource, `\n\n${richSource}`, `\ufeff${richSource}`, richSource.replaceAll('\n', '\r\n'), `\ufeff\r\n\r\n${richSource.replaceAll('\n', '\r\n')}`]) {
+  const document = parseDocument(candidate);
+  assert.equal(document.hasFrontmatter, true);
+  assert.match(document.body, /MermaidDiagram/);
+  assert.match(document.body, /```bash/);
+  assert.match(document.body, /\| Field \| Value \|/);
+  assert.match(document.body, /متن فارسی/);
+  assert.equal(normalizeDocumentSource(candidate).startsWith('---'), true);
+}
+const malformed = '\n---\ntitle: "Missing close"\n\nBody';
+assert.equal(parseDocument(malformed).hasFrontmatter, false);
+assert.equal(normalizeDocumentSource(malformed), malformed);
 
 assert.equal(contextForPath('/en/').type, 'unsupported');
 assert.match(contextForPath('/en/').reason, /unsupported content type/);
@@ -79,7 +96,7 @@ try {
   writeFixture('content/blog/landing/entry.json', JSON.stringify({ id: 'landing', kind: 'landing', translationId: 'blog-landing', slug: 'blog', category: 'blog', status: 'published', pubDate: '2026-10-29', tags: [], toc: false }) + '\n');
   writeFixture('content/blog/landing/en.mdx', fixtureSource({ kind: 'landing', title: 'Project journal', description: 'English summary', slug: 'blog', locale: 'en', translationId: 'blog-landing', body: 'English body' }));
   writeFixture('content/blog/landing/fa.mdx', fixtureSource({ kind: 'landing', title: 'دفترچهٔ پروژه‌ها', description: 'خلاصهٔ فارسی', slug: 'blog', locale: 'fa', translationId: 'blog-landing', body: 'متن فارسی' }));
-  writeFixture('content/blog/projects/demo/entry.json', JSON.stringify({ id: 'demo', kind: 'overview', translationId: 'project-demo', slug: 'overview', category: 'projects', projectCategory: 'devops-delivery', status: 'draft', visible: false, role: { en: 'Project', fa: 'پروژه' }, technologies: [], articleIds: [] }) + '\n');
+  writeFixture('content/blog/projects/demo/entry.json', JSON.stringify({ id: 'demo', kind: 'overview', translationId: 'project-demo', slug: 'overview', category: 'projects', projectCategory: 'devops-delivery', status: 'draft', visible: false, role: { en: 'Project', fa: 'پروژه' }, technologies: ['Docker'], relatedProjectIds: ['other-project'], caseStudy: { en: { intro: 'Intro' }, fa: { intro: 'مقدمه' } }, diagram: { en: { title: 'Flow' }, fa: { title: 'جریان' } }, articleIds: [] }) + '\n');
   writeFixture('content/blog/projects/demo/en.mdx', fixtureSource({ title: 'Demo project', description: 'Demo summary', slug: 'overview', locale: 'en', category: 'projects', subcategory: 'demo', translationId: 'project-demo', draft: true, body: 'Project body' }));
   writeFixture('content/blog/projects/demo/fa.mdx', fixtureSource({ title: 'پروژهٔ نمونه', description: 'خلاصهٔ نمونه', slug: 'overview', locale: 'fa', category: 'projects', subcategory: 'demo', translationId: 'project-demo', draft: true, body: 'متن پروژه' }));
   writeFixture('content/blog/projects/demo/articles/release/entry.json', JSON.stringify({ id: 'demo/release', kind: 'article', translationId: 'demo-release', slug: 'release', category: 'projects', subcategory: 'demo', status: 'draft' }) + '\n');
@@ -87,23 +104,49 @@ try {
   writeFixture('content/blog/projects/demo/articles/release/fa.mdx', fixtureSource({ title: 'انتشار', description: 'خلاصهٔ انتشار', slug: 'release', locale: 'fa', category: 'projects', subcategory: 'demo', translationId: 'demo-release', draft: true, body: 'متن انتشار' }));
 
   const adapterUrl = new URL('../src/dev/easy-content/server/adapters-bilingual.mjs', import.meta.url).href;
-  const child = `import assert from 'node:assert/strict';
+const child = `import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { readEntity, saveEntity } from ${JSON.stringify(adapterUrl)};
 const landing = readEntity({ type: 'blog', id: 'landing' });
-const savedLanding = saveEntity({ context: { type: 'blog', id: 'landing' }, shared: landing.shared, locales: { en: { body: 'Updated English body' }, fa: { body: 'متن فارسی به‌روزشده' } }, expectedRevision: landing.revision });
+const normalizedLanding = saveEntity({ context: { type: 'blog', id: 'landing' }, shared: landing.shared, locales: { en: { source: String.fromCharCode(10) + landing.locales.en.source }, fa: { source: String.fromCharCode(0xfeff) + landing.locales.fa.source.replaceAll(String.fromCharCode(10), String.fromCharCode(13, 10)) } }, expectedRevision: landing.revision });
+assert.equal(normalizedLanding.locales.en.source.startsWith('---'), true);
+assert.equal(normalizedLanding.locales.fa.source.startsWith('---'), true);
+const savedLanding = saveEntity({ context: { type: 'blog', id: 'landing' }, shared: normalizedLanding.shared, locales: { en: { body: 'Updated English body' }, fa: { body: 'متن فارسی به‌روزشده' } }, expectedRevision: normalizedLanding.revision });
 assert.equal(savedLanding.locales.en.document.frontmatter.custom, 'preserve-me');
 assert.match(savedLanding.locales.en.source, /Updated English body/);
 assert.match(savedLanding.locales.fa.source, /متن فارسی به‌روزشده/);
 assert.throws(() => saveEntity({ context: { type: 'blog', id: 'landing' }, shared: savedLanding.shared, locales: { en: { source: '' } }, expectedRevision: savedLanding.revision }), /source cannot be empty/);
 assert.throws(() => saveEntity({ context: { type: 'blog', id: 'landing' }, shared: savedLanding.shared, locales: { en: 'body only' }, expectedRevision: savedLanding.revision }), /payload must contain source or body/);
 const project = readEntity({ type: 'project', id: 'demo', project: 'demo' });
-const publishedProject = saveEntity({ context: { type: 'project', id: 'demo', project: 'demo' }, shared: project.shared, locales: { en: { body: 'Published project body' }, fa: { body: 'متن پروژهٔ منتشرشده' } }, expectedRevision: project.revision, publish: true });
+const projectFile = join(process.cwd(), 'content/blog/projects/demo/entry.json');
+let stableProjectJson = '';
+for (let index = 0; index < 10; index += 1) {
+  const currentProject = readEntity({ type: 'project', id: 'demo', project: 'demo' });
+  const savedProject = saveEntity({ context: { type: 'project', id: 'demo', project: 'demo' }, shared: { ...currentProject.shared, project: { category: 'devops-delivery', icon: undefined, favorite: false, favoriteAt: null } }, locales: { en: { source: currentProject.locales.en.source }, fa: { source: currentProject.locales.fa.source } }, expectedRevision: currentProject.revision });
+  const disk = JSON.parse(readFileSync(projectFile, 'utf8'));
+  assert.equal(Object.prototype.hasOwnProperty.call(disk, 'project'), false);
+  assert.deepEqual(disk.caseStudy, project.metadata.caseStudy);
+  assert.deepEqual(disk.diagram, project.metadata.diagram);
+  assert.deepEqual(disk.technologies, project.metadata.technologies);
+  assert.deepEqual(disk.relatedProjectIds, project.metadata.relatedProjectIds);
+  const serialized = JSON.stringify(disk);
+  if (!stableProjectJson) stableProjectJson = serialized;
+  assert.equal(serialized, stableProjectJson);
+  assert.equal(Object.prototype.hasOwnProperty.call(savedProject.shared, 'project'), false);
+}
+assert.throws(() => saveEntity({ context: { type: 'project', id: 'demo', project: 'demo' }, shared: { ...project.shared, project: { project: { project: {} } } }, locales: { en: { source: project.locales.en.source }, fa: { source: project.locales.fa.source } }, expectedRevision: readEntity({ type: 'project', id: 'demo', project: 'demo' }).revision }), /excessively nested/);
+const projectForPublish = readEntity({ type: 'project', id: 'demo', project: 'demo' });
+const publishedProject = saveEntity({ context: { type: 'project', id: 'demo', project: 'demo' }, shared: projectForPublish.shared, locales: { en: { body: 'Published project body' }, fa: { body: 'متن پروژهٔ منتشرشده' } }, expectedRevision: projectForPublish.revision, publish: true });
 assert.equal(publishedProject.shared.status, 'published');
 assert.equal(publishedProject.metadata.visible, true);
 const article = readEntity({ type: 'article', id: 'demo/release', project: 'demo', slug: 'release' });
-const savedArticle = saveEntity({ context: { type: 'article', id: 'demo/release', project: 'demo', slug: 'release' }, shared: article.shared, locales: { en: { body: 'Article body' }, fa: { body: 'متن مقاله' } }, expectedRevision: article.revision });
+const savedRichArticle = saveEntity({ context: { type: 'article', id: 'demo/release', project: 'demo', slug: 'release' }, shared: article.shared, locales: { en: { source: ${JSON.stringify(fixtureSource({ title: 'Release', description: 'Release summary', slug: 'release', locale: 'en', category: 'projects', subcategory: 'demo', translationId: 'demo-release', draft: true, body: richBody }))} }, fa: { source: ${JSON.stringify(fixtureSource({ title: 'انتشار', description: 'خلاصهٔ انتشار', slug: 'release', locale: 'fa', category: 'projects', subcategory: 'demo', translationId: 'demo-release', draft: true, body: richBody }))} } }, expectedRevision: article.revision });
+assert.match(savedRichArticle.locales.en.source, /MermaidDiagram/);
+assert.match(savedRichArticle.locales.fa.source, /متن فارسی/);
+const savedArticle = saveEntity({ context: { type: 'article', id: 'demo/release', project: 'demo', slug: 'release' }, shared: savedRichArticle.shared, locales: { en: { body: 'Article body' }, fa: { body: 'متن مقاله' } }, expectedRevision: savedRichArticle.revision });
 assert.match(savedArticle.locales.fa.source, /متن مقاله/);
-assert.throws(() => saveEntity({ context: { type: 'article', id: 'demo/release', project: 'demo', slug: 'release' }, shared: savedArticle.shared, locales: { en: { source: 'body only' }, fa: { source: savedArticle.locales.fa.source } }, expectedRevision: savedArticle.revision }), /needs frontmatter/);
+assert.throws(() => saveEntity({ context: { type: 'article', id: 'demo/release', project: 'demo', slug: 'release' }, shared: savedArticle.shared, locales: { en: { source: 'body only' }, fa: { source: savedArticle.locales.fa.source } }, expectedRevision: savedArticle.revision }), /needs (?:valid )?frontmatter/);
 assert.throws(() => saveEntity({ context: { type: 'article', id: 'demo/release', project: 'demo', slug: 'release' }, shared: savedArticle.shared, locales: { en: { body: 'stale' }, fa: { body: 'stale' } }, expectedRevision: article.revision }), /changed outside/);
 console.log('adapter-fixture-ok');`;
   assert.match(execFileSync(process.execPath, ['--input-type=module', '-e', child], { cwd: fixture, encoding: 'utf8' }), /adapter-fixture-ok/);

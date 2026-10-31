@@ -16,6 +16,7 @@
     "test:easy-content": "node scripts/easy-content-test.mjs",
     "content:validate": "node scripts/content-validate.mjs",
     "content:check-links": "node scripts/content-check-links.mjs",
+    "content:normalize-project-metadata": "node scripts/content-normalize-project-metadata.mjs",
     "content:new": "node scripts/content-new.mjs",
     "content:migrate-bilingual": "node scripts/content-migrate-bilingual.mjs",
     "content:migrate-project-hubs": "node scripts/content-migrate-project-hubs.mjs",

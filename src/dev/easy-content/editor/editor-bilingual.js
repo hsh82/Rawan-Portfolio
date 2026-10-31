@@ -108,7 +108,7 @@ function syncActiveFields() {
 function sharedForm() {
   const category = $('#category').value.trim();
   const shared = { ...entity.shared, status:currentStatus(), slug:$('#slug').value.trim(), category:context.type === 'project' ? 'projects' : category, pubDate:$('#pub-date').value || today(), tags:$('#tags').value.split(',').map(value => value.trim()).filter(Boolean), featured:$('#featured').checked, toc:$('#toc').checked };
-  if (context.type === 'project') shared.project = { ...(entity.metadata || {}), category, icon:$('#icon').value.trim() || undefined, favorite:$('#favorite').checked, favoriteAt:$('#favorite').checked ? ($('#favorite-at').value || today()) : null };
+  if (context.type === 'project') shared.project = { category, icon:$('#icon').value.trim() || undefined, favorite:$('#favorite').checked, favoriteAt:$('#favorite').checked ? ($('#favorite-at').value || today()) : null };
   return shared;
 }
 function collectPayload(publish, unpublish = false) {

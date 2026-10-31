@@ -4,10 +4,14 @@
   "translationId": "project-rahban-access-gateway",
   "slug": "overview",
   "category": "projects",
-  "projectCategory": "software-open-source",
+  "subcategory": "rahban-access-gateway",
   "status": "published",
-  "visible": true,
+  "pubDate": "2026-10-29",
+  "tags": [],
   "featured": false,
+  "toc": true,
+  "projectCategory": "software-open-source",
+  "visible": true,
   "publication": "public-sanitized",
   "maturity": "internal-pilot",
   "secondaryCategories": [
@@ -125,5 +129,7 @@
   "priority": 160,
   "favorite": true,
   "favoriteAt": "2026-10-29",
-  "icon": "server"
+  "icon": "server",
+  "publishedAt": "2026-10-31",
+  "updatedAt": "2026-10-31"
 }
