@@ -48,5 +48,8 @@ const guidanceIndex = bilingualHtml.indexOf('Editing guidance');
 assert.ok(guidanceIndex >= 0 && bilingualHtml.indexOf('id="ai-writing-guide"', guidanceIndex) > guidanceIndex);
 assert.match(studioHtml, /id="ai-writing-guide"/);
 assert.match(middleware, /ai-writing-guide\.js/);
+assert.match(bilingualHtml, /id="icon-search"/);
+assert.match(bilingualHtml, /id="icon-picker-grid"/);
+assert.match(middleware, /operation === 'icons'/);
 
 console.log('Easy Content AI writing guide behavior passed.');

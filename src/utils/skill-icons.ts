@@ -1,4 +1,4 @@
-import { Box, Braces, FileCode2, GitBranch, GitMerge, Globe2Icon, Layers3Icon, Network, Palette, PenTool, ServerCog, ShieldCheck, Terminal, TestTube2Icon } from '@lucide/astro';
+import { Box, Braces, FileCode2, GitBranch, GitMerge, Globe2Icon, Layers3Icon, Network, Palette, PenTool, ServerCog, ShieldCheck, ShoppingBag, Terminal, TestTube2Icon } from '@lucide/astro';
 
 export const categoryIcons: Record<string, any> = {
   cicd: GitMerge,
@@ -17,7 +17,7 @@ const aliases: Record<string, any> = {
   opnsense: ShieldCheck, vlan: Network, wireguard: ShieldCheck, mikrotik: Network,
   tls: ShieldCheck, dns: Globe2Icon, python: Braces, bash: Terminal, 'technical-runbooks': FileCode2,
   jira: FileCode2, confluence: FileCode2, 'next-js': Braces, typescript: Braces, react: Braces,
-  photoshop: Palette, illustrator: PenTool,
+  photoshop: Palette, illustrator: PenTool, 'shopping-bag': ShoppingBag,
 };
 
 export function skillTechnologyId(label: string) {

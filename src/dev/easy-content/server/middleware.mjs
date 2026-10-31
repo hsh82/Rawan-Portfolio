@@ -12,6 +12,7 @@ import { repositoryRoot, assertLocalRequest, sessionToken, mediaRoot, safePath, 
 import { contentTree, contextForPath, editorContextForPath, createArticle, createJourney, createProject, deleteEntity, readEntity, saveEntity } from './adapters-bilingual.mjs';
 import { createResource, deleteResource, readResource, resourceCatalog, resourceDependencies, resourcePreviewUrl, saveResource } from './resources.mjs';
 import { createPreviewSession, previewSession } from './preview-sessions.mjs';
+import { iconCatalog } from './icon-catalog.mjs';
 
 const execFileAsync = promisify(execFile);
 const MAX_BODY = 1_500_000;
@@ -237,6 +238,10 @@ export function easyContentMiddleware({ editorOnly = false } = {}) {
       if (req.method === 'GET' && operation === 'media') {
         requireToken(req);
         return json(res, 200, { media: listMedia() });
+      }
+      if (req.method === 'GET' && operation === 'icons') {
+        requireToken(req);
+        return json(res, 200, { icons: iconCatalog() });
       }
       if (req.method !== 'POST') return next();
       requireToken(req);

@@ -3,7 +3,7 @@ import { z } from 'zod';
 import type { Locale } from './i18n';
 import { readPortfolioSource } from './portfolio-source.mjs';
 import { isApprovedImageReference } from './blog-media.mjs';
-import { ICON_IDS } from './icon-registry.mjs';
+import { ICON_IDS, isRegisteredIcon } from './icon-registry.mjs';
 
 const root = resolve(process.cwd(), 'content');
 const localizedText = z.object({ title: z.string().default(''), displayName: z.string().default(''), description: z.string().default(''), intro: z.string().default(''), summary: z.string().default(''), greeting: z.string().default(''), ctaExperience: z.string().default(''), ctaProjects: z.string().default(''), bullets: z.array(z.string()).default([]) }).partial();
@@ -69,6 +69,8 @@ const source = () => readPortfolioSource(root);
 function projectHubs(raw: ReturnType<typeof readPortfolioSource>) {
   return raw.projects.map(shared => projectSchema.parse({
     ...shared,
+    // Keep public rendering resilient while content:validate still reports invalid metadata.
+    icon: isRegisteredIcon(shared.icon) ? shared.icon : undefined,
     // Publication is represented once in shared metadata. `visible` is
     // retained only as a normalized runtime compatibility property.
     visible: shared.status === 'published',

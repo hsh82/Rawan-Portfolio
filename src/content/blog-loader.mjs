@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { glob } from 'astro/loaders';
 import { normalizeBlogEntryId, parseBlogEntryPath } from '../utils/blog-layout.mjs';
+import { isRegisteredIcon } from '../utils/icon-registry.mjs';
 
 function sharedMetadata(filePath) {
   if (!filePath) return {};
@@ -43,6 +44,7 @@ export function bilingualBlogLoader() {
         const merged = { ...shared, ...data, id };
         for (const field of ['image', 'icon']) if (Object.prototype.hasOwnProperty.call(shared, field)) merged[field] = shared[field];
         if (shared.imageAlt && typeof shared.imageAlt === 'object') merged.imageAlt = shared.imageAlt[data.locale] || data.imageAlt;
+        if (!isRegisteredIcon(merged.icon)) delete merged.icon;
         return originalParseData({ id, filePath, data: merged });
       };
       await loader.load(context);

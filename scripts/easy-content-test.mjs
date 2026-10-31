@@ -11,15 +11,22 @@ import { readResource, resourceCatalog } from '../src/dev/easy-content/server/re
 import { migrateBilingual, planBilingualMigration } from '../src/dev/easy-content/server/migration.mjs';
 import { unifiedEntityPathFromLegacy } from '../src/utils/blog-layout.mjs';
 import { normalizeImageReference, normalizeIconId } from '../src/utils/blog-media.mjs';
+import { ICON_IDS, iconDefinition } from '../src/utils/icon-registry.mjs';
+import { iconCatalog } from '../src/dev/easy-content/server/icon-catalog.mjs';
 
 assert.equal(normalizeImageReference(' /media/projects/demo/cover.webp '), 'media/projects/demo/cover.webp');
 assert.equal(normalizeImageReference('https://images.example.test/cover.webp'), 'https://images.example.test/cover.webp');
 assert.throws(() => normalizeImageReference('http://images.example.test/cover.webp'), /HTTPS URL/);
 assert.throws(() => normalizeImageReference('javascript:alert(1)'), /HTTPS URL/);
 assert.equal(normalizeIconId('docker'), 'docker');
+assert.equal(normalizeIconId('shopping-bag'), 'shopping-bag');
 assert.throws(() => normalizeIconId('not-registered'), /Unknown icon/);
+assert.equal(ICON_IDS.length, 35);
+assert.equal(iconDefinition('shopping-bag').lucide, 'shopping-bag');
+assert.equal(iconCatalog().filter(icon => icon.node.length).length, ICON_IDS.length);
 assert.match(readFileSync(new URL('../src/components/blog/ArticleCard.astro', import.meta.url), 'utf8'), /data-card-image/);
 assert.match(readFileSync(new URL('../src/components/platform/ProjectVisual.astro', import.meta.url), 'utf8'), /project-cover__fallback/);
+assert.match(readFileSync(new URL('../src/utils/skill-icons.ts', import.meta.url), 'utf8'), /shopping-bag/);
 
 assert.equal(safeSlug(' CI/CD Pipeline '), 'ci-cd-pipeline');
 assert.throws(() => safePath(process.cwd(), '..'), /Unsafe path segment/);
