@@ -370,6 +370,19 @@ a { text-underline-offset: .2em; }
 .article-card { position: relative; min-width: 0; overflow: hidden; border: 1px solid #e5e7eb; border-radius: .9rem; background: white; box-shadow: 0 3px 14px #1020390b; transition: box-shadow .2s, transform .2s; }
 .article-card:hover { box-shadow: 0 12px 30px #10203919; transform: translateY(-2px); }
 .dark .article-card { border-color: #374151; background: #131b27; }
+.article-card__media { position: relative; display: grid; aspect-ratio: 16 / 9; place-items: center; overflow: hidden; background: linear-gradient(135deg, #e9f5ff, #f7fbff 58%, #fff3e8); color: #0A84FF; }
+.dark .article-card__media { background: linear-gradient(135deg, #102a45, #15243b 58%, #302319); }
+.article-card__media img { width: 100%; height: 100%; object-fit: cover; }
+.article-card__media--icon { display: grid; }
+.article-card__fallback-scene { position: absolute; inset: 0; display: none; place-items: center; overflow: hidden; }
+.article-card__media--icon .article-card__fallback-scene, .article-card__media.is-broken .article-card__fallback-scene { display: grid; }
+.article-card__icon { position: relative; z-index: 2; display: grid; width: 4.5rem; height: 4.5rem; place-items: center; border: 1px solid #0A84FF45; border-radius: 1.2rem; background: #ffffffd9; box-shadow: 0 10px 30px #0a84ff1f; }
+.dark .article-card__icon { background: #0d1117d9; }
+.article-card__orbit { position: absolute; width: 13rem; height: 13rem; border: 1px solid #0A84FF28; border-radius: 50%; }
+.article-card__line { position: absolute; height: 1px; background: linear-gradient(90deg, transparent, #0A84FF66, transparent); transform: rotate(-18deg); }
+.article-card__line--one { width: 120%; }.article-card__line--two { width: 80%; transform: rotate(28deg); }
+.article-card__media.is-broken img { display: none; }
+.article-card__media.is-broken:not(:has(.article-card__fallback-scene)) { display: none; }
 .stretched-link::after { content: ''; position: absolute; inset: 0; }
 .tag, .category-chip { display: inline-flex; align-items: center; border: 1px solid #cbd5e1; border-radius: 999px; padding: .3rem .75rem; font-size: .8rem; }
 .dark .tag, .dark .category-chip { border-color: #4b5563; }
@@ -414,7 +427,10 @@ a { text-underline-offset: .2em; }
 .diagram-toolbar button { border: 1px solid #94a3b8; border-radius: .3rem; padding: .2rem .5rem; }
 .diagram-stage { min-width: 400px; padding: 1rem; text-align: center; }
 .diagram-stage svg { max-width: 100%; height: auto; }
-.diagram-expanded { position: fixed; z-index: 100; inset: 2rem; background: white; }
+.diagram-status, .diagram-error { margin: 0; color: #64748b; font-size: .85rem; }
+.diagram-error { color: #b91c1c; }
+.dark .diagram-error { color: #fca5a5; }
+.diagram-expanded { position: fixed; z-index: 100; inset: 2rem; overflow: auto; background: white; }
 .dark .diagram-expanded, .dark .mindmap:fullscreen { background: #0D1117; }
 .mindmap-canvas { display: block; width: 100%; min-height: 440px; background: white; }
 .dark .mindmap-canvas { background: #101827; }
@@ -479,7 +495,7 @@ html[dir="rtl"] .journey-timeline li { padding: 0 1rem 2.5rem 0; }
 .project-card[hidden] { display: none; }
 .project-cover { position: relative; display: grid; min-height: 9rem; place-items: center; overflow: hidden; background: linear-gradient(135deg, #e9f5ff, #f7fbff 58%, #fff3e8); color: #0A84FF; }
 .dark .project-cover { background: linear-gradient(135deg, #102a45, #15243b 58%, #302319); }
-.project-cover--image { display: block; background: #eaf2fb; }.project-cover--image img { width: 100%; height: 100%; min-height: inherit; object-fit: cover; }
+.project-cover--image { display: block; background: #eaf2fb; }.project-cover--image img { width: 100%; height: 100%; min-height: inherit; object-fit: cover; }.project-cover--image.is-broken img { display: none; }.project-cover__fallback { position: absolute; inset: 0; display: none; place-items: center; color: #0A84FF; }.project-cover--image.is-broken .project-cover__fallback { display: grid; }
 .project-cover__icon { position: relative; z-index: 2; display: grid; width: 4.5rem; height: 4.5rem; place-items: center; border: 1px solid #0A84FF45; border-radius: 1.2rem; background: #ffffffd9; box-shadow: 0 10px 30px #0a84ff1f; }
 .dark .project-cover__icon { background: #0d1117d9; }
 .project-cover__orbit { position: absolute; width: 13rem; height: 13rem; border: 1px solid #0A84FF28; border-radius: 50%; }

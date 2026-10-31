@@ -78,7 +78,8 @@ export function unifiedEntityPathFromLegacy(entry) {
   if (parsed.layout !== 'legacy') return parsed.entityPath;
   if (parsed.entityPath === 'landing') return 'landing';
   const parts = parsed.entityPath.split('/').filter(Boolean);
-  if (parts[0] === 'projects' && parts.length >= 3 && parts.at(-1) !== 'overview') {
+  if (parts[0] === 'projects' && parts.length >= 3) {
+    if (parts.at(-1) === 'overview') return `projects/${parts[1]}`;
     return `projects/${parts[1]}/articles/${parts.at(-1)}`;
   }
   return parts.join('/');

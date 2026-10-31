@@ -1,6 +1,7 @@
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { join, relative, resolve } from 'node:path';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, renameSync, rmSync } from 'node:fs';
+import { dirname, join, relative, resolve } from 'node:path';
 import { parseDocument, updateFrontmatter } from '../src/dev/easy-content/server/frontmatter.mjs';
+import { writeTransaction } from '../src/dev/easy-content/server/security.mjs';
 import { BLOG_LOCALES, unifiedEntityPathFromLegacy } from '../src/utils/blog-layout.mjs';
 
 const root = resolve(process.cwd());
@@ -26,20 +27,24 @@ function legacyFiles() {
 function sharedFromDocuments(entityPath, documents) {
   const source = documents.en?.document?.frontmatter?.title ? documents.en.document.frontmatter : documents.fa.document.frontmatter;
   const isLanding = entityPath === 'landing';
-  const parts = entityPath.split('/');
+  const parts = entityPath.split('/').filter(Boolean);
+  const isProjectHub = parts[0] === 'projects' && parts.length === 2;
   return {
-    id: isLanding ? 'landing' : parts.at(-1),
-    kind: source.kind || (isLanding ? 'landing' : entityPath.endsWith('/overview') ? 'overview' : 'article'),
+    id: isLanding ? 'landing' : isProjectHub ? parts[1] : parts.join('/'),
+    kind: source.kind || (isLanding ? 'landing' : isProjectHub ? 'overview' : 'article'),
     translationId: source.translationId || (isLanding ? 'blog-landing' : parts.join('-')),
-    slug: source.slug || (isLanding ? 'blog' : parts.at(-1)),
-    category: source.category || (isLanding ? 'blog' : parts[0]),
-    subcategory: source.subcategory,
+    slug: source.slug || (isLanding ? 'blog' : isProjectHub ? 'overview' : parts.at(-1)),
+    category: source.category || (isLanding ? 'blog' : 'projects'),
+    subcategory: source.subcategory || (isLanding || !parts[1] ? undefined : parts[1]),
     status: BLOG_LOCALES.every(locale => documents[locale] && documents[locale].document.frontmatter.draft !== true) ? 'published' : 'draft',
     pubDate: source.pubDate,
     updatedDate: source.updatedDate,
     tags: Array.isArray(source.tags) ? source.tags : [],
     author: source.author,
     cover: source.cover,
+    image: source.image,
+    imageAlt: { en: documents.en.document.frontmatter.imageAlt, fa: documents.fa.document.frontmatter.imageAlt },
+    icon: source.icon,
     featured: Boolean(source.featured),
     toc: source.toc !== false,
   };
@@ -51,7 +56,8 @@ for (const file of legacyFiles()) {
   const locale = relativePath.split('/')[0];
   const entityPath = unifiedEntityPathFromLegacy(relativePath);
   const group = groups.get(entityPath) || {};
-  group[locale] = { file, source: readFileSync(file, 'utf8'), document: parseDocument(readFileSync(file, 'utf8')) };
+  const source = readFileSync(file, 'utf8');
+  group[locale] = { file, source, document: parseDocument(source) };
   groups.set(entityPath, group);
 }
 
@@ -63,13 +69,16 @@ if (!groups.size) {
 const errors = [];
 const migrations = [];
 for (const [entityPath, documents] of groups) {
-  for (const locale of BLOG_LOCALES) if (!documents[locale]) errors.push(`${entityPath}: missing ${locale} translation`);
-  if (errors.length) continue;
+  for (const locale of BLOG_LOCALES) {
+    if (!documents[locale]) errors.push(`${entityPath}: missing ${locale} translation`);
+    else if (!documents[locale].document.hasFrontmatter) errors.push(`${entityPath}: ${locale} needs valid frontmatter`);
+  }
+  if (BLOG_LOCALES.some(locale => !documents[locale] || !documents[locale].document.hasFrontmatter)) continue;
   const shared = sharedFromDocuments(entityPath, documents);
   const targetDirectory = resolve(blogRoot, entityPath);
   const targetEntry = join(targetDirectory, 'entry.json');
   const targetFiles = Object.fromEntries(BLOG_LOCALES.map(locale => [locale, join(targetDirectory, `${locale}.mdx`)]));
-  if (!force && [targetEntry, ...Object.values(targetFiles)].some(existsSync)) errors.push(`${entityPath}: target already exists (use --force only after review)`);
+  if (!force && [targetEntry, ...Object.values(targetFiles)].some(existsSync)) errors.push(`${entityPath}: target already exists (inspect it before using --force)`);
   migrations.push({ entityPath, documents, shared, targetDirectory, targetEntry, targetFiles });
 }
 
@@ -77,15 +86,34 @@ if (errors.length) {
   console.error(errors.map(error => `ERROR: ${error}`).join('\n'));
   process.exit(1);
 }
-for (const migration of migrations) {
-  console.log(`${write ? 'Migrate' : 'Would migrate'} ${migration.entityPath}: ${Object.keys(migration.documents).join(' + ')}`);
-  if (!write) continue;
-  mkdirSync(migration.targetDirectory, { recursive: true });
-  writeFileSync(migration.targetEntry, `${JSON.stringify(migration.shared, null, 2)}\n`);
-  for (const locale of BLOG_LOCALES) {
-    const source = updateFrontmatter(migration.documents[locale].source, { ...migration.shared, locale, draft: migration.shared.status !== 'published' });
-    writeFileSync(migration.targetFiles[locale], source);
+const backupRoot = write ? mkdtempSync(resolve(root, '.easy-content-migration-')) : undefined;
+try {
+  for (const migration of migrations) {
+    console.log(`${write ? 'Migrate' : 'Would migrate'} ${migration.entityPath}: ${Object.keys(migration.documents).join(' + ')}`);
+    if (!write) continue;
+    const moved = [];
+    try {
+      for (const locale of BLOG_LOCALES) {
+        const sourceFile = migration.documents[locale].file;
+        const backup = join(backupRoot, relative(blogRoot, sourceFile));
+        mkdirSync(dirname(backup), { recursive: true });
+        renameSync(sourceFile, backup);
+        moved.push({ sourceFile, backup });
+      }
+      const files = [
+        { file: migration.targetEntry, source: `${JSON.stringify(migration.shared, null, 2)}\n` },
+        ...BLOG_LOCALES.map(locale => ({ file: migration.targetFiles[locale], source: updateFrontmatter(migration.documents[locale].source, { ...migration.shared, imageAlt: migration.shared.imageAlt?.[locale], kind: migration.shared.kind === 'overview' ? 'article' : migration.shared.kind, locale, draft: migration.shared.status !== 'published' }) })),
+      ];
+      writeTransaction(files);
+    } catch (error) {
+      for (const item of moved.reverse()) {
+        mkdirSync(dirname(item.sourceFile), { recursive: true });
+        renameSync(item.backup, item.sourceFile);
+      }
+      throw error;
+    }
   }
-  for (const locale of BLOG_LOCALES) rmSync(migration.documents[locale].file);
+} finally {
+  if (backupRoot) rmSync(backupRoot, { recursive: true, force: true });
 }
 console.log(write ? 'Bilingual blog migration complete.' : 'Dry run complete. Re-run with --write after reviewing the mapping.');

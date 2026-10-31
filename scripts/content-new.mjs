@@ -18,6 +18,6 @@ const shared = { id: `${folderParts[1]}/${slug}`, kind: 'article', translationId
 writeFileSync(entry, `${JSON.stringify(shared, null, 2)}\n`);
 for (const locale of ['en', 'fa']) {
   const file = resolve(entityPath, `${locale}.mdx`);
-  writeFileSync(file, `---\nkind: article\ntitle: "${slug.replaceAll('-', ' ')}"\ndescription: "Add a verified summary."\nslug: ${slug}\nlocale: ${locale}\ncategory: ${category}\nsubcategory: ${folderParts[1]}\ntags: []\npubDate: ${shared.pubDate}\ndraft: true\nfeatured: false\ntranslationId: ${shared.translationId}\ntoc: true\n---\n\n## Draft\n\nAdd verified, reviewable content before publishing.\n`);
+  writeFileSync(file, `---\nkind: article\ntitle: "${slug.replaceAll('-', ' ')}"\ndescription: "Add a verified summary."\nslug: ${slug}\nlocale: ${locale}\ncategory: ${category}\nsubcategory: ${folderParts[1]}\ntags: []\npubDate: ${shared.pubDate}\nimage: ""\nicon: ""\ndraft: true\nfeatured: false\ntranslationId: ${shared.translationId}\ntoc: true\n---\n\n## Draft\n\nAdd verified, reviewable content before publishing.\n`);
 }
 console.log(`Created bilingual draft entity: ${entityPath}`);
