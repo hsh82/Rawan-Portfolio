@@ -82,6 +82,23 @@ try {
       await page.click('#ai-open');await page.locator('#ai-dialog').waitFor({state:'visible'});await page.locator('.ai-guide__copy').click();await page.click('#ai-close');assert.equal(JSON.parse(await page.inputValue('#source')).locales.en.displayName,'Newest edit');
       await page.locator('#more summary').click();await page.click('#format');await page.fill('#source',JSON.stringify(home));
       assert.equal(readFileSync(join(fixture,'content/home.json'),'utf8'),before);
+      assert.equal(await page.locator('header #validate').count(), 0);
+      assert.equal(await page.locator('#workspace #validate').count(), 1);
+      assert.ok(await page.locator('#source').evaluate(el => Boolean(el.compareDocumentPosition(document.querySelector('#validate')) & Node.DOCUMENT_POSITION_FOLLOWING)));
+      await page.goto(origin+'/dev/content/edit/resource/focus/?locale=fa');
+      await page.waitForFunction(()=>document.querySelector('#source').value.includes('heading'));
+      assert.ok(await page.locator('#catalog a[href*="/focus/"]').count());
+      const focus=JSON.parse(await page.inputValue('#source'));
+      focus.en=[{title:'Separate Focus editor',description:'Synthetic focus'}];
+      focus.fa=[{title:'تمرکز مستقل',description:'نمونهٔ آزمایشی'}];
+      focus.heading.en.title='Editable Focus heading';focus.heading.fa.title='عنوان قابل ویرایش';
+      await page.fill('#source',JSON.stringify(focus));
+      await page.frameLocator('#preview').getByRole('heading',{name:'عنوان قابل ویرایش',exact:true}).waitFor();
+      await page.selectOption('#preview-locale','en');
+      await page.frameLocator('#preview').getByRole('heading',{name:'Editable Focus heading',exact:true}).waitFor();
+      assert.equal(readFileSync(join(fixture,'content/home.json'),'utf8'),before);
+      await page.click('#save');await page.waitForFunction(()=>document.querySelector('#state').textContent==='ذخیره شد');
+      assert.deepEqual(JSON.parse(readFileSync(join(fixture,'content/home.json'))),{...JSON.parse(before),focus});
       // Exercise the dedicated bilingual editor and its actual canonical publication state.
       const ctx=await (await page.request.get(origin+'/__easy-content/api/context?path=/dev/content/')).json();
       const auth={'x-easy-content-token':ctx.token};

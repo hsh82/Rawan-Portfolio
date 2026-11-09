@@ -76,6 +76,8 @@ export const HOMEPAGE_SECTION_MAP = [
     placement: 'After Skills',
     component: 'src/components/sections/FocusAreas.astro',
     paths: [
+      'content/home.json.focus.heading.{en,fa}.title',
+      'content/home.json.focus.heading.{en,fa}.eyebrow',
       'content/home.json.focus.en[].title',
       'content/home.json.focus.en[].description',
       'content/home.json.focus.fa[].title',

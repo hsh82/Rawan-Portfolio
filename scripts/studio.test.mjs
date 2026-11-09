@@ -164,3 +164,24 @@ test('whole-file saves replace all five collection arrays and reject broken refe
   const journey=(await get('resource?resource=journey')).entity;
   const result=await post('save-resource',{resource:'journey',value:journey.value.filter(record=>record.id!=='linked-journey'),expectedRevision:journey.revision});assert.equal(result.status,400);assert.match(result.data.error,/references missing record/);
 });
+
+
+test('Focus projection previews without writes and saves without replacing other homepage fields', async () => {
+  const home = (await get('resource?resource=home')).entity;
+  const focus = (await get('resource?resource=focus')).entity;
+  const file = join(fixture, 'content/home.json');
+  const before = readFileSync(file, 'utf8');
+  assert.equal(focus.revision, home.revision);
+  assert.ok(focus.value.heading.fa.title);
+  focus.value.en = [{ title: 'Synthetic focus', description: 'Preview only' }];
+  focus.value.heading.en.title = 'Synthetic focus heading';
+  const preview = await post('preview-session', { resource: 'focus', value: focus.value, locale: 'en' });
+  assert.equal(preview.status, 200);
+  assert.equal(readFileSync(file, 'utf8'), before);
+  const saved = await post('save-resource', { resource: 'focus', value: focus.value, expectedRevision: focus.revision });
+  assert.equal(saved.status, 200);
+  const after = (await get('resource?resource=home')).entity;
+  assert.deepEqual(after.value, { ...home.value, focus: focus.value });
+  assert.equal((await post('save-resource', { resource: 'home', value: home.value, expectedRevision: home.revision })).status, 409);
+  assert.equal((await post('preview-session', { resource: 'focus', value: {en: [], fa: 'bad'}, locale: 'fa' })).status, 400);
+});

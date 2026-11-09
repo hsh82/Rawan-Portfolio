@@ -1,11 +1,11 @@
-import { resourceSchemas } from '../../../utils/portfolio-schemas.mjs';
+import { resourceSchemas, focusSchema } from '../../../utils/portfolio-schemas.mjs';
 
 export function contentError(path, message, extra = {}) {
   return Object.assign(new Error(`${path} — ${message}`), { issues: [{ path, message, ...extra }] });
 }
 
 export function validateResourceValue(resource, value, { collection = false, id } = {}) {
-  const schema = resourceSchemas[resource];
+  const schema = resource === 'focus' ? focusSchema : resourceSchemas[resource];
   if (!schema) throw contentError(resource, 'unknown resource');
   if (collection && !Array.isArray(value)) throw contentError(resource, 'expected the complete JSON array from this resource file.');
   if (!collection && (!value || typeof value !== 'object' || Array.isArray(value))) throw contentError(resource, 'expected a JSON object for this resource.');

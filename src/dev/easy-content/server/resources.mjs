@@ -1,3 +1,4 @@
+import { defaultFocusHeading } from '../../../utils/portfolio-schemas.mjs';
 import { readPortfolioSource } from '../../../utils/portfolio-source.mjs';
 import { resourceTemplate, validateResourceValue, contentError } from './resource-validation.mjs';
 import { readFileSync } from 'node:fs';
@@ -10,6 +11,7 @@ export const RESOURCE_CATALOG = [
   { id: 'site', label: 'Site settings', group: 'Site', file: ['site.json'], kind: 'singleton', preview: 'home' },
   { id: 'profile', label: 'Profile & portrait', group: 'Site', file: ['profile.json'], kind: 'singleton', preview: 'home' },
   { id: 'home', label: 'Homepage content', group: 'Site', file: ['home.json'], kind: 'singleton', preview: 'home', localized: true },
+  { id: 'focus', label: 'Focus areas', group: 'Site', file: ['home.json'], field: 'focus', kind: 'singleton', preview: 'home', localized: true },
   { id: 'contact', label: 'Contact', group: 'Site', file: ['contact.json'], kind: 'singleton', preview: 'home', localized: true },
   { id: 'resume', label: 'Résumé settings', group: 'Site', file: ['resume', 'config.json'], kind: 'singleton', preview: 'home' },
   { id: 'experience', label: 'Experience', group: 'Career', file: ['experience', 'entries.json'], kind: 'collection', preview: 'home', localized: true },
@@ -27,9 +29,14 @@ function resourceDefinition(id) {
 
 function fileFor(resource) { return contentPath(...resource.file); }
 
+function focusValue(root) {
+  return { en: [], fa: [], ...root.focus, heading: root.focus?.heading ?? structuredClone(defaultFocusHeading) };
+}
+
 export function resourceCatalog() {
   return RESOURCE_CATALOG.map(resource => {
-    const value = json(fileFor(resource));
+    const root = json(fileFor(resource));
+    const value = resource.field ? focusValue(root) : root;
     return { ...resource, template: resource.kind === 'collection' ? resourceTemplate(resource.id) : value, count: resource.kind === 'collection' ? value.length : 1 };
   });
 }
@@ -38,7 +45,7 @@ export function readResource({ resource, id }) {
   const descriptor = resourceDefinition(resource);
   const file = fileFor(descriptor);
   const root = json(file);
-  const value = descriptor.kind === 'collection' && id ? root.find(item => item.id === id) : root;
+  const value = descriptor.field ? focusValue(root) : descriptor.kind === 'collection' && id ? root.find(item => item.id === id) : root;
   if (value === undefined) throw new Error('Content item does not exist');
   return { resource: descriptor.id, id: id || null, kind: descriptor.kind, value, revision: revisionOf(readText(file)), definition: descriptor };
 }
@@ -52,7 +59,8 @@ export function candidateSource({ resource, id, value, mode }) {
   const data = readPortfolioSource();
   if (descriptor.kind === 'singleton') {
     validateResourceValue(resource, value);
-    data[resource] = value;
+    if (descriptor.field) data.home = { ...data.home, [descriptor.field]: value };
+    else data[resource] = value;
   } else {
     const items = data[resource];
     if (!id) {
@@ -90,7 +98,7 @@ export function saveResource({ resource, id, value, expectedRevision }) {
   const file = fileFor(descriptor);
   assertRevision(file, expectedRevision);
   const data = candidateSource({ resource, id, value });
-  writeTransaction([{ file, source: serialize(data[resource]) }]);
+  writeTransaction([{ file, source: serialize(data[descriptor.field ? 'home' : resource]) }]);
   return readResource({ resource, id });
 }
 
@@ -137,7 +145,7 @@ export function importResources({ resource, value, mode, expectedRevision }) {
 }
 
 export function resourcePreviewUrl(resource, locale = 'en') {
-  const section = { skills: 'skills', experience: 'experience', journey: 'journey', contact: 'contact' }[resource];
+  const section = { focus: 'focus', skills: 'skills', experience: 'experience', journey: 'journey', contact: 'contact' }[resource];
   return `/${locale}/${section ? `#${section}` : ''}`;
 }
 
