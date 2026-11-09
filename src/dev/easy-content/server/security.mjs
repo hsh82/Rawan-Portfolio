@@ -108,9 +108,16 @@ export function safeSlug(value) {
   return slug;
 }
 
-export function assertLocalRequest(req) {
+export function isTrustedLocalAddress(req, env = process.env) {
   const address = req.socket?.remoteAddress || '';
-  if (!['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address)) throw new Error('Easy Content writes are limited to the local machine');
+  if (['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address)) return true;
+  if (env.EASY_CONTENT_DOCKER !== 'true' || !env.EASY_CONTENT_DOCKER_TRUSTED_REMOTE) return false;
+  const trusted = env.EASY_CONTENT_DOCKER_TRUSTED_REMOTE;
+  return address === trusted || address === `::ffff:${trusted}`;
+}
+
+export function assertLocalRequest(req, env = process.env) {
+  if (!isTrustedLocalAddress(req, env)) throw new Error('Easy Content writes are limited to the local machine');
   const host = req.headers.host;
   let hostname;
   try { hostname = new URL('http://' + host).hostname; } catch { throw new Error('Invalid local Host'); }

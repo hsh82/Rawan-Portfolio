@@ -65,9 +65,13 @@ function requireToken(req) {
 }
 
 async function gitStatus() {
-  const result = await execFileAsync('git', ['status', '--short', '--branch', '--', 'content'], { cwd: repositoryRoot, windowsHide: true });
-  const diff = await execFileAsync('git', ['diff', '--stat', '--', 'content'], { cwd: repositoryRoot, windowsHide: true });
-  return { status: result.stdout, diff: diff.stdout };
+  try {
+    const result = await execFileAsync('git', ['status', '--short', '--branch', '--', 'content'], { cwd: repositoryRoot, windowsHide: true });
+    const diff = await execFileAsync('git', ['diff', '--stat', '--', 'content'], { cwd: repositoryRoot, windowsHide: true });
+    return { status: result.stdout, diff: diff.stdout };
+  } catch {
+    return { status: 'Git metadata is not mounted in this container. Run git status and git diff on the host checkout.', diff: '' };
+  }
 }
 
 async function validateContent() {

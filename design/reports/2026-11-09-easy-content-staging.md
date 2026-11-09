@@ -47,9 +47,9 @@ Fixture review: the new API/browser suites now construct schema-validated synthe
 - design/components/homepage.md
 - design/reports/2026-11-09-easy-content-staging.md
 - design/reports/2026-11-09-staging-delivery.md
-- docs/AUTHORING.md
-- docs/STAGING-AUTHORING.fa.md
-- docs/STAGING-AUTHORING.md
+- ../AUTHORING.md
+- ../STAGING-AUTHORING.fa.md
+- ../STAGING-AUTHORING.md
 - package-lock.json
 - package.json
 - scripts/content-validate.mjs
@@ -86,4 +86,4 @@ Fixture review: the new API/browser suites now construct schema-validated synthe
 - src/utils/portfolio-content.ts
 - src/utils/portfolio-schemas.mjs
 
-All three OS jobs in the original Studio matrix passed at 1f97d92: https://github.com/hsh82/Rawan-Portfolio/actions/runs/42655031526. Final homepage-navigation parity 7a1896f passed local Astro/browser checks and is undergoing its follow-up remote matrix. Consolidated results, PRs and remaining blockers: [Staging delivery](2026-11-09-staging-delivery.md). Persian guide: [راهنمای نگارش](../../docs/STAGING-AUTHORING.fa.md).
+All three OS jobs in the original Studio matrix passed at 1f97d92: https://github.com/hsh82/Rawan-Portfolio/actions/runs/42655031526. Final homepage-navigation parity 7a1896f passed local Astro/browser checks and is undergoing its follow-up remote matrix. Consolidated results, PRs and remaining blockers: [Staging delivery](2026-11-09-staging-delivery.md). Persian guide: [راهنمای نگارش](../STAGING-AUTHORING.fa.md).

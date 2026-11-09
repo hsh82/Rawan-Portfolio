@@ -56,8 +56,8 @@ Final Windows Node 22.23.2 rerun: npm ci, content:validate, content:check-links,
 - design/components/resume.md
 - design/reports/2026-11-09-platform-staging.md
 - design/reports/2026-11-09-staging-delivery.md
-- docs/STAGING-PLATFORM.fa.md
-- docs/STAGING-PLATFORM.md
+- ../STAGING-PLATFORM.fa.md
+- ../STAGING-PLATFORM.md
 - package-lock.json
 - package.json
 - scripts/chromium.mjs
@@ -73,4 +73,4 @@ Final Windows Node 22.23.2 rerun: npm ci, content:validate, content:check-links,
 - src/dev/easy-content/integration/index.mjs
 - src/dev/easy-content/server/middleware.mjs
 
-Remote CI now supplies actual PASS evidence for Ubuntu, Windows and macOS at source 9464106: https://github.com/hsh82/Rawan-Portfolio/actions/runs/42655974069. Five-page EN/FA PDFs use only embedded Vazirmatn fonts after the font fix. Final integration, PRs, advisory blockers and updated platform matrix: [Staging delivery](2026-11-09-staging-delivery.md). Persian guide: [راهنمای پلتفرم](../../docs/STAGING-PLATFORM.fa.md).
+Remote CI now supplies actual PASS evidence for Ubuntu, Windows and macOS at source 9464106: https://github.com/hsh82/Rawan-Portfolio/actions/runs/42655974069. Five-page EN/FA PDFs use only embedded Vazirmatn fonts after the font fix. Final integration, PRs, advisory blockers and updated platform matrix: [Staging delivery](2026-11-09-staging-delivery.md). Persian guide: [راهنمای پلتفرم](../STAGING-PLATFORM.fa.md).

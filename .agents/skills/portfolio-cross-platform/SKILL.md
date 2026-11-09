@@ -10,3 +10,5 @@ Use Node 22 LTS (minimum 22.12); Node 24.13.1+ LTS is also supported. Resolve No
 Disabled r?sum? generation must work without a browser. Enabled generation must fail visibly when Chrome/Chromium/Edge is unavailable. CHROME_BIN is an executable path, never a shell command. Do not change owner content to conceal errors; test enabled content in a disposable fixture.
 
 Validate with npm ci, npm run content:validate, npm run content:check-links, npm run check, npm run test:platform, npm run build, npm test, npm run test:smoke and npm run test:pdf. The PDF test requires a browser. Definition of done: passing local checks and recorded OS evidence; mark other operating systems NOT RUN until actual matrix runs complete. Inspect bilingual PDFs visually and record remaining limitations.
+
+For container distribution work, also use portfolio-docker-release. Validate the authoring bind mount, loopback-only Docker gateway trust, production read-only static runtime, and the exact Linux/desktop platform evidence separately; do not infer Windows or macOS Docker Desktop success from a Linux container job.
