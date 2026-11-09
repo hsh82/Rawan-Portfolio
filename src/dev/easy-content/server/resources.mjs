@@ -1,3 +1,5 @@
+import { readPortfolioSource } from '../../../utils/portfolio-source.mjs';
+import { resourceTemplate, validateResourceValue, contentError } from './resource-validation.mjs';
 import { readFileSync } from 'node:fs';
 import { contentPath, readText, revisionOf, safeSlug, writeTransaction } from './security.mjs';
 
@@ -28,7 +30,7 @@ function fileFor(resource) { return contentPath(...resource.file); }
 export function resourceCatalog() {
   return RESOURCE_CATALOG.map(resource => {
     const value = json(fileFor(resource));
-    return { ...resource, count: resource.kind === 'collection' ? value.length : 1 };
+    return { ...resource, template: resource.kind === 'collection' ? resourceTemplate(resource.id) : value, count: resource.kind === 'collection' ? value.length : 1 };
   });
 }
 
@@ -41,40 +43,98 @@ export function readResource({ resource, id }) {
   return { resource: descriptor.id, id: id || null, kind: descriptor.kind, value, revision: revisionOf(readText(file)), definition: descriptor };
 }
 
-function assertId(id) {
-  if (!/^[a-z0-9-]+$/.test(String(id || ''))) throw new Error('Item ID must use lowercase letters, numbers, and hyphens');
+function assertRevision(file, revision) {
+  if (revisionOf(readText(file)) !== revision) throw Object.assign(new Error('Content changed outside Easy Content Mode. Reload before saving.'), { code: 409 });
+}
+
+export function candidateSource({ resource, id, value, mode }) {
+  const descriptor = resourceDefinition(resource);
+  const data = readPortfolioSource();
+  if (descriptor.kind === 'singleton') {
+    validateResourceValue(resource, value);
+    data[resource] = value;
+  } else {
+    const items = data[resource];
+    if (!id) {
+      validateResourceValue(resource, value, { collection: true });
+      data[resource] = mode ? importCandidate(items, value, mode, resource) : value;
+    } else {
+      validateResourceValue(resource, value, { id });
+      if (value.id !== id) throw contentError(resource + '[' + id + '].id', 'stable IDs cannot be changed. Restore the selected record ID or create a separate record.');
+      const index = items.findIndex(item => item.id === id);
+      if (index < 0) throw contentError(resource, 'selected record does not exist');
+      data[resource] = items.map((item, at) => at === index ? value : item);
+    }
+    const ids = new Set();
+    for (const [index, item] of data[resource].entries()) {
+      if (ids.has(item.id)) throw contentError(resource + '[' + index + '].id', 'duplicate ID: ' + item.id);
+      ids.add(item.id);
+    }
+  }
+  const projects = new Set(data.projects.map(item => item.id));
+  const journeys = new Set(data.journey.map(item => item.id));
+  const skills = new Set(data.skills.map(item => item.id));
+  const references = (values, ids, path) => { for (const id of values || []) if (!ids.has(id)) throw contentError(path, 'references missing record ' + id + '. Restore the record or correct the reference explicitly.'); };
+  for (const project of data.projects) {
+    references(project.journeyIds, journeys, 'projects[' + project.id + '].journeyIds');
+    references(project.relatedSkillIds, skills, 'projects[' + project.id + '].relatedSkillIds');
+  }
+  for (const item of data.journey) references(item.projectIds, projects, 'journey[' + item.id + '].projectIds');
+  references(data.resume.projectIds, projects, 'resume.projectIds');
+  references(data.resume.journeyIds, journeys, 'resume.journeyIds');
+  return data;
 }
 
 export function saveResource({ resource, id, value, expectedRevision }) {
   const descriptor = resourceDefinition(resource);
   const file = fileFor(descriptor);
-  if (revisionOf(readText(file)) !== expectedRevision) throw Object.assign(new Error('Content changed outside Easy Content Mode'), { code: 409 });
-  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Resource content must be a JSON object');
-  if (descriptor.kind === 'singleton') {
-    writeTransaction([{ file, source: serialize(value) }]);
-  } else {
-    assertId(id || value.id);
-    if (value.id !== id) throw new Error('Stable item IDs cannot be changed here');
-    const items = json(file);
-    const index = items.findIndex(item => item.id === id);
-    if (index < 0) throw new Error('Content item does not exist');
-    const next = [...items];
-    next[index] = value;
-    writeTransaction([{ file, source: serialize(next) }]);
-  }
+  assertRevision(file, expectedRevision);
+  if (descriptor.kind === 'collection' && !id) throw contentError(resource, 'select one record to save. For arrays use Import and choose Append or Update.');
+  const data = candidateSource({ resource, id, value });
+  writeTransaction([{ file, source: serialize(data[resource]) }]);
   return readResource({ resource, id });
 }
 
-export function createResource({ resource, value = {} }) {
+export function createResource({ resource, value = {}, expectedRevision }) {
   const descriptor = resourceDefinition(resource);
   if (descriptor.kind !== 'collection') throw new Error('This resource is a required singleton');
   const file = fileFor(descriptor);
+  assertRevision(file, expectedRevision);
   const items = json(file);
-  const id = safeSlug(value.id || value.locales?.en?.title || value.locales?.fa?.title);
-  if (items.some(item => item.id === id)) throw new Error(`Item ID already exists: ${id}`);
-  const item = { id, visible: false, priority: 0, locales: { en: {}, fa: {} }, ...value, id };
-  writeTransaction([{ file, source: serialize([...items, item]) }]);
-  return readResource({ resource, id });
+  const proposed = safeSlug(value.id);
+  if (proposed !== value.id) throw contentError(resource + '.id', 'confirm the normalized ID before creating: ' + proposed, { suggestion: proposed });
+  if (items.some(item => item.id === proposed)) {
+    let n = 2; while (items.some(item => item.id === proposed + '-' + n)) n++;
+    throw contentError(resource + '.id', 'ID already exists. Choose a unique ID such as ' + proposed + '-' + n);
+  }
+  const next = [...items, value];
+  candidateSource({ resource, value: next });
+  writeTransaction([{ file, source: serialize(next) }]);
+  return readResource({ resource, id: proposed });
+}
+
+function importCandidate(items, value, mode, resource) {
+  if (!['append', 'update'].includes(mode)) throw contentError(resource, 'choose Append (new IDs) or Update (existing IDs). Replacement is not supported.');
+  const incomingIds = new Set(value.map(item => item.id));
+  if (incomingIds.size !== value.length) throw contentError(resource, 'import contains duplicate IDs');
+  for (const item of value) {
+    const exists = items.some(current => current.id === item.id);
+    if ((mode === 'append' && exists) || (mode === 'update' && !exists)) throw contentError(resource + '[' + item.id + '].id', mode === 'append' ? 'already exists; choose Update to edit this record' : 'does not exist; choose Append to create it');
+  }
+  return mode === 'append' ? [...items, ...value] : items.map(item => value.find(candidate => candidate.id === item.id) || item);
+}
+
+export function importResources({ resource, value, mode, expectedRevision }) {
+  const descriptor = resourceDefinition(resource);
+  if (descriptor.kind !== 'collection') throw contentError(resource, 'only collections support import');
+  const file = fileFor(descriptor);
+  assertRevision(file, expectedRevision);
+  validateResourceValue(resource, value, { collection: true });
+  const items = json(file);
+  const next = importCandidate(items, value, mode, resource);
+  candidateSource({ resource, value: next });
+  writeTransaction([{ file, source: serialize(next) }]);
+  return readResource({ resource });
 }
 
 export function resourcePreviewUrl(resource, locale = 'en') {
@@ -82,17 +142,14 @@ export function resourcePreviewUrl(resource, locale = 'en') {
   return `/${locale}/${section ? `#${section}` : ''}`;
 }
 
-export function resourceDependencies(_resource, id) {
+export function resourceDependencies(resource, id) {
   if (!id) return [];
+  resourceDefinition(resource);
+  const data = readPortfolioSource();
   const references = [];
-  for (const candidate of RESOURCE_CATALOG.filter(item => item.kind === 'collection')) {
-    const contents = json(fileFor(candidate));
-    for (const item of contents) {
-      for (const [field, value] of Object.entries(item)) {
-        if (Array.isArray(value) && value.includes(id)) references.push({ resource: candidate.id, id: item.id, field });
-      }
-    }
-  }
+  const projectField = resource === 'journey' ? 'journeyIds' : resource === 'skills' ? 'relatedSkillIds' : null;
+  if (projectField) for (const project of data.projects) if (project[projectField]?.includes(id)) references.push({ resource: 'projects', id: project.id, field: projectField });
+  if (resource === 'journey' && data.resume.journeyIds?.includes(id)) references.push({ resource: 'resume', id: 'config', field: 'journeyIds' });
   return references;
 }
 

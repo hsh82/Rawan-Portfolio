@@ -315,7 +315,7 @@ function normalizeShared(input, current, context, documents) {
   return normalizeSharedMedia(next);
 }
 
-export function saveEntity(input) {
+export function prepareEntitySave(input) {
   const context = input.context || {};
   if (context.type === 'home' || context.type === 'unsupported') throw new Error('unsupported content type');
   if (context.type === 'journey') throw new Error('Journey editing is not part of the bilingual article editor');
@@ -356,8 +356,13 @@ export function saveEntity(input) {
     if (synchronized.icon && !ICON_IDS.includes(synchronized.icon)) throw new Error(`Unknown icon: ${synchronized.icon}`);
     writes[0] = { file: files.entry, source: writeJson(synchronized) };
   }
-  writeTransaction(writes);
-  return { ...readEntity(context), saved: true };
+  return { writes, context, shared: synchronized, documents: nextDocuments };
+}
+
+export function saveEntity(input) {
+  const prepared = prepareEntitySave(input);
+  writeTransaction(prepared.writes);
+  return { ...readEntity(prepared.context), saved: true };
 }
 
 function createSource({ shared, locale, title, description, body }) {
