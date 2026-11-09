@@ -6,6 +6,7 @@ const root = resolve(process.cwd());
 const source = resolve(root, 'content/media');
 const destination = resolve(root, 'public/media');
 
+await rm(destination, { recursive: true, force: true });
 if (!existsSync(source)) {
   console.log('No content/media directory to publish.');
   process.exit(0);
