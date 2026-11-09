@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { browserCandidates, findChromium, printPdf } from './chromium.mjs';
 import { pathToFileURL, fileURLToPath } from 'node:url';
-import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, existsSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
+import { rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -31,4 +32,16 @@ test('process wrapper preserves failed child exit codes', () => {
     const result = spawnSync(process.execPath, ['--input-type=module', '-e', `import {runNode} from ${JSON.stringify(runner)};runNode([${JSON.stringify(child)}]);`]);
     assert.equal(result.status, 37);
   } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('media publishing replaces stale mirrors and cleans them when source is absent', async () => {
+  const fixture=mkdtempSync(join(tmpdir(),'Rawan media résumé '));
+  const script=fileURLToPath(new URL('./media-publish.mjs',import.meta.url));
+  const destination=join(fixture,'public/media');
+  try {
+    mkdirSync(destination,{recursive:true});writeFileSync(join(destination,'stale.txt'),'old');
+    let result=spawnSync(process.execPath,[script],{cwd:fixture,encoding:'utf8'});assert.equal(result.status,0,result.stderr);assert.equal(existsSync(destination),false);
+    mkdirSync(join(fixture,'content/media'),{recursive:true});writeFileSync(join(fixture,'content/media/current.txt'),'current');
+    result=spawnSync(process.execPath,[script],{cwd:fixture,encoding:'utf8'});assert.equal(result.status,0,result.stderr);assert.equal(readFileSync(join(destination,'current.txt'),'utf8'),'current');
+  } finally { await rm(fixture,{recursive:true,force:true}); }
 });
