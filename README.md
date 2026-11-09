@@ -278,4 +278,4 @@ This project preserves the upstream MIT license and attribution in [LICENSE.md](
 - **RTL issues:** inspect the Persian route, keep URLs and code spans direction-isolated, and use the shared layout rather than custom document direction.
 - **Vercel failures:** reproduce with `npm ci` and `npm run build`, confirm `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID`, verify the selected branch is `main` or `content/*`, and ensure Vercel Git auto-deployments are disabled.
 
-Staging prerequisites, portable commands, Chromium discovery and verification: [Platform staging](docs/STAGING-PLATFORM.md). Node 22.12+ (22 LTS) or 24 LTS is required.
+Staging prerequisites, portable commands, Chromium discovery and verification: [Platform staging](docs/STAGING-PLATFORM.md). Node 22.12+ (22 LTS) or 24.13.1+ LTS is required.

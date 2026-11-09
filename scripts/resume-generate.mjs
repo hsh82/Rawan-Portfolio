@@ -1,4 +1,5 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync, copyFileSync, cpSync, rmSync } from 'node:fs';
+import { cp, rm } from 'node:fs/promises';
+import { existsSync, mkdirSync, readFileSync, writeFileSync, copyFileSync } from 'node:fs';
 import { extname, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { findChromium, printPdf } from './chromium.mjs';
@@ -13,7 +14,7 @@ const { site, contact, resume: config } = sourceData;
 
 const output = resolve(root, 'public/resume');
 if (!config.enabled) {
-  rmSync(output, { recursive: true, force: true });
+  await rm(output, { recursive: true, force: true });
   console.log('Résumé PDFs skipped: enable resume/config.json only after verified public profile information is available.');
   process.exit(0);
 }
@@ -146,7 +147,7 @@ const skills = visibleRecords(sourceData.skills);
 const projects = projectSelection();
 const journey = visibleRecords(sourceData.journey);
 
-rmSync(temp, { recursive: true, force: true });
+await rm(temp, { recursive: true, force: true });
 mkdirSync(stagedOutput, { recursive: true });
 mkdirSync(temp, { recursive: true });
 
@@ -194,13 +195,13 @@ for (const locale of locales) {
   writeFileSync(source, html);
   const args = ['--headless', '--disable-gpu', '--disable-extensions', '--run-all-compositor-stages-before-draw', '--virtual-time-budget=1000', '--no-pdf-header-footer', `--print-to-pdf=${pdf}`, pathToFileURL(source).href];
   if (process.env.CHROME_NO_SANDBOX === '1') args.splice(1, 0, '--no-sandbox');
-  rmSync(pdf, { force: true });
-  rmSync(legacyPdf, { force: true });
+  await rm(pdf, { force: true });
+  await rm(legacyPdf, { force: true });
   printPdf(chrome, args, pdf);
   copyFileSync(pdf, legacyPdf);
 }
 
-rmSync(output, { recursive: true, force: true });
-cpSync(stagedOutput, output, { recursive: true });
-if (process.env.RESUME_KEEP_HTML !== '1') rmSync(temp, { recursive: true, force: true });
-console.log(`Generated ${filenameSlug}-en.pdf and ${filenameSlug}-fa.pdf plus stable locale aliases.`);
+await rm(output, { recursive: true, force: true });
+await cp(stagedOutput, output, { recursive: true });
+if (process.env.RESUME_KEEP_HTML !== '1') await rm(temp, { recursive: true, force: true });
+console.log(`Generated ${locales.map(locale => filenameSlug + '-' + locale + '.pdf').join(', ')} plus stable locale aliases.`);

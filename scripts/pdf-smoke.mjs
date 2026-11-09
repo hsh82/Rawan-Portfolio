@@ -1,5 +1,6 @@
+import { cp, rm } from 'node:fs/promises';
 import assert from 'node:assert/strict';
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync, symlinkSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { resolve, join } from 'node:path';
 import { execFileSync } from 'node:child_process';
@@ -7,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 
 const fixture = mkdtempSync(join(tmpdir(), "Rawan PDF résumé # O'Name "));
 try {
-  cpSync(resolve('content'), join(fixture, 'content'), { recursive: true });
+  await cp(resolve('content'), join(fixture, 'content'), { recursive: true });
   symlinkSync(resolve('node_modules'), join(fixture, 'node_modules'), process.platform === 'win32' ? 'junction' : 'dir');
   const write = (file, value) => writeFileSync(join(fixture, 'content', file), JSON.stringify(value));
   const script = fileURLToPath(new URL('./resume-generate.mjs', import.meta.url));
@@ -26,11 +27,11 @@ try {
     assert.ok(pdf.length > 1000);
   }
   write('resume/config.json', { enabled:true, portrait:true, filenameSlug:'replacement-test', locales:['en'] });
-  execFileSync(process.execPath,[script],{cwd:fixture});
+  execFileSync(process.execPath,[script],{cwd:fixture,stdio:'inherit'});
   assert.equal(existsSync(join(fixture,'public/resume/synthetic-test-en.pdf')),false);
   assert.equal(existsSync(join(fixture,'public/resume/fa.pdf')),false);
   write('resume/config.json',{enabled:false});
   execFileSync(process.execPath,[script],{cwd:fixture,env:{...process.env,CHROME_BIN:'/not/installed'}});
   assert.equal(existsSync(join(fixture,'public/resume')),false);
   console.log('PASS disabled + enabled bilingual portrait PDF, aliases and stale-output cleanup');
-} finally { rmSync(fixture, { recursive: true, force: true }); }
+} finally { await rm(fixture, { recursive: true, force: true }); }

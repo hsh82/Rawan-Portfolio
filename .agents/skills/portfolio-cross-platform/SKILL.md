@@ -5,7 +5,7 @@ description: Diagnose and fix portable installation, npm launchers, Windows path
 
 Read AGENTS.md, design/plan.md, design/components/resume.md and design/architecture/deployment.md. Source of truth: package.json and its lock, scripts/process-runner.mjs, scripts/chromium.mjs, scripts/resume-generate.mjs, scripts/verify-build.mjs and .github/workflows/ci.yml.
 
-Use Node 22 LTS (minimum 22.12); Node 24 LTS is also supported. Resolve Node package entry points and use process.execPath with argument arrays. Convert file URLs with fileURLToPath/pathToFileURL. Keep signal forwarding and nonzero exit codes. Exercise a checkout path containing spaces and Unicode. Do not upgrade unrelated dependencies or install browsers during npm installation.
+Use Node 22 LTS (minimum 22.12); Node 24.13.1+ LTS is also supported. Resolve Node package entry points and use process.execPath with argument arrays. Convert file URLs with fileURLToPath/pathToFileURL. Keep signal forwarding and nonzero exit codes. Exercise a checkout path containing spaces and Unicode. Do not upgrade unrelated dependencies or install browsers during npm installation.
 
 Disabled r?sum? generation must work without a browser. Enabled generation must fail visibly when Chrome/Chromium/Edge is unavailable. CHROME_BIN is an executable path, never a shell command. Do not change owner content to conceal errors; test enabled content in a disposable fixture.
 
