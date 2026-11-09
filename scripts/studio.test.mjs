@@ -1,20 +1,21 @@
-import { cp, rm } from 'node:fs/promises';
+import { rm } from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import { test, after } from 'node:test';
 import { createServer } from 'node:http';
 import { mkdtempSync, readFileSync, writeFileSync, mkdirSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
 import { once } from 'node:events';
 import fs from 'node:fs';
 import { syncBuiltinESMExports } from 'node:module';
 import { parseJsonBuffer } from '../src/dev/easy-content/editor/json-normalize.mjs';
 import { resourceTemplate, validateResourceValue } from '../src/dev/easy-content/server/resource-validation.mjs';
 import { createPreviewSession, previewSession } from '../src/dev/easy-content/server/preview-sessions.mjs';
+import { writeStudioFixture } from './studio-fixture.mjs';
 
 const original = process.cwd();
 const fixture = mkdtempSync(join(tmpdir(), 'Rawan studio tests '));
-await cp(resolve('content'), join(fixture, 'content'), { recursive: true });
+await writeStudioFixture(join(fixture, 'content'));
 process.chdir(fixture);
 const { easyContentMiddleware, renderPreview } = await import('../src/dev/easy-content/server/middleware.mjs');
 const { writeTransaction, safePath, assertLocalRequest } = await import('../src/dev/easy-content/server/security.mjs');
@@ -85,6 +86,18 @@ test('real API collection create/save/reload/import/delete preserves revisions a
   assert.equal((await post('import-resources',{resource:'experience',value:[],mode:'replace',expectedRevision:entity.revision})).status,400);
   response=await post('delete-resource',{resource:'experience',id:'second',expectedRevision:entity.revision});assert.equal(response.status,200);
   assert.equal((await get('resource?resource=experience')).entity.value.length,1);
+});
+
+test('every structured collection supports a validated create/edit/reload/delete round trip',async()=>{
+  for(const resource of ['experience','education','certifications','skills','journey']){
+    const root=(await get('resource?resource='+resource)).entity;
+    const value=resourceTemplate(resource,'roundtrip-'+resource);
+    let result=await post('create-resource',{resource,value,expectedRevision:root.revision});assert.equal(result.status,201,resource);
+    value.locales.en.title='Synthetic round trip';value.locales.fa.title='نمونهٔ آزمایشی';
+    result=await post('save-resource',{resource,id:value.id,value,expectedRevision:result.data.entity.revision});assert.equal(result.status,200,resource);
+    const loaded=(await get('resource?resource='+resource+'&id='+value.id)).entity;assert.deepEqual(loaded.value,value);
+    assert.equal((await post('delete-resource',{resource,id:value.id,expectedRevision:loaded.revision})).status,200,resource);
+  }
 });
 
 test('preview validates without writes; local token/origin/path boundaries remain enforced', async () => {

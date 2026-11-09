@@ -5,6 +5,7 @@ import { existsSync, mkdtempSync, mkdirSync, readFileSync, symlinkSync, writeFil
 import { join, resolve } from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
 import { setTimeout } from 'node:timers/promises';
+import { writeStudioFixture } from './studio-fixture.mjs';
 
 const root = process.cwd();
 // Keep linked Astro dependencies on the same volume: Astro 5's injected built-in routes
@@ -15,7 +16,8 @@ const browserPath = process.env.CHROME_BIN || ['C:/Program Files/Google/Chrome/A
 if (!browserPath) throw new Error('Set CHROME_BIN to run real browser tests. No browser is downloaded by npm install.');
 let browser;
 try {
-  for (const entry of ['src','scripts','content','public','astro.config.mjs','tailwind.config.mjs','tsconfig.json','package.json']) if (existsSync(resolve(entry))) await cp(resolve(entry), join(fixture,entry), {recursive:true});
+  for (const entry of ['src','scripts','public','astro.config.mjs','tailwind.config.mjs','tsconfig.json','package.json']) if (existsSync(resolve(entry))) await cp(resolve(entry), join(fixture,entry), {recursive:true});
+  await writeStudioFixture(join(fixture,'content'));
   symlinkSync(resolve('node_modules'), join(fixture,'node_modules'), process.platform === 'win32' ? 'junction' : 'dir');
   // Only the fixture shares dependencies; allow its linked package assets explicitly.
   const config = join(fixture,'astro.config.mjs');
@@ -100,7 +102,7 @@ try {
       assert.deepEqual(errors,[]);
       console.log(`PASS ${command}: collection CRUD + unsaved Hero/About/Focus/Experience + invalid JSON + newest edit + FA/RTL + viewports/expand + AI/menu + MDX draft/publish/unpublish/delete`);
       // Reset only fixture content before exercising the second command.
-      await cp(resolve('content'),join(fixture,'content'),{recursive:true});
+      await rm(join(fixture,'content'),{recursive:true,force:true});await writeStudioFixture(join(fixture,'content'));
     } catch(error) { console.error(log.slice(-4000)); throw error; }
     finally {
       await page.close({runBeforeUnload:false});

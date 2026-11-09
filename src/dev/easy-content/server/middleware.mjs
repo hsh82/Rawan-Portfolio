@@ -71,7 +71,7 @@ async function gitStatus() {
 }
 
 async function validateContent() {
-  const command = process.platform === 'win32' ? 'node.exe' : process.execPath;
+  const command = process.execPath;
   const validate = await execFileAsync(command, ['scripts/content-validate.mjs'], { cwd: repositoryRoot, windowsHide: true });
   const links = await execFileAsync(command, ['scripts/content-check-links.mjs'], { cwd: repositoryRoot, windowsHide: true });
   return { validate: validate.stdout, links: links.stdout };

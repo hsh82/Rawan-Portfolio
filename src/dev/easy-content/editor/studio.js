@@ -49,7 +49,7 @@ function applyLocale() {
   $('#import-mode').options[1].textContent = label('Update existing records', 'ویرایش رکوردهای موجود');
   $('#import').textContent = label('Review import', 'بررسی ورود داده');
   $('#expand-preview').textContent = label('Expand preview', 'بزرگ‌کردن پیش‌نمایش');
-  $('#preview-locale').value = locale; $('#empty h1').textContent=ui.emptyTitle; $('#empty .lede').textContent=ui.emptyText; $('#profile-import').firstChild.textContent=ui.importPortrait; $('#theme').setAttribute('aria-label',label('Toggle editor theme','Toggle editor theme')); 
+  $('#preview-locale').value = locale; $('#empty h1').textContent=ui.emptyTitle; $('#empty .lede').textContent=ui.emptyText; $('#profile-import').firstChild.textContent=ui.importPortrait; $('#theme').setAttribute('aria-label',label('Toggle editor theme','تغییر پوستهٔ ویرایشگر'));
   $('#preview-viewport').options[0].textContent = label('Desktop', 'دسکتاپ');
   $('#preview-viewport').options[1].textContent = label('Mobile', 'موبایل');
   $('.preview__bar strong').textContent = ui.preview; $('#refresh-preview').textContent = ui.refresh;
