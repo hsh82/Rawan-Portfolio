@@ -277,3 +277,5 @@ This project preserves the upstream MIT license and attribution in [LICENSE.md](
 - **Chromium cannot start:** set `CHROME_BIN` or use the supported local sandbox configuration; do not commit generated PDFs as a workaround.
 - **RTL issues:** inspect the Persian route, keep URLs and code spans direction-isolated, and use the shared layout rather than custom document direction.
 - **Vercel failures:** reproduce with `npm ci` and `npm run build`, confirm `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID`, verify the selected branch is `main` or `content/*`, and ensure Vercel Git auto-deployments are disabled.
+
+Studio staging workflow: [Authoring guide](docs/STAGING-AUTHORING.md). Collections support individual records and explicit Append/Update imports, validated unsaved previews, desktop/mobile expansion and toolbar AI assistance.
