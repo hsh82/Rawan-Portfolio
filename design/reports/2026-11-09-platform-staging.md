@@ -42,3 +42,31 @@ npm audit reports 31 advisories (1 critical, 19 high, 2 moderate, 9 low) in the 
 DeepWiki could not be opened through the available web tool and its search returned no repository architecture pages. Checked-out source and design documents governed implementation. Linux/macOS require actual CI evidence. No merge or deployment is authorized by this report. Full browser editor acceptance belongs to the separate Easy Content branch; Branch A alone does not fix its collection contract or DOM-patched preview.
 
 Final Windows Node 22.23.2 rerun: npm ci, content:validate, content:check-links, check, build, npm test, test:platform, test:smoke and test:pdf all PASS. npm install --no-audit also PASS; audit was run separately and its findings remain unchanged. Saved logs live in ignored .astro/staging-evidence/. Enabled personal-content validation/build/static verification and five-page EN/FA PDF inspection ran in a detached checkout under a path containing spaces, accents and Persian text. Initial inspection found Arial/Segoe fallback for Latin glyphs; resumeFontStyles now uses the installed Fontsource CSS with all Latin/Latin-ext/Arabic subsets and proper Unicode ranges instead of Arabic-only font faces. The strengthened PDF smoke passed after this fix. Final font/visual evidence is in the integration report.
+
+## Delivered files
+
+- .agents/skills/portfolio-cross-platform/SKILL.md
+- .github/workflows/ci.yml
+- .npmrc
+- .nvmrc
+- AGENTS.md
+- README.fa.md
+- README.md
+- design/architecture/deployment.md
+- design/components/resume.md
+- design/reports/2026-11-09-platform-staging.md
+- docs/STAGING-PLATFORM.md
+- package-lock.json
+- package.json
+- scripts/chromium.mjs
+- scripts/dev-content.mjs
+- scripts/media-publish.mjs
+- scripts/pdf-smoke.mjs
+- scripts/platform.test.mjs
+- scripts/preview.mjs
+- scripts/process-runner.mjs
+- scripts/resume-generate.mjs
+- scripts/runtime-smoke.mjs
+- scripts/verify-build.mjs
+- src/dev/easy-content/integration/index.mjs
+- src/dev/easy-content/server/middleware.mjs
