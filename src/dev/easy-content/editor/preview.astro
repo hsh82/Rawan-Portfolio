@@ -1,0 +1,22 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import HomeSurface from '../../../components/platform/HomeSurface.astro';
+import { parsePortfolioSource } from '../../../utils/portfolio-content';
+import { previewSession } from '../server/preview-sessions.mjs';
+const snapshot = previewSession(Astro.params.id);
+if (!snapshot) return new Response('Preview expired. Refresh from Studio.', { status: 404 });
+const lang = snapshot.locale === 'fa' ? 'fa' : 'en';
+const data = parsePortfolioSource(snapshot.data);
+Astro.response.status = 200;
+Astro.response.headers.set('Cache-Control', 'no-store');
+Astro.response.headers.set('Content-Security-Policy', "script-src 'none'; form-action 'none'; frame-src 'none'; base-uri 'none'");
+Astro.response.headers.set('Referrer-Policy', 'no-referrer');
+---
+<Layout lang={lang} title={data.site.locales[lang].title} description={data.site.locales[lang].description} data={data} preview>
+  <HomeSurface lang={lang} data={data} preview />
+</Layout>
+<style is:global>
+  /* A read-only sandbox does not run scroll-reveal scripts. */
+  [data-aos]{opacity:1!important;transform:none!important;visibility:visible!important}
+  a,button,input,select,textarea{pointer-events:none}
+</style>

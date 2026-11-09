@@ -1,38 +1,135 @@
 import { guideForContext, renderAiWritingGuide } from './ai-writing-guide.js';
+import { parseJsonBuffer } from './json-normalize.mjs';
 
 const api = '/__easy-content/api';
 const $ = selector => document.querySelector(selector);
-const catalog = $('#catalog'); const workspace = $('#workspace'); const source = $('#source'); const form = $('#form');
-let token = ''; let resources = []; let entity = null; let value = null; let tab = 'general'; let dirty = false; let previewTimer;
+const catalog = $('#catalog'); const workspace = $('#workspace'); const source = $('#source');
+let token = ''; let resources = []; let entity = null; let value = null; let dirty = false; let previewTimer;
 const locale = new URLSearchParams(location.search).get('locale') === 'fa' ? 'fa' : 'en';
 const ui = locale === 'fa' ? {
-  site: '← سایت', title: 'استودیو محتوای آسان', loading: 'در حال بارگذاری…', save: 'ذخیرهٔ تغییرات', source: 'منبع JSON', general: 'عمومی', english: 'انگلیسی', persian: 'فارسی', preview: 'پیش‌نمایش واقعی سایت', refresh: 'تازه‌سازی', importPortrait: 'وارد کردن پرتره', sourceActions: 'ابزارهای منبع', description: 'فایل JSON اصلی را مستقیماً ویرایش کنید. اسناد وبلاگ و پروژه ویرایشگر دوزبانهٔ جداگانه دارند.', jsonHint: 'JSON اصلی را در پایین ویرایش کنید. اسناد وبلاگ و پروژه ویرایشگر دوزبانهٔ خود را دارند.', emptyTitle: 'استودیو محتوا', emptyText: 'یک فایل یا رکورد اصلی محتوا را انتخاب کنید. تغییرات تا زمان commit در working tree محلی شما باقی می‌مانند.', groups: { Site: 'سایت', Career: 'مسیر حرفه‌ای', Publishing: 'انتشار' }, resources: { site: 'تنظیمات سایت', profile: 'پروفایل و پرتره', home: 'محتوای صفحهٔ اصلی', contact: 'ارتباط', resume: 'تنظیمات رزومه', experience: 'تجربه', education: 'تحصیلات', certifications: 'گواهی‌ها', skills: 'مهارت‌ها', journey: 'مسیر حرفه‌ای' }, blog: 'صفحهٔ وبلاگ', newProject: 'پروژهٔ جدید', portraitSaved: 'پرتره بارگذاری و در پروفایل ذخیره شد.'
+  site: '← سایت', title: 'استودیو محتوای آسان', loading: 'در حال بارگذاری…', save: 'ذخیرهٔ تغییرات', source: 'منبع JSON', general: 'عمومی', english: 'انگلیسی', persian: 'فارسی', preview: 'پیش‌نمایش واقعی سایت', refresh: 'تازه‌سازی', importPortrait: 'وارد کردن پرتره', sourceActions: 'ابزارهای منبع', description: 'فایل JSON اصلی را مستقیماً ویرایش کنید. اسناد وبلاگ و پروژه ویرایشگر دوزبانهٔ جداگانه دارند.', jsonHint: 'JSON اصلی را در پایین ویرایش کنید. اسناد وبلاگ و پروژه ویرایشگر دوزبانهٔ خود را دارند.', emptyTitle: 'استودیو محتوا', emptyText: 'یک فایل یا رکورد اصلی محتوا را انتخاب کنید. تغییرات تا زمان commit در working tree محلی شما باقی می‌مانند.', groups: { Site: 'سایت', Career: 'مسیر حرفه‌ای', Publishing: 'انتشار' }, resources: { site: 'تنظیمات سایت', profile: 'پروفایل و پرتره', home: 'محتوای صفحهٔ اصلی', focus: 'حوزه‌های تمرکز', contact: 'ارتباط', resume: 'تنظیمات رزومه', experience: 'تجربه', education: 'تحصیلات', certifications: 'گواهی‌ها', skills: 'مهارت‌ها', journey: 'مسیر حرفه‌ای' }, blog: 'صفحهٔ وبلاگ', newProject: 'پروژهٔ جدید', portraitSaved: 'پرتره بارگذاری و در پروفایل ذخیره شد.'
 } : {
-  site: '← Site', title: 'Easy Content Studio', loading: 'Loading…', save: 'Save Changes', source: 'JSON Source', general: 'General', english: 'English', persian: 'Persian', preview: 'Real Site Preview', refresh: 'Refresh', importPortrait: 'Import portrait', sourceActions: 'Source actions', description: 'Edit the canonical JSON source directly. Blog and project documents use the dedicated bilingual editor.', jsonHint: 'Edit the canonical JSON below. Blog and project documents have their own bilingual editor.', emptyTitle: 'Content Studio', emptyText: 'Choose a canonical content file or record. Changes stay in your local working tree until you commit them.', groups: { Site: 'Site', Career: 'Career', Publishing: 'Publishing' }, resources: { site: 'Site settings', profile: 'Profile & portrait', home: 'Homepage content', contact: 'Contact', resume: 'Résumé settings', experience: 'Experience', education: 'Education', certifications: 'Certifications', skills: 'Skills', journey: 'Journey' }, blog: 'Blog landing', newProject: 'New project', portraitSaved: 'Portrait uploaded and saved to the profile.'
+  site: '← Site', title: 'Easy Content Studio', loading: 'Loading…', save: 'Save Changes', source: 'JSON Source', general: 'General', english: 'English', persian: 'Persian', preview: 'Real Site Preview', refresh: 'Refresh', importPortrait: 'Import portrait', sourceActions: 'Source actions', description: 'Edit the canonical JSON source directly. Blog and project documents use the dedicated bilingual editor.', jsonHint: 'Edit the canonical JSON below. Blog and project documents have their own bilingual editor.', emptyTitle: 'Content Studio', emptyText: 'Choose a canonical content file or record. Changes stay in your local working tree until you commit them.', groups: { Site: 'Site', Career: 'Career', Publishing: 'Publishing' }, resources: { site: 'Site settings', profile: 'Profile & portrait', home: 'Homepage content', focus: 'Focus areas', contact: 'Contact', resume: 'Résumé settings', experience: 'Experience', education: 'Education', certifications: 'Certifications', skills: 'Skills', journey: 'Journey' }, blog: 'Blog landing', newProject: 'New project', portraitSaved: 'Portrait uploaded and saved to the profile.'
 };
-function applyLocale() { document.documentElement.lang = locale; document.documentElement.dir = locale === 'fa' ? 'rtl' : 'ltr'; $('.top__group .button').textContent = ui.site; $('.top__group strong').textContent = ui.title; $('#state').textContent = ui.loading; $('#theme').setAttribute('aria-label', locale === 'fa' ? 'تغییر پوستهٔ ویرایشگر' : 'Toggle editor theme'); $('#save').textContent = ui.save; $('#empty h1').textContent = ui.emptyTitle; $('#empty .lede').textContent = ui.emptyText; $('.preview__bar strong').textContent = ui.preview; $('#refresh-preview').textContent = ui.refresh; $('#preview-locale').value = locale; document.querySelector('[data-tab="general"]').textContent = ui.general; document.querySelector('[data-tab="en"]').textContent = ui.english; document.querySelector('[data-tab="fa"]').textContent = ui.persian; document.querySelector('[data-tab="source"]').textContent = ui.source; $('#source-actions').setAttribute('aria-label', ui.sourceActions); }
-function resourceLabel(item) { return ui.resources[item.id] || item.label; }
-function groupLabel(group) { return ui.groups[group] || group; }
-const path = () => location.pathname.match(/^\/dev\/content\/edit\/resource\/([a-z-]+)(?:\/([a-z0-9-]+))?\/?$/);
-function escape(value) { return String(value ?? '').replace(/[&<>"']/g, char => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[char])); }
-function setStatus(message, error = false) { $('#message').textContent = message || ''; $('#message').classList.toggle('error', error); $('#state').textContent = error ? 'Needs attention' : (dirty ? 'Unsaved changes' : 'Saved'); }
-async function request(name, options = {}) { const response = await fetch(`${api}/${name}`, { ...options, headers:{'Content-Type':'application/json','x-easy-content-token':token,...(options.headers||{})} }); const data = await response.json(); if (!response.ok) throw Object.assign(new Error(data.error || 'Easy Content request failed'), { status: response.status }); return data; }
-function currentPath(resource, id) { return `/dev/content/edit/resource/${resource}${id ? `/${id}` : ''}/`; }
-function renderCatalog() { const groups = new Map(); for (const item of resources) groups.set(item.group, [...(groups.get(item.group)||[]), item]); catalog.innerHTML = [...groups].map(([group, items]) => `<h2>${escape(groupLabel(group))}</h2>${items.map(item => `<a href="${currentPath(item.id)}?locale=${locale}" data-resource="${item.id}">${escape(resourceLabel(item))} <small>(${item.count})</small></a>`).join('')}`).join('') + `<h2>${escape(ui.groups.Publishing)}</h2><a href="/dev/content/edit/blog/?locale=${locale}">${escape(ui.blog)}</a><a href="/dev/content/new/project/?locale=${locale}">${escape(ui.newProject)}</a>`; }
-function primitiveControl(label, pathParts, raw) { const id = `field-${pathParts.join('-')}`; const pathValue = pathParts.join('.'); if (typeof raw === 'boolean') return `<label class="field checkbox"><input id="${id}" data-path="${pathValue}" type="checkbox" ${raw?'checked':''}><span>${escape(label)}</span></label>`; const multiline = typeof raw === 'object'; const value = multiline ? JSON.stringify(raw, null, 2) : String(raw ?? ''); const tag = multiline || String(value).length > 90 ? 'textarea' : 'input'; const type = typeof raw === 'number' ? 'number' : 'text'; return `<label class="field" for="${id}"><span>${escape(label)}</span><${tag} id="${id}" data-path="${pathValue}" ${tag === 'input' ? `type="${type}"` : ''} value="${tag === 'input' ? escape(value) : ''}" ${tag === 'textarea' ? '' : 'autocomplete="off"'}>${tag === 'textarea' ? escape(value) : ''}</${tag}></label>`; }
-function atPath(target, parts) { return parts.reduce((current, key) => current?.[key], target); }
-function setPath(target, parts, next) { let current = target; for (const key of parts.slice(0, -1)) { if (!current[key] || typeof current[key] !== 'object') current[key] = {}; current = current[key]; } current[parts.at(-1)] = next; }
-function fieldsFor(object, prefix = []) { return Object.entries(object || {}).map(([key, raw]) => primitiveControl(key, [...prefix, key], raw)).join(''); }
-function renderForm() { if (!value) return; tab = 'source'; form.innerHTML = `<p class="empty">${escape(ui.jsonHint)}</p>`; form.classList.add('hidden'); source.classList.remove('hidden'); source.value = JSON.stringify(value, null, 2); document.querySelectorAll('[data-tab]').forEach(button => { const active = button.dataset.tab === 'source'; button.classList.toggle('hidden', !active); button.setAttribute('aria-selected', String(active)); }); }
-function parseControl(input) { const parts = input.dataset.path.split('.'); const previous = atPath(value, parts); let next = input.type === 'checkbox' ? input.checked : input.value; if (typeof previous === 'number') next = Number(next); if (previous && typeof previous === 'object') { try { next = JSON.parse(next); } catch { throw new Error(`${parts.join('.')} needs valid JSON`); } } setPath(value, parts, next); }
-function markDirty() { dirty = true; setStatus('Preview is updating…'); clearTimeout(previewTimer); previewTimer = setTimeout(refreshPreview, 350); }
-async function importProfileImage(file) { const reader = new FileReader(); reader.onload = async () => { try { const result = await request('upload-asset', { method:'POST', body:JSON.stringify({ filename:file.name, contentType:file.type, data:String(reader.result).split(',')[1], project:'profile' }) }); value.image = result.reference; source.value = JSON.stringify(value, null, 2); markDirty(); await save(); setStatus(ui.portraitSaved); } catch (error) { setStatus(error.message, true); } }; reader.readAsDataURL(file); }
-function profileImportControl(resource) { const current = $('#profile-import'); if (current) current.remove(); if (resource !== 'profile') return; const actions = $('#source-actions'); if (!actions) return; const label = document.createElement('label'); label.id = 'profile-import'; label.className = 'button primary'; label.textContent = ui.importPortrait; const input = document.createElement('input'); input.className = 'hidden'; input.type = 'file'; input.accept = 'image/png,image/jpeg,image/webp,image/gif'; input.addEventListener('change', event => { const file = event.target.files?.[0]; if (file) importProfileImage(file); event.target.value = ''; }); label.append(input); actions.append(label); }
-async function loadEntity(resource, id) { const result = await request(`resource?resource=${encodeURIComponent(resource)}${id ? `&id=${encodeURIComponent(id)}` : ''}`); entity = result.entity; value = structuredClone(entity.value); dirty = false; $('#empty').classList.add('hidden'); workspace.classList.remove('hidden'); $('#title').textContent = resourceLabel(entity.definition) + (id ? ` · ${id}` : ''); $('#crumb').textContent = `${groupLabel(entity.definition.group)} / ${entity.definition.kind}`; $('#description').textContent = ui.description; const guide = guideForContext({ surface:'home', resource:entity.resource, locale }); renderAiWritingGuide($('#ai-writing-guide'), guide); $('#new').classList.add('hidden'); $('#delete').classList.add('hidden'); profileImportControl(resource); tab = 'source'; renderForm(); await refreshPreview(); }
-async function refreshPreview() { if (!entity || !value) return; try { const result = await request('preview-session', { method:'POST', body:JSON.stringify({ resource:entity.resource, id:entity.id, value, locale:$('#preview-locale').value, revision:entity.revision }) }); $('#preview').src = `/dev/content/preview/${encodeURIComponent(result.id)}/`; setStatus(dirty ? 'Unsaved preview is shown locally.' : 'Saved'); } catch (error) { setStatus(error.message, true); } }
-async function save() { if (!entity || !value) return; try { if (tab === 'source') value = JSON.parse(source.value); const result = await request('save-resource', { method:'POST', body:JSON.stringify({ resource:entity.resource, id:entity.id, value, expectedRevision:entity.revision }) }); entity = result.entity; value = structuredClone(entity.value); dirty = false; setStatus('Saved to the local working tree. Review with Git before committing.'); await refreshPreview(); } catch (error) { setStatus(error.message, true); } }
-async function create() { const id = prompt('New item ID (lowercase letters, numbers, hyphens):'); if (!id) return; try { const result = await request('create-resource', { method:'POST', body:JSON.stringify({ resource:entity.resource, value:{ id } }) }); location.href = currentPath(entity.resource, result.entity.id); } catch (error) { setStatus(error.message, true); } }
-async function remove() { if (!entity?.id || !confirm(`Delete ${entity.id}? This removes the record from its canonical JSON file. Git can recover committed history.`)) return; try { await request('delete-resource', { method:'POST', body:JSON.stringify({ resource:entity.resource, id:entity.id, expectedRevision:entity.revision }) }); location.href = currentPath(entity.resource); } catch (error) { setStatus(error.message, true); } }
-async function start() { applyLocale(); try { const context = await request(`context?path=${encodeURIComponent(location.pathname)}`, { headers:{} }); token = context.token; const data = await request('catalog'); resources = data.resources; renderCatalog(); const match = path(); if (match) await loadEntity(match[1], match[2]); else $('#state').textContent = locale === 'fa' ? 'یک منبع را انتخاب کنید' : 'Choose a resource'; } catch (error) { $('#state').textContent = error.message; } }
-document.addEventListener('click', event => { const tabButton = event.target.closest('[data-tab]'); if (tabButton) { if (tab === 'source') { try { value = JSON.parse(source.value); } catch (error) { setStatus('Fix JSON before changing tabs.', true); return; } } tab = tabButton.dataset.tab; renderForm(); } });
-form.addEventListener('input', event => { if (!event.target.matches('[data-path]')) return; try { parseControl(event.target); markDirty(); } catch (error) { setStatus(error.message, true); } }); source.addEventListener('input', markDirty); $('#save').addEventListener('click', save); $('#new').addEventListener('click', create); $('#delete').addEventListener('click', remove); $('#refresh-preview').addEventListener('click', refreshPreview); $('#preview-locale').addEventListener('change', refreshPreview); $('#theme').addEventListener('click', () => document.documentElement.classList.toggle('dark')); window.addEventListener('beforeunload', event => { if (dirty) { event.preventDefault(); event.returnValue = ''; } }); start();
+function label(en, fa) { return locale === 'fa' ? fa : en; }
+let busy = false, previewVersion = 0;
+const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const currentPath = (resource, id) => `/dev/content/edit/resource/${resource}${id ? '/' + id : ''}/?locale=${locale}`;
+function status(message, error = false) {
+  $('#message').textContent = message || '';
+  $('#message').classList.toggle('error', error);
+  $('#state').textContent = error ? label('Needs attention', 'نیاز به بررسی') : dirty ? label('Unsaved changes', 'تغییرات ذخیره نشده') : label('Saved', 'ذخیره شد');
+}
+async function request(name, options = {}) {
+  const response = await fetch(`${api}/${name}`, { ...options, headers: {'Content-Type':'application/json', 'x-easy-content-token':token, ...options.headers} });
+  const data = await response.json();
+  if (!response.ok) throw Object.assign(new Error(data.error || 'Request failed'), { issues: data.issues || [], status: response.status });
+  return data;
+}
+const post = (name, payload) => request(name, { method:'POST', body:JSON.stringify(payload) });
+function showError(error) {
+  status(error.message, true);
+  $('#issues').replaceChildren(...(error.issues || []).map(issue => { const li=document.createElement('li'); li.textContent=`${issue.path} — ${issue.message}`; return li; }));
+}
+function applyLocale() {
+  document.documentElement.lang = locale; document.documentElement.dir = locale === 'fa' ? 'rtl' : 'ltr';
+  $('.top__group a').textContent = ui.site; $('.top__group a').href = `/${locale}/`;
+  $('.top__group strong').textContent = ui.title; $('#save').textContent = ui.save;
+  $('#ai-open').textContent = label('AI Assistant', 'دستیار نگارش');
+  $('#more summary').textContent = label('More Actions', 'عملیات بیشتر');
+  $('#format').textContent = label('Format / Repair JSON', 'قالب‌بندی / اصلاح JSON');
+  $('#validate').textContent = label('Validate Content', 'اعتبارسنجی محتوا');
+  $('#git').textContent = label('View Git Changes', 'تغییرات گیت');
+  $('#expand-preview').textContent = label('Expand preview', 'بزرگ‌کردن پیش‌نمایش');
+  $('#preview-locale').value = locale; $('#empty h1').textContent=ui.emptyTitle; $('#empty .lede').textContent=ui.emptyText; $('#profile-import').firstChild.textContent=ui.importPortrait; $('#theme').setAttribute('aria-label',label('Toggle editor theme','تغییر پوستهٔ ویرایشگر'));
+  $('#preview-viewport').options[0].textContent = label('Desktop', 'دسکتاپ');
+  $('#preview-viewport').options[1].textContent = label('Mobile', 'موبایل');
+  $('.preview__bar strong').textContent = ui.preview; $('#refresh-preview').textContent = ui.refresh;
+  $('#ai-close').textContent = label('Close', 'بستن');
+}
+function renderCatalog() {
+  const groups = new Map();
+  for(const item of resources) groups.set(item.group,[...(groups.get(item.group)||[]),item]);
+  catalog.innerHTML = [...groups].map(([group,items]) => `<h2>${escape(ui.groups[group] || group)}</h2>${items.map(item=>`<a href="${currentPath(item.id)}">${escape(ui.resources[item.id] || item.label)} (${item.count})</a>`).join('')}`).join('') + `<h2>${ui.groups.Publishing}</h2><a href="/dev/content/edit/blog/?locale=${locale}">${ui.blog}</a><a href="/dev/content/new/project/?locale=${locale}">${ui.newProject}</a>`;
+}
+function payload() {
+  const parsed = parseJsonBuffer(source.value);
+  value = parsed.value;
+  return { resource:entity.resource, value, expectedRevision:entity.revision };
+}
+function renderWorkspace() {
+  $('#title').textContent = ui.resources[entity.resource] || entity.definition.label;
+  source.classList.remove('hidden'); source.value = JSON.stringify(value,null,2);
+  $('#save').disabled = busy;
+  $('#profile-import').classList.toggle('hidden', entity.resource !== 'profile');
+  renderAiWritingGuide($('#ai-writing-guide'), { ...guideForContext({surface:'home',resource:entity.resource,locale,entity:{value,template:entity.definition.template}}), locale });
+}
+async function loadEntity(resource) {
+  previewVersion++; clearTimeout(previewTimer);
+  entity=(await request('resource?resource='+encodeURIComponent(resource))).entity;
+  entity.definition.template = resources.find(r=>r.id===resource)?.template;
+  value=structuredClone(entity.value); dirty=false;
+  if(entity.kind === 'collection' && value.length === 0) {
+    value=[structuredClone(entity.definition.template)]; dirty=true;
+  }
+  $('#empty').classList.add('hidden'); workspace.classList.remove('hidden'); renderWorkspace();
+  history.replaceState(null,'',currentPath(resource));
+  status(dirty ? label('Unsaved changes','تغییرات ذخیره نشده') : label('Saved','ذخیره شد'));
+  await refreshPreview();
+}
+function markDirty() {
+  dirty=true; previewVersion++; clearTimeout(previewTimer);
+  $('#preview-state').textContent=label('Preview updating…', 'در حال به‌روزرسانی پیش‌نمایش…');
+  status(label('Unsaved changes', 'تغییرات ذخیره نشده'));
+  previewTimer=setTimeout(refreshPreview,400);
+}
+async function refreshPreview() {
+  if(!entity) return;
+  const version=++previewVersion;
+  try {
+    const input=payload();
+    const result=await post('preview-session',{...input,locale:$('#preview-locale').value});
+    if(version!==previewVersion) return;
+    $('#preview').src=`/dev/content/preview/${$('#preview-locale').value}/${encodeURIComponent(result.id)}/`;
+    $('#preview-state').textContent=label('Latest valid local preview', 'آخرین پیش‌نمایش معتبر محلی');
+    $('#issues').replaceChildren();
+  } catch(error) {
+    if(version!==previewVersion) return;
+    $('#preview-state').textContent=label('Preview outdated — fix the errors. Last valid preview retained.', 'پیش‌نمایش قدیمی است؛ خطاها را اصلاح کنید. آخرین نمای معتبر حفظ شد.');
+    showError(error);
+  }
+}
+async function operation(action) {
+  if(busy) return; busy=true; $('#save').disabled=true;
+  try { await action(); } catch(error) { showError(error); } finally { busy=false; $('#save').disabled=false; }
+}
+async function save() {
+  return operation(async()=>{
+    const input=payload(); const buffer=source.value;
+    const result=await post('save-resource',input);
+    if(source.value!==buffer) { entity.revision=result.entity.revision; status(label('Saved earlier buffer; newer edits are unsaved.', 'نسخهٔ قبلی ذخیره شد؛ تغییرات جدید ذخیره نشده‌اند.')); return; }
+    entity=result.entity; value=structuredClone(entity.value); dirty=false;renderWorkspace();
+    resources=resources.map(item=>item.id===entity.resource?{...item,count:entity.kind==='collection'?value.length:1}:item);renderCatalog();
+    history.replaceState(null,'',currentPath(entity.resource));
+    status(label('Saved locally. Review Git changes before committing.', 'در فایل محلی ذخیره شد. تغییرات گیت را بررسی کنید.')); await refreshPreview();
+  });
+}
+function format() {
+  try {const parsed=parseJsonBuffer(source.value); const candidate=JSON.stringify(parsed.value,null,2); if(parsed.changes.length && !confirm(parsed.changes.join('\n')+'\n'+label('Apply these syntax changes?', 'این اصلاحات اعمال شود؟')))return;source.value=candidate;markDirty();}
+  catch(error){showError(error);}
+}
+function viewport() { $('.preview').dataset.viewport=$('#preview-viewport').value; }
+function expand() { const panel=$('.preview'); const expanded=panel.classList.toggle('expanded'); $('#expand-preview').textContent=expanded?label('Exit expanded preview','بستن نمای بزرگ'):label('Expand preview','بزرگ‌کردن پیش‌نمایش'); $('#expand-preview').setAttribute('aria-expanded',String(expanded)); }
+$('#save').addEventListener('click',save);
+source.addEventListener('input',markDirty);$('#format').addEventListener('click',format);
+$('#validate').addEventListener('click',()=>operation(async()=>{await post('validate-resource',payload());status(label('Content is valid. It has not been saved.', 'محتوا معتبر است؛ هنوز ذخیره نشده است.'));}));
+$('#git').addEventListener('click',()=>operation(async()=>{const data=await request('git-status');status(data.status+'\n'+data.diff);}));
+$('#refresh-preview').addEventListener('click',refreshPreview);$('#preview-locale').addEventListener('change',refreshPreview);$('#preview-viewport').addEventListener('change',viewport);$('#expand-preview').addEventListener('click',expand);
+$('#theme').addEventListener('click',()=>document.documentElement.classList.toggle('dark'));
+$('#ai-open').addEventListener('click',()=>{ if(entity)renderAiWritingGuide($('#ai-writing-guide'),{...guideForContext({surface:'home',resource:entity.resource,locale,entity:{template:entity.definition.template,value: (()=>{try{return parseJsonBuffer(source.value).value;}catch{return value;}})()}}),locale});$('#ai-dialog').showModal(); });
+$('#ai-close').addEventListener('click',()=>$('#ai-dialog').close());
+$('#profile-upload').addEventListener('change',async event=>{const file=event.target.files?.[0];if(!file)return;const reader=new FileReader();reader.onload=()=>operation(async()=>{const result=await post('upload-asset',{filename:file.name,contentType:file.type,data:String(reader.result).split(',')[1],project:'profile'});const parsed=payload();parsed.value.image=result.reference;source.value=JSON.stringify(parsed.value,null,2);markDirty();});reader.readAsDataURL(file);});
+window.addEventListener('beforeunload',event=>{if(dirty){event.preventDefault();event.returnValue='';}});
+document.addEventListener('keydown',event=>{if(event.key==='Escape' && $('.preview').classList.contains('expanded'))expand();});
+async function start(){applyLocale();try{token=(await request(`context?path=${encodeURIComponent(location.pathname)}`)).token;resources=(await request('catalog')).resources;renderCatalog();const match=location.pathname.match(/^\/dev\/content\/edit\/resource\/([a-z-]+)(?:\/([a-z0-9-]+))?\/?$/);if(match)await loadEntity(match[1]);else $('#state').textContent=label('Choose a resource','یک منبع انتخاب کنید');viewport();}catch(error){showError(error);}}
+start();

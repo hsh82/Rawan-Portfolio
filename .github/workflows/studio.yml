@@ -1,0 +1,36 @@
+name: Studio regression
+on:
+  pull_request:
+  push:
+    branches: ['feat/easy-content-staging']
+permissions:
+  contents: read
+jobs:
+  studio:
+    name: Studio / ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run content:validate
+      - run: npm run content:check-links
+      - run: npm run check
+      - run: npm run build
+      - run: npm test
+      - name: Configure runner Chrome
+        shell: pwsh
+        run: |
+          if ($IsWindows) { $browser = 'C:/Program Files/Google/Chrome/Application/chrome.exe' }
+          elseif ($IsMacOS) { $browser = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' }
+          else { $browser = (Get-Command google-chrome).Source }
+          if (!(Test-Path -LiteralPath $browser)) { throw "Runner Chrome missing: $browser" }
+          "CHROME_BIN=$browser" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+      - run: npm run test:studio-ui

@@ -22,7 +22,8 @@ export function easyContentAstroIntegration({ enabled = false } = {}) {
     hooks: {
       'astro:config:setup': ({ command, injectRoute }) => {
         if (command !== 'dev' || !enabled) return;
-        injectRoute({ pattern: '/dev/content/[...path]', entrypoint: new URL('../editor/route.mjs', import.meta.url), prerender: false });
+        injectRoute({ pattern: '/dev/content/preview/[locale]/[id]', entrypoint: './src/dev/easy-content/editor/preview.astro', prerender: false });
+        injectRoute({ pattern: '/dev/content/[...path]', entrypoint: './src/dev/easy-content/editor/route.mjs', prerender: false });
       },
     },
   };

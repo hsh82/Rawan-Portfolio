@@ -21,6 +21,7 @@ export function safePath(root, ...segments) {
   const target = resolve(root, ...segments);
   if (!isInside(root, target)) throw new Error('Path is outside the allowed directory');
   const rootPath = resolve(root);
+  if (existsSync(rootPath) && lstatSync(rootPath).isSymbolicLink()) throw new Error('Symlink roots are not allowed');
   let cursor = target;
   while (isInside(rootPath, cursor) && cursor !== rootPath) {
     if (existsSync(cursor) && lstatSync(cursor).isSymbolicLink()) throw new Error('Symlink paths are not allowed');
@@ -107,15 +108,26 @@ export function safeSlug(value) {
   return slug;
 }
 
-export function assertLocalRequest(req) {
+export function isTrustedLocalAddress(req, env = process.env) {
   const address = req.socket?.remoteAddress || '';
-  if (!['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address)) throw new Error('Easy Content writes are limited to the local machine');
+  if (['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address)) return true;
+  if (env.EASY_CONTENT_DOCKER !== 'true' || !env.EASY_CONTENT_DOCKER_TRUSTED_REMOTE) return false;
+  const trusted = env.EASY_CONTENT_DOCKER_TRUSTED_REMOTE;
+  return address === trusted || address === `::ffff:${trusted}`;
+}
+
+export function assertLocalRequest(req, env = process.env) {
+  if (!isTrustedLocalAddress(req, env)) throw new Error('Easy Content writes are limited to the local machine');
+  const host = req.headers.host;
+  let hostname;
+  try { hostname = new URL('http://' + host).hostname; } catch { throw new Error('Invalid local Host'); }
+  if (!['localhost','127.0.0.1','[::1]','::1'].includes(hostname)) throw new Error('Easy Content requires a loopback Host');
   const origin = req.headers.origin;
   if (origin) {
     const host = req.headers.host;
     const originHost = new URL(origin).host;
     const originUrl = new URL(origin);
-    if (!host || originHost !== host || !['localhost', '127.0.0.1', '::1'].includes(originUrl.hostname)) {
+    if (!host || originHost !== host || !['localhost', '127.0.0.1', '[::1]', '::1'].includes(originUrl.hostname)) {
       throw new Error('Cross-origin Easy Content requests are not allowed');
     }
   }

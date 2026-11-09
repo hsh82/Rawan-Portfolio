@@ -1,6 +1,8 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync, copyFileSync, rmSync } from 'node:fs';
+import { cp, rm } from 'node:fs/promises';
+import { existsSync, mkdirSync, readFileSync, writeFileSync, copyFileSync } from 'node:fs';
 import { extname, resolve } from 'node:path';
-import { spawnSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
+import { findChromium, printPdf } from './chromium.mjs';
 import { readPortfolioSource } from '../src/utils/portfolio-source.mjs';
 import { selectHomepageProjects } from '../src/utils/project-selection.mjs';
 
@@ -10,7 +12,9 @@ const sourceData = readPortfolioSource(contentRoot);
 const profile = { ...sourceData.profile, locales: { ...(sourceData.profile.locales || {}), ...(sourceData.home?.locales || {}) } };
 const { site, contact, resume: config } = sourceData;
 
-if (!config.enabled || !profile.visible) {
+const output = resolve(root, 'public/resume');
+if (!config.enabled) {
+  await rm(output, { recursive: true, force: true });
   console.log('Résumé PDFs skipped: enable resume/config.json only after verified public profile information is available.');
   process.exit(0);
 }
@@ -22,11 +26,21 @@ const visibleRecords = (items = []) => items.filter(item => item.visible !== fal
 const profileCopy = (locale) => profile.locales?.[locale] || profile.locales?.en || {};
 const safeSlug = (value) => String(value || '').toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80) || 'resume';
 const filenameSlug = safeSlug(config.filenameSlug || profile.name || profile.locales?.en?.displayName);
-const output = resolve(root, 'public/resume');
+if (!profile.visible) throw new Error('Resume is enabled but profile.visible is false. Review public profile readiness.');
 const temp = resolve(root, '.astro/resume-print');
-const chrome = process.env.CHROME_BIN || 'google-chrome';
+const stagedOutput = resolve(temp, 'pdf');
+const chrome = findChromium();
 const font400 = resolve(root, 'node_modules/@fontsource/vazirmatn/files/vazirmatn-arabic-400-normal.woff2');
 const font700 = resolve(root, 'node_modules/@fontsource/vazirmatn/files/vazirmatn-arabic-700-normal.woff2');
+
+function resumeFontStyles() {
+  const directory = resolve(root, 'node_modules/@fontsource/vazirmatn');
+  return [400, 700].map(weight => readFileSync(resolve(directory, weight + '.css'), 'utf8').replace(/url\(\.\/([^)]*)\)/g, (_match, relative) => {
+    const file = resolve(directory, relative);
+    if (!existsSync(file)) throw new Error('Missing resume font asset: ' + file);
+    return "url('" + pathToFileURL(file).href.replaceAll("'", '%27') + "')";
+  })).join('\n');
+}
 
 function assetDataUri(assetPath) {
   if (!assetPath) return '';
@@ -142,7 +156,8 @@ const skills = visibleRecords(sourceData.skills);
 const projects = projectSelection();
 const journey = visibleRecords(sourceData.journey);
 
-mkdirSync(output, { recursive: true });
+await rm(temp, { recursive: true, force: true });
+mkdirSync(stagedOutput, { recursive: true });
 mkdirSync(temp, { recursive: true });
 
 for (const locale of locales) {
@@ -180,19 +195,22 @@ for (const locale of locales) {
   const focusSection = focusHtml ? `<section class="resume-section resume-focus"><h2>${escape(text.focus)}</h2>${focusHtml}</section>` : '';
   const journeySection = journeyHtml ? `<section class="resume-section resume-journey"><h2>${escape(text.journey)}</h2>${journeyHtml}</section>` : '';
   const source = resolve(temp, `${locale}.html`);
-  const pdf = resolve(output, `${filenameSlug}-${locale}.pdf`);
-  const legacyPdf = resolve(output, `${locale}.pdf`);
+  const pdf = resolve(stagedOutput, `${filenameSlug}-${locale}.pdf`);
+  const legacyPdf = resolve(stagedOutput, `${locale}.pdf`);
   const html = `<!doctype html><html lang="${locale}" dir="${locale === 'fa' ? 'rtl' : 'ltr'}"><head><meta charset="utf-8"><title>${escape(name)} — ${escape(title)}</title><style>
-@font-face{font-family:Vazirmatn;src:url('file://${font400}') format('woff2');font-weight:400}@font-face{font-family:Vazirmatn;src:url('file://${font700}') format('woff2');font-weight:700}
+${resumeFontStyles()}
 @page{size:A4;margin:16mm 16mm 17mm}*{box-sizing:border-box}html{font-family:Vazirmatn,sans-serif}body{margin:0;color:#102039;background:#fff;font-size:10.35pt;line-height:1.58}a{color:#0969c8;text-decoration:none;overflow-wrap:anywhere}.resume-header{display:grid;grid-template-columns:1fr ${portrait ? '30mm' : '1fr'};gap:7mm;align-items:center;border-bottom:2px solid #0A84FF;padding-bottom:5mm}.identity h1{font-size:26pt;line-height:1.12;margin:0;color:#102039;font-weight:700}.identity .title{font-size:12.5pt;color:#0A84FF;font-weight:700;margin-top:2mm}.intro,.summary{max-width:78ch;margin:4mm 0 0;color:#334155}.summary{margin-top:2.5mm;color:#475569}.portrait{width:30mm;height:30mm;object-fit:cover;border-radius:50%;border:1px solid #cbd5e1;background:#eaf2fb}.home-links{display:flex;flex-wrap:wrap;gap:2mm 5mm;margin-top:4mm}.home-links a{border-bottom:1px solid #0A84FF;padding-bottom:.5mm;font-weight:700}.resume-section{break-inside:auto;margin-top:7mm}.resume-section h2,.resume-projects h2{font-size:14pt;color:#0A84FF;border-bottom:1px solid #b8cbe0;padding-bottom:1.5mm;margin:0 0 4mm;font-weight:700;break-after:avoid}.resume-about{break-inside:auto}.resume-about>p{margin:0 0 3mm}.about-cards,.focus-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4mm;margin-top:5mm}.about-card,.focus-card{break-inside:avoid;border:1px solid #dbe5f0;border-radius:2mm;padding:3.5mm}.about-card h3,.focus-card h3{font-size:10.5pt;line-height:1.35;margin:0 0 1.5mm;color:#102039}.about-card p,.focus-card p{margin:0;color:#475569;font-size:9.4pt;line-height:1.5}.resume-skills{break-before:page;page-break-before:always}.resume-focus{margin-top:8mm}.resume-experience{break-before:page;page-break-before:always}.entry{break-inside:avoid;margin:0 0 5mm}.entry h3,.skill-row h3,.project-entry h3{font-size:11.2pt;line-height:1.35;margin:0 0 1mm;font-weight:700;color:#102039}.entry p{margin:0 0 1.5mm}.entry ul{margin:1.5mm 0 0;padding-inline-start:5.5mm}.entry li{margin:1mm 0}.entry-tech{color:#475569;font-size:9pt}.muted{color:#475569}.skill-row{display:grid;grid-template-columns:43mm 1fr;gap:5mm;padding:2.2mm 0;border-bottom:1px solid #e5edf5;break-inside:avoid}.skill-row h3{margin:0}.skill-row p{margin:0;color:#334155;font-size:9.5pt;line-height:1.5}.contact-section{break-inside:avoid;margin-top:9mm}.contact-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3.5mm 8mm;margin:0;padding:0;list-style:none}.contact-grid li{display:flex;flex-direction:column;gap:.7mm;min-width:0;border-bottom:1px solid #e5edf5;padding-bottom:1.5mm}.contact-label{font-size:9pt;color:#64748b;font-weight:700}.contact-value{font-size:10pt;overflow-wrap:anywhere}.resume-projects{break-before:page;page-break-before:always;margin-top:0}.project-list{display:grid;gap:6mm}.project-entry{break-inside:avoid;border-bottom:1px solid #cbd5e1;padding-bottom:5mm}.project-entry:last-child{border-bottom:0}.project-heading{display:flex;align-items:baseline;justify-content:space-between;gap:5mm}.project-entry h3{font-size:12pt}.project-role{margin:0;color:#475569;font-size:9pt;font-weight:700;white-space:nowrap}.project-entry>p{margin:1.5mm 0 0}.project-technologies,.project-links{color:#475569;font-size:9pt;line-height:1.5}.project-links{margin-top:1.5mm}.resume-footer{margin-top:8mm;border-top:1px solid #cbd5e1;padding-top:2.5mm;color:#64748b;font-size:8.5pt;display:flex;justify-content:space-between;gap:6mm;direction:ltr}.ltr{direction:ltr;unicode-bidi:isolate}@media print{a{color:#0969c8}}
 </style></head><body><header class="resume-header"><div class="identity"><h1>${escape(name)}</h1><div class="title">${escape(title)}</div><p class="intro">${escape(copy.intro || '')}</p><p class="summary">${escape(copy.summary || '')}</p>${homeLinksHtml(homeCopy)}</div>${portrait ? `<img class="portrait" src="${portrait}" alt="${escape(name)}" />` : ''}</header>${aboutSection}${section(text.skills, skillsHtml, 'resume-skills')}${focusSection}${section(text.education, educationHtml)}${section(text.certifications, certificationHtml)}${section(text.experience, experienceHtml, 'resume-experience')} ${journeySection}${contactHtml(locale)}${projectSection}<footer class="resume-footer"><span>${escape(name)}</span><span>${escape(contact.email || (site.siteUrl ? displayUrl(site.siteUrl) : ''))}</span></footer><script>document.fonts.ready.then(()=>document.body.dataset.ready='true')</script></body></html>`;
   writeFileSync(source, html);
-  const args = ['--headless', '--disable-gpu', '--disable-extensions', '--run-all-compositor-stages-before-draw', '--virtual-time-budget=1000', '--no-pdf-header-footer', `--print-to-pdf=${pdf}`, `file://${source}`];
+  const args = ['--headless', '--disable-gpu', '--disable-extensions', '--run-all-compositor-stages-before-draw', '--virtual-time-budget=1000', '--no-pdf-header-footer', `--print-to-pdf=${pdf}`, pathToFileURL(source).href];
   if (process.env.CHROME_NO_SANDBOX === '1') args.splice(1, 0, '--no-sandbox');
-  const result = spawnSync(chrome, args, { stdio: 'inherit' });
-  if (result.status !== 0 || !existsSync(pdf)) throw new Error(`Failed to generate résumé PDF for ${locale}. Set CHROME_BIN or CHROME_NO_SANDBOX=1 if required.`);
+  await rm(pdf, { force: true });
+  await rm(legacyPdf, { force: true });
+  printPdf(chrome, args, pdf);
   copyFileSync(pdf, legacyPdf);
 }
 
-rmSync(temp, { recursive: true, force: true });
-console.log(`Generated ${filenameSlug}-en.pdf and ${filenameSlug}-fa.pdf plus stable locale aliases.`);
+await rm(output, { recursive: true, force: true });
+await cp(stagedOutput, output, { recursive: true });
+if (process.env.RESUME_KEEP_HTML !== '1') await rm(temp, { recursive: true, force: true });
+console.log(`Generated ${locales.map(locale => filenameSlug + '-' + locale + '.pdf').join(', ')} plus stable locale aliases.`);

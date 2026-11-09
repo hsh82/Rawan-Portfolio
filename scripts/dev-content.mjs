@@ -1,16 +1,5 @@
-import { execFileSync, spawn } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { resolve } from 'node:path';
-
-const astroCli = resolve('node_modules/astro/astro.js');
-execFileSync(process.execPath, ['scripts/media-publish.mjs'], { cwd: process.cwd(), stdio: 'inherit' });
-const child = spawn(process.execPath, [astroCli, 'dev', ...process.argv.slice(2)], {
-  cwd: process.cwd(),
-  env: { ...process.env, EASY_CONTENT_MODE: 'true' },
-  stdio: 'inherit',
-  windowsHide: false,
-});
-
-child.on('exit', (code, signal) => {
-  if (signal) process.kill(process.pid, signal);
-  else process.exit(code ?? 1);
-});
+import { runNode } from './process-runner.mjs';
+execFileSync(process.execPath, ['scripts/media-publish.mjs'], { stdio: 'inherit', windowsHide: true });
+runNode([resolve('node_modules/astro/astro.js'), 'dev', ...(!process.argv.includes('--host') ? ['--host', '127.0.0.1'] : []), ...process.argv.slice(2)], { ...process.env, EASY_CONTENT_MODE: 'true' });
