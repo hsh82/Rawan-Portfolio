@@ -31,7 +31,7 @@ The copied prompt includes current resource JSON as data, preserves the verified
 
 Additional security regression: the pre-existing MDX preview evaluator could execute arbitrary JavaScript expressions. A remark AST guard now permits static values and registered safe blocks only, rejects imports/exports and active HTML/URLs, and tests that a malicious expression never runs. The project homepage preview shares prepareEntitySave with Save and skips persistence entirely; an HTTP regression proves source bytes and draft status remain unchanged. Local API suite now contains eleven behavior tests. Existing Mermaid rendering and bilingual save suites still pass.
 
-Final Windows Node 22.23.2 run: clean npm ci, content validation, link checks, Astro check, production build, full npm test and both real-browser authoring flows PASS. Added project homepage preview assertions also PASS, and the final API suite has eleven passing tests, including real résumé-reference deletion protection. Collection import previews share the same Append/Update candidate calculation as persistence. Duplicate JSON fields are rejected instead of silently retaining the last value. Remote push failed because the saved GitHub credentials are invalid; branches remain local and no PR or remote matrix run is claimed.
+Final Windows Node 22.23.2 run: clean npm ci, content validation, link checks, Astro check, production build, full npm test and both real-browser authoring flows PASS. Added project homepage preview assertions also PASS, and the final API suite has eleven passing tests, including real résumé-reference deletion protection. Collection import previews share the same Append/Update candidate calculation as persistence. Duplicate JSON fields are rejected instead of silently retaining the last value. GitHub authentication subsequently recovered; both branches are pushed and draft PRs exist. Remote evidence is recorded in the final delivery report.
 
 Fixture review: the new API/browser suites now construct schema-validated synthetic owner-neutral JSON and a synthetic landing instead of copying the checked-out owner content. All five structured collections have real API create/edit/reload/delete round-trip coverage. The detached integration intentionally uses a separate copy of the realistic content branch for build/PDF validation only.
 
@@ -46,7 +46,9 @@ Fixture review: the new API/browser suites now construct schema-validated synthe
 - design/architecture/easy-content.md
 - design/components/homepage.md
 - design/reports/2026-11-09-easy-content-staging.md
+- design/reports/2026-11-09-staging-delivery.md
 - docs/AUTHORING.md
+- docs/STAGING-AUTHORING.fa.md
 - docs/STAGING-AUTHORING.md
 - package-lock.json
 - package.json
@@ -55,6 +57,7 @@ Fixture review: the new API/browser suites now construct schema-validated synthe
 - scripts/media-publish.mjs
 - scripts/preview.mjs
 - scripts/process-runner.mjs
+- scripts/studio-fixture.mjs
 - scripts/studio-ui-test.mjs
 - scripts/studio.test.mjs
 - scripts/verify-build.mjs
@@ -82,3 +85,5 @@ Fixture review: the new API/browser suites now construct schema-validated synthe
 - src/layouts/Layout.astro
 - src/utils/portfolio-content.ts
 - src/utils/portfolio-schemas.mjs
+
+All three OS jobs in the original Studio matrix passed at 1f97d92: https://github.com/hsh82/Rawan-Portfolio/actions/runs/42655031526. Final homepage-navigation parity 7a1896f passed local Astro/browser checks and is undergoing its follow-up remote matrix. Consolidated results, PRs and remaining blockers: [Staging delivery](2026-11-09-staging-delivery.md). Persian guide: [راهنمای نگارش](../../docs/STAGING-AUTHORING.fa.md).
