@@ -1,7 +1,8 @@
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { join, relative } from 'node:path';
 import { normalizeBlogEntryId } from '../src/utils/blog-layout.mjs';
-const root = new URL('../', import.meta.url).pathname;
+const root = fileURLToPath(new URL('../', import.meta.url));
 const dist = join(root, 'dist');
 const content = join(root, 'content/blog');
 const projectRoot = join(root, 'content/blog/projects');

@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import { execFile } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, relative, resolve } from 'node:path';
@@ -18,7 +19,7 @@ const execFileAsync = promisify(execFile);
 const MAX_BODY = 1_500_000;
 const MAX_ASSET = 12 * 1024 * 1024;
 const MAX_UPLOAD_BODY = Math.ceil(MAX_ASSET / 3) * 4 + 300_000;
-const editorRoot = resolve(dirname(new URL(import.meta.url).pathname), '..', 'editor');
+const editorRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'editor');
 const editorHtml = readFileSync(resolve(editorRoot, 'editor-bilingual.html'), 'utf8');
 const editorScript = readFileSync(resolve(editorRoot, 'editor-bilingual.js'), 'utf8');
 const editorDeleteScript = readFileSync(resolve(editorRoot, 'editor-delete.js'), 'utf8');
@@ -66,7 +67,7 @@ async function gitStatus() {
 }
 
 async function validateContent() {
-  const command = process.platform === 'win32' ? 'node.exe' : process.execPath;
+  const command = process.execPath;
   const validate = await execFileAsync(command, ['scripts/content-validate.mjs'], { cwd: repositoryRoot, windowsHide: true });
   const links = await execFileAsync(command, ['scripts/content-check-links.mjs'], { cwd: repositoryRoot, windowsHide: true });
   return { validate: validate.stdout, links: links.stdout };
