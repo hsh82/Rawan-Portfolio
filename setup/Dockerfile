@@ -19,6 +19,10 @@ RUN apt-get update \
 
 COPY --chown=node:node . .
 ENV CHROME_BIN=/usr/bin/chromium
+# Docker BuildKit's build sandbox blocks Chromium's setuid/user-namespace
+# sandbox during image construction. This opt-in is limited to the build stage;
+# the authoring runtime below explicitly leaves it disabled.
+ENV CHROME_NO_SANDBOX=1
 RUN chown -R node:node /app/node_modules \
     && mkdir -p /app/.astro /app/dist \
     && chown -R node:node /app/.astro /app/dist \
@@ -35,7 +39,8 @@ ENV NODE_ENV=development \
     EASY_CONTENT_DOCKER=false \
     PORT=4321 \
     HOST=0.0.0.0 \
-    CHROME_BIN=/usr/bin/chromium
+    CHROME_BIN=/usr/bin/chromium \
+    CHROME_NO_SANDBOX=0
 
 # This immutable copy is used only when /app/content is an explicitly empty
 # bind mount. Existing content is never merged with or overwritten by it.

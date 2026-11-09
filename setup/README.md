@@ -191,7 +191,7 @@ docker compose -f setup/docker-compose.yml config --quiet
 docker compose -f setup/docker-compose.production.yml config --quiet
 ```
 
-The builder installs Chromium so a checkout with enabled bilingual résumé generation can generate PDFs. Chromium is not copied into the production image. The production image uses an unprivileged Nginx runtime and a read-only filesystem.
+The builder installs Chromium and its sandbox helper so a checkout with enabled bilingual résumé generation can generate PDFs. BuildKit does not expose the namespace operation required by Chromium's sandbox during image construction, so the Dockerfile uses an explicit build-stage-only `CHROME_NO_SANDBOX=1`; the authoring runtime resets this to `0` and does not disable Chromium's sandbox. Chromium is not copied into the production image. The production image uses an unprivileged Nginx runtime and a read-only filesystem.
 
 ## Troubleshooting
 
