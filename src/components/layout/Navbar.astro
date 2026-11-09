@@ -3,12 +3,12 @@ import ThemeToggle from '../ui/ThemeToggle.astro';
 import LanguageSwitcher from '../ui/LanguageSwitcher.astro';
 import { t, type Locale } from '../../utils/i18n';
 import { portfolio } from '../../utils/portfolio-content';
-interface Props { data?: any; lang: Locale; translationId?: string; }
+interface Props { preview?: boolean; data?: any; lang: Locale; translationId?: string; }
 const { lang, translationId } = Astro.props;
 const data = Astro.props.data || portfolio();
 const hasResume = data.resume.enabled && data.profile.visible;
 const resumeHref = (locale: Locale) => `/resume/${data.resume.filenameSlug}-${locale}.pdf`;
-const currentPath = Astro.url.pathname;
+const currentPath = Astro.props.preview ? `/${lang}/` : Astro.url.pathname;
 const isHome = currentPath === `/${lang}/`;
 const isBlog = currentPath.startsWith(`/${lang}/blog/`);
 const isProjects = currentPath.startsWith(`/${lang}/projects/`);
