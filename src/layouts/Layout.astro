@@ -51,7 +51,7 @@ const alternates = Astro.props.alternates || { en: Astro.url.pathname.replace(/^
   <body class="bg-white text-secondary dark:bg-neutral-dark dark:text-white transition-colors duration-300">
     <a class="skip-link" href="#main-content">{lang === 'fa' ? 'رفتن به محتوا' : 'Skip to content'}</a>
     <div class="flex min-h-screen flex-col">
-      <Navbar data={Astro.props.data} lang={lang} translationId={Astro.props.translationId} />
+      <Navbar preview={Astro.props.preview} data={Astro.props.data} lang={lang} translationId={Astro.props.translationId} />
       {easyContentEnabled && Astro.props.contentContext && <ContentActionBar context={Astro.props.contentContext} />}
       <main id="main-content" class="min-w-0 flex-grow"><slot /></main>
       <Footer data={Astro.props.data} lang={lang} />

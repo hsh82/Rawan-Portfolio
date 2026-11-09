@@ -54,6 +54,7 @@ try {
       const home=JSON.parse(await page.inputValue('#source'));home.locales.en.displayName='Live hero title';home.locales.fa.displayName='عنوان زنده';home.about={en:{title:'Live about',description:'About preview fixture',cards:[]},fa:{title:'دربارهٔ آزمایشی',description:'پیش‌نمایش درباره',cards:[]}};home.focus={en:[{title:'Live focus',description:'Focus preview fixture'}],fa:[{title:'تمرکز آزمایشی',description:'نمونه'}]};
       await page.fill('#source',JSON.stringify(home));
       await page.frameLocator('#preview').getByText('Live hero title',{exact:true}).first().waitFor();
+      await page.frameLocator('#preview').locator('#progress-nav').waitFor({state:'visible'});
       await page.frameLocator('#preview').getByText('Live about',{exact:true}).waitFor();
       await page.frameLocator('#preview').getByText('About preview fixture',{exact:true}).waitFor();
       await page.frameLocator('#preview').getByText('Live focus',{exact:true}).waitFor();
