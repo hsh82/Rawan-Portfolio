@@ -1,16 +1,18 @@
 name: CI
-
 on:
   pull_request:
   push:
-    branches: [main, content/**, update/**, release/**]
-
+    branches: [main, 'content/**', 'fix/cross-platform-staging', 'feat/easy-content-staging', 'update/**', 'release/**']
 permissions:
   contents: read
-
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    name: Node 22 / ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -21,6 +23,16 @@ jobs:
       - run: npm run content:validate
       - run: npm run content:check-links
       - run: npm run check
+      - run: npm run test:platform
       - run: npm run build
-      - run: npm run test:static
-      - run: npm run resume:generate
+      - run: npm run test
+      - run: npm run test:smoke
+      - name: Configure runner Chrome
+        shell: pwsh
+        run: |
+          if ($IsWindows) { $browser = 'C:/Program Files/Google/Chrome/Application/chrome.exe' }
+          elseif ($IsMacOS) { $browser = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' }
+          else { $browser = (Get-Command google-chrome).Source }
+          if (!(Test-Path -LiteralPath $browser)) { throw "Runner Chrome missing: $browser" }
+          "CHROME_BIN=$browser" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+      - run: npm run test:pdf
