@@ -1,3 +1,5 @@
+import { resourceSchemas } from '../src/utils/portfolio-schemas.mjs';
+import { readPortfolioSource } from '../src/utils/portfolio-source.mjs';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { ICON_IDS } from '../src/utils/icon-registry.mjs';
@@ -176,4 +178,8 @@ if (profile.resumeImage) {
 }
 if (resume.portrait !== false && !(profile.resumeImage || profile.image)) throw new Error('Résumé portrait is enabled but no profile image is configured');
 for (const file of ['site.json', 'contact.json']) read(file, {});
+
+const structured = readPortfolioSource(root);
+for (const [resource, schema] of Object.entries(resourceSchemas)) { const value = structured[resource]; if (Array.isArray(value)) value.forEach(item => schema.parse(item)); else schema.parse(value); }
+
 console.log(`Content valid: ${projects.length} projects, ${journey.length} journey entries.`);

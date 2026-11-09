@@ -4,6 +4,8 @@ if (button) {
   let token = '';
   let context;
   let revision = '';
+  let deleting = false;
+  document.addEventListener('easy-content:saved', event => { revision = event.detail.revision; });
   async function load() {
     const contextResponse = await fetch(`${api}/context?path=${encodeURIComponent(location.pathname)}`);
     const contextData = await contextResponse.json();
@@ -17,11 +19,14 @@ if (button) {
     button.classList.remove('hidden');
   }
   button.addEventListener('click', async () => {
-    if (!context || !revision || !confirm(`Move this ${context.type} to local trash? Child articles and incoming references block project deletion.`)) return;
+    if (deleting || !context || !revision || !confirm(`Move this ${context.type} to local trash? Child articles and incoming references block project deletion.`)) return;
+    deleting = true; button.disabled = true;
+    try {
     const response = await fetch(`${api}/delete-entity`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-easy-content-token': token }, body: JSON.stringify({ context, expectedRevision: revision }) });
     const data = await response.json();
     if (!response.ok) { document.querySelector('#status-message').textContent = data.error || 'Deletion failed'; document.querySelector('#status-message').classList.add('is-error'); return; }
     location.assign('/dev/content/');
+    } catch(error) { document.querySelector('#status-message').textContent = error.message; } finally { deleting = false; button.disabled = false; }
   });
   load().catch(() => {});
 }
