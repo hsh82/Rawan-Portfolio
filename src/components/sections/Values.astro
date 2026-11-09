@@ -20,7 +20,7 @@ const about = homeData.about?.[lang === 'fa' ? 'fa' : 'en'];
     <div class="mb-12 text-center" data-aos="fade-up">
       <h2 class="font-heading text-h2 text-secondary dark:text-white mb-4">{about?.title || (lang === 'fa' ? 'دربارهٔ این مسیر' : 'About the work')}</h2>
       <p class="text-secondary/70 dark:text-white/70 max-w-2xl mx-auto">
-        {profile.description || about?.description}
+        {about?.description || profile.description}
       </p>
     </div>
 

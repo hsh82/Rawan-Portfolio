@@ -279,3 +279,5 @@ This project preserves the upstream MIT license and attribution in [LICENSE.md](
 - **Vercel failures:** reproduce with `npm ci` and `npm run build`, confirm `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID`, verify the selected branch is `main` or `content/*`, and ensure Vercel Git auto-deployments are disabled.
 
 Staging prerequisites, portable commands, Chromium discovery and verification: [Platform staging](docs/STAGING-PLATFORM.md). Node 22.12+ (22 LTS) or 24.13.1+ LTS is required.
+
+Studio staging workflow: [Authoring guide](docs/STAGING-AUTHORING.md). Collections support individual records and explicit Append/Update imports, validated unsaved previews, desktop/mobile expansion and toolbar AI assistance.

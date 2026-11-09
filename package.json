@@ -24,10 +24,12 @@
     "content:migrate-project-hubs": "node scripts/content-migrate-project-hubs.mjs",
     "resume:generate": "node scripts/resume-generate.mjs",
     "media:publish": "node scripts/media-publish.mjs",
-    "test": "npm run content:validate && npm run content:check-links && npm run test:content-api && npm run test:easy-content && npm run test:easy-content-guide && npm run test:mermaid && npm run test:static",
+    "test": "npm run content:validate && npm run content:check-links && npm run test:content-api && npm run test:easy-content && npm run test:easy-content-guide && npm run test:mermaid && npm run test:studio && npm run test:static",
     "test:platform": "node --test scripts/platform.test.mjs",
     "test:smoke": "node scripts/runtime-smoke.mjs",
-    "test:pdf": "node scripts/pdf-smoke.mjs"
+    "test:pdf": "node scripts/pdf-smoke.mjs",
+    "test:studio": "node --test scripts/studio.test.mjs",
+    "test:studio-ui": "node scripts/studio-ui-test.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.14",
@@ -65,7 +67,8 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
     "@emnapi/runtime": "^1.11.3",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "playwright-core": "^1.56.1"
   },
   "engines": {
     "node": "^22.12.0 || ^24.13.1"

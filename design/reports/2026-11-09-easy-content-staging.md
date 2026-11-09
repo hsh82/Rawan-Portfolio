@@ -1,0 +1,89 @@
+# Easy Content staging evidence — 2026-11-09
+
+Branch feat/easy-content-staging starts independently at origin/main e615fa9, not at the platform branch. Owner-neutral content is unchanged. The minimal portable launchers/file URL prerequisites are duplicated deliberately so this branch can be tested on Windows independently; identical changes integrate with the platform branch. Actual personal data remains only on the existing content branch and temporary verification checkout.
+
+## Root causes and regressions
+
+| Issue | Evidence | Implemented solution | Tests |
+| --- | --- | --- | --- |
+| Collection root returns array but save requires object | resources.mjs readResource returns [] for empty Experience; Studio sent it to save-resource | collection browse + select individual record; hidden scaffold creation; explicit append/update import contract | studio.test.mjs real HTTP CRUD/import/duplicate/shape/revision tests; browser create/save/reload |
+| Stable IDs had misleading failures | new/save contracts conflated and create action was hidden | explicit create vs save; normalize proposed new ID with confirmation and offer unique ID; immutable existing IDs have Restore selected ID | API immutable-ID rejection + browser normalized creation |
+| Schema errors reached disk | save-resource wrote JSON without website schema checks | extract unchanged schemas to portfolio-schemas.mjs; validate original data and candidate references before atomic writes; retain unsupported authored fields | exact localized-path errors, failed-write byte equality, preserved extra fields |
+| AI-pasted syntax failed | JSON.parse was the only source parser | shared parseJsonBuffer handles BOM/whitespace/fences/trailing commas and escaped literal newlines without changing semantic fields | normalization cases, ambiguous syntax rejection |
+| Live preview used stale values | source input only marked dirty | parse current buffer, debounce 400ms, monotonically reject stale asynchronous responses | real browser Hero/About/Focus/Experience, invalid buffer + recovery, newest edit |
+| Preview patched DOM through a script-disabled iframe | middleware manually replaced a subset of selectors | validated bounded snapshots; dev-only locale-bearing Astro route renders actual Layout/HomeSurface with supplied data and no executable preview scripts | browser real DOM, EN/FA RTL, HTTP 200, source-file byte comparison |
+| Desktop preview was compressed | iframe width followed narrow column | desktop1280/mobile390 viewport; scrollable panel and expanded overlay with visible exit/Escape | real browser dimensions, expanded state and preserved snapshot URL |
+| Scattered actions and permanently occupied AI panel | controls spread across workspace/sidebar | top-toolbar assistant native dialog and native More Actions disclosure in both editors | browser open/copy/close, menu, preserved unsaved source |
+| Saving could double-submit; deletion used stale revision | MDX save had no guard; separate delete script retained boot revision | busy lock while saving; publish/delete buttons disabled; saved-revision event updates delete handler | browser Save Draft/Publish/Unpublish/Delete sequence |
+| Host and symlink-root gaps | Host checked only with Origin; safePath stopped before root | always validate loopback Host; reject symlink roots; uploads resolve from canonical content root | real HTTP Origin/token tests and path/symlink tests |
+
+## Evidence and gates
+
+Windows browser suite actually ran both npm run dev:content and npm run preview:content in disposable source checkouts with installed Chrome via playwright-core. No browser download occurs on install. It verifies collection creation/save/reload, Experience changes before Save, homepage Hero/About/Focus, source files unchanged by preview, latest rapid edit, invalid JSON warning retaining last good frame, Persian/RTL, desktop/mobile widths, expansion/Escape, assistant copy/dialog, More Actions, and MDX Save Draft/Publish/Unpublish/Delete. Screenshots are generated under ignored .astro/. API tests cover explicit imports, duplicate IDs, immutable IDs, field paths, revisions, rollback and snapshot isolation. Synthetic fixtures contain no personal records.
+
+content:validate, content:check-links, test:easy-content, test:easy-content-guide, test:mermaid, test:studio, test:static and production build passed on Windows. Astro check passed with zero errors/warnings and existing deprecation hints. Final LTS rerun and detached integration evidence are recorded in the final staging report. Linux/macOS are NOT RUN locally. A dedicated Studio CI matrix is configured for all three operating systems; configuration is not execution evidence.
+
+Gate B (structured authoring), C (unsaved previews) and D (AI/actions) pass the automated local scenarios. Full acceptance still requires remote OS evidence and the pre-existing critical/high dependency advisory review documented by the platform report; Gate E is not marked passed. The expanded view is an accessible fixed overlay rather than an OS-level Fullscreen API dependency. JSON import deliberately supports Append/Update only; full replacement remains unavailable. Education/Certifications are editable but have no separate homepage section in the current public design, so their homepage preview follows that existing design. Project/article authoring retains its dedicated MDX visual renderer.
+
+Cold Astro compilation can exceed 30 seconds in disposable Windows fixtures. Browser tests allow 90 seconds; normal editor debounce remains 400ms. The fixture explicitly allows only its own source plus the linked dependency directory for font/media assets; this does not widen application server permissions. Node24.0.1 has a reproduced Windows rmSync Unicode cleanup defect; supported Node versions are 22.12+ LTS or 24.13.1+ LTS and final verification uses a supported patch. Cross-drive shared dependency fixtures trigger Astro5 manifest path errors; fixtures stay on the same volume. Fresh checkouts install their own dependencies.
+
+The copied prompt includes current resource JSON as data, preserves the verified homepage section map/interview protocol, requests missing schemas instead of guessing and asks for approval before moving on. There is no external AI service or factual-content invention. Native dialogs handle focus containment; English/Persian toolbar labels and the public RTL view were exercised. Manual assistive-technology review beyond browser keyboard controls is not claimed.
+
+Additional security regression: the pre-existing MDX preview evaluator could execute arbitrary JavaScript expressions. A remark AST guard now permits static values and registered safe blocks only, rejects imports/exports and active HTML/URLs, and tests that a malicious expression never runs. The project homepage preview shares prepareEntitySave with Save and skips persistence entirely; an HTTP regression proves source bytes and draft status remain unchanged. Local API suite now contains eleven behavior tests. Existing Mermaid rendering and bilingual save suites still pass.
+
+Final Windows Node 22.23.2 run: clean npm ci, content validation, link checks, Astro check, production build, full npm test and both real-browser authoring flows PASS. Added project homepage preview assertions also PASS, and the final API suite has eleven passing tests, including real résumé-reference deletion protection. Collection import previews share the same Append/Update candidate calculation as persistence. Duplicate JSON fields are rejected instead of silently retaining the last value. GitHub authentication subsequently recovered; both branches are pushed and draft PRs exist. Remote evidence is recorded in the final delivery report.
+
+Fixture review: the new API/browser suites now construct schema-validated synthetic owner-neutral JSON and a synthetic landing instead of copying the checked-out owner content. All five structured collections have real API create/edit/reload/delete round-trip coverage. The detached integration intentionally uses a separate copy of the realistic content branch for build/PDF validation only.
+
+## Delivered files
+
+- .agents/skills/portfolio-easy-content/SKILL.md
+- .agents/skills/portfolio-staging-review/SKILL.md
+- .github/workflows/studio.yml
+- AGENTS.md
+- README.fa.md
+- README.md
+- design/architecture/easy-content.md
+- design/components/homepage.md
+- design/reports/2026-11-09-easy-content-staging.md
+- design/reports/2026-11-09-staging-delivery.md
+- docs/AUTHORING.md
+- docs/STAGING-AUTHORING.fa.md
+- docs/STAGING-AUTHORING.md
+- package-lock.json
+- package.json
+- scripts/content-validate.mjs
+- scripts/dev-content.mjs
+- scripts/media-publish.mjs
+- scripts/preview.mjs
+- scripts/process-runner.mjs
+- scripts/studio-fixture.mjs
+- scripts/studio-ui-test.mjs
+- scripts/studio.test.mjs
+- scripts/verify-build.mjs
+- src/components/layout/Navbar.astro
+- src/components/platform/HomeSurface.astro
+- src/components/sections/Footer.astro
+- src/components/sections/FooterCTA.astro
+- src/components/sections/Values.astro
+- src/dev/easy-content/editor/ai-writing-guide.js
+- src/dev/easy-content/editor/editor-bilingual.html
+- src/dev/easy-content/editor/editor-bilingual.js
+- src/dev/easy-content/editor/editor-delete.js
+- src/dev/easy-content/editor/json-normalize.mjs
+- src/dev/easy-content/editor/preview.astro
+- src/dev/easy-content/editor/studio.html
+- src/dev/easy-content/editor/studio.js
+- src/dev/easy-content/integration/index.mjs
+- src/dev/easy-content/server/adapters-bilingual.mjs
+- src/dev/easy-content/server/middleware.mjs
+- src/dev/easy-content/server/preview-sessions.mjs
+- src/dev/easy-content/server/resource-validation.mjs
+- src/dev/easy-content/server/resources.mjs
+- src/dev/easy-content/server/security.mjs
+- src/dev/easy-content/server/static-mdx-preview.mjs
+- src/layouts/Layout.astro
+- src/utils/portfolio-content.ts
+- src/utils/portfolio-schemas.mjs
+
+All three OS jobs in the original Studio matrix passed at 1f97d92: https://github.com/hsh82/Rawan-Portfolio/actions/runs/42655031526. Final homepage-navigation parity 7a1896f passed local Astro/browser checks and is undergoing its follow-up remote matrix. Consolidated results, PRs and remaining blockers: [Staging delivery](2026-11-09-staging-delivery.md). Persian guide: [راهنمای نگارش](../../docs/STAGING-AUTHORING.fa.md).
