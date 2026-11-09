@@ -14,7 +14,7 @@ FROM deps AS builder
 # Chromium is only used while generating an enabled résumé during the build.
 # It is deliberately not copied into the static production image.
 RUN apt-get update \
-    && apt-get install --yes --no-install-recommends chromium ca-certificates fonts-liberation \
+    && apt-get install --yes --no-install-recommends chromium chromium-sandbox ca-certificates fonts-liberation \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --chown=node:node . .
