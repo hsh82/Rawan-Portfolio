@@ -25,7 +25,7 @@ Baseline: origin/main e615fa907cf558a5620a7931ef893b1df368efd3. Personal referen
 | check | PASS, zero errors/warnings; existing deprecation hints | NOT RUN locally | NOT RUN locally |
 | build / Pagefind / test:static | PASS | NOT RUN locally | NOT RUN locally |
 | npm test (all existing suites) | PASS | NOT RUN locally | NOT RUN locally |
-| test:platform | PASS, three behavior tests | NOT RUN locally | NOT RUN locally |
+| test:platform | PASS, four behavior tests | NOT RUN locally | NOT RUN locally |
 | test:smoke | PASS: dev, dev:content, preview, preview:content startup/HTTP/security/shutdown | NOT RUN locally | NOT RUN locally |
 | test:pdf | PASS: disabled without browser; enabled EN/FA signatures and aliases | NOT RUN locally | NOT RUN locally |
 
@@ -55,6 +55,8 @@ Final Windows Node 22.23.2 rerun: npm ci, content:validate, content:check-links,
 - design/architecture/deployment.md
 - design/components/resume.md
 - design/reports/2026-11-09-platform-staging.md
+- design/reports/2026-11-09-staging-delivery.md
+- docs/STAGING-PLATFORM.fa.md
 - docs/STAGING-PLATFORM.md
 - package-lock.json
 - package.json
@@ -70,3 +72,5 @@ Final Windows Node 22.23.2 rerun: npm ci, content:validate, content:check-links,
 - scripts/verify-build.mjs
 - src/dev/easy-content/integration/index.mjs
 - src/dev/easy-content/server/middleware.mjs
+
+Remote CI now supplies actual PASS evidence for Ubuntu, Windows and macOS at source 9464106: https://github.com/hsh82/Rawan-Portfolio/actions/runs/42655974069. Five-page EN/FA PDFs use only embedded Vazirmatn fonts after the font fix. Final integration, PRs, advisory blockers and updated platform matrix: [Staging delivery](2026-11-09-staging-delivery.md). Persian guide: [راهنمای پلتفرم](../../docs/STAGING-PLATFORM.fa.md).
