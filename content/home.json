@@ -2,30 +2,30 @@
   "focus": {
     "en": [
       {
-        "title": "Reliable software delivery",
-        "description": "I help teams turn complicated releases into clear, repeatable steps, so new features reach people with less uncertainty and fewer last-minute surprises."
+        "title": "Your main focus",
+        "description": "Describe a field, topic, or kind of work that matters to you."
       },
       {
-        "title": "Infrastructure people can rely on",
-        "description": "I build and improve the systems behind applications with an emphasis on consistency, clarity, and making them easier for the whole team to operate."
+        "title": "Your approach",
+        "description": "Explain how you approach your work and what guides your decisions."
       },
       {
-        "title": "Thoughtful and secure access",
-        "description": "I work on practical ways for people and services to connect safely, without adding unnecessary friction to their everyday work."
+        "title": "Your next direction",
+        "description": "Share what you would like to learn, explore, or work toward next."
       }
     ],
     "fa": [
       {
-        "title": "انتشار مطمئن‌تر نرم‌افزار",
-        "description": "کمک می‌کنم انتشار نسخه‌های جدید از مجموعه‌ای از کارهای پراکنده و پراسترس، به فرایندی روشن، تکرارپذیر و قابل‌پیش‌بینی تبدیل شود."
+        "title": "حوزهٔ تمرکز شما",
+        "description": "حوزه، موضوع یا نوع کاری را معرفی کنید که برای شما اهمیت دارد."
       },
       {
-        "title": "زیرساختی که می‌توان به آن تکیه کرد",
-        "description": "سامانه‌های پشت‌صحنهٔ نرم‌افزار را طوری می‌سازم و بهبود می‌دهم که مدیریت، توسعه و نگهداری آن‌ها برای تمام اعضای تیم ساده‌تر باشد."
+        "title": "روش کار شما",
+        "description": "توضیح دهید چگونه به کار خود می‌پردازید و چه چیزهایی راهنمای تصمیم‌های شما هستند."
       },
       {
-        "title": "دسترسی امن و کاربردی",
-        "description": "به‌دنبال راه‌هایی هستم که افراد و سرویس‌ها بتوانند با امنیت بیشتر و پیچیدگی کمتر به منابع موردنیازشان دسترسی داشته باشند."
+        "title": "مسیر پیش روی شما",
+        "description": "بنویسید دوست دارید چه چیزی یاد بگیرید، چه موضوعی را دنبال کنید یا به سوی چه هدفی پیش بروید."
       }
     ]
   },
