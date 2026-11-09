@@ -7,7 +7,7 @@ Rawan keeps one Astro static application and exposes two runtime distributions. 
 `setup/Dockerfile` uses four logical stages:
 
 - `deps` installs the lockfile-pinned Node 22 dependencies with `npm ci`.
-- `builder` copies the checkout, installs the build-time Chromium used by the résumé generator, validates content, and produces `dist/`.
+- `builder` copies the checkout, installs Chromium plus its sandbox helper, validates content, and produces `dist/`. BuildKit does not expose the namespace operation required by Chromium's sandbox during image construction, so `CHROME_NO_SANDBOX=1` is explicitly limited to this build stage; the authoring runtime resets it to `0` and keeps Chromium sandboxed.
 - `authoring` keeps the Node/Astro/Easy Content runtime and an immutable starter-content template. It listens on port 4321 and is published by Compose only on host loopback port 1234.
 - `production` copies only `dist/` into an unprivileged Nginx image listening on port 8080. It has no Node runtime, Easy Content API, source files, or writable content volume.
 
