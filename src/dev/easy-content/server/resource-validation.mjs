@@ -7,8 +7,8 @@ export function contentError(path, message, extra = {}) {
 export function validateResourceValue(resource, value, { collection = false, id } = {}) {
   const schema = resourceSchemas[resource];
   if (!schema) throw contentError(resource, 'unknown resource');
-  if (collection && !Array.isArray(value)) throw contentError(resource, 'expected an array of records. Select a record to edit one object.');
-  if (!collection && (!value || typeof value !== 'object' || Array.isArray(value))) throw contentError(resource, 'expected a JSON object. Use Import for an array of records.');
+  if (collection && !Array.isArray(value)) throw contentError(resource, 'expected the complete JSON array from this resource file.');
+  if (!collection && (!value || typeof value !== 'object' || Array.isArray(value))) throw contentError(resource, 'expected a JSON object for this resource.');
   const records = collection ? value : [value];
   const issues = [];
   records.forEach((record, index) => {

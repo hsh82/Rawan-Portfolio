@@ -2,9 +2,9 @@
 
 Start npm run dev:content or npm run preview:content and open /dev/content/. Both serve source-backed local authoring; normal npm run preview serves read-only dist. No build or deployment contains write APIs.
 
-Choose Experience, Education, Certifications, Skills or Journey to browse records. Add item proposes a lowercase unique ID and asks before changing your proposed spelling. The new record starts hidden with empty bilingual text; fill only verified facts and Save Changes. Select an existing record to edit its JSON; its ID is immutable. Restore selected ID is an explicit correction action. Deletion asks for confirmation and blocks known references, including résumé selections and project relationships.
+Career resources each expose the complete entries.json array in one source editor, like Site and Contact. Add, edit or remove array entries directly and use Save Changes to save the full file. Studio has no record picker, Add/Delete buttons, import modes or separate record state.
 
-For multiple records paste an array in the collection view, choose Append new records or Update existing records, and Review import. Append rejects existing IDs; Update rejects missing IDs and preserves other records. Complete replacement is intentionally unavailable. The operation validates all incoming records and writes atomically with revision protection. Reload on a 409 conflict.
+Empty collections open with a hidden bilingual schema-valid template inside the JSON buffer. It is not written to disk until Save. Existing files open with all their records unchanged. Full-file saves preserve revision checks, schema and duplicate-ID validation, unknown fields, relationship checks and atomic writes. Reload on a 409 conflict.
 
 Valid pasted JSON accepts surrounding whitespace/BOM, complete Markdown JSON fences, trailing commas outside strings and literal newlines inside text. Format / Repair JSON lists syntax cleanup before applying it. Semantic values, IDs, publication status, structure and references are never inferred. Incorrect array/object shapes and invalid localized fields show exact field paths. Required scaffold fields are checked against the application schemas; extra authored fields survive saves.
 
@@ -18,4 +18,4 @@ Run npm run test:studio for API/normalization regressions and npm run test:studi
 
 For an existing project, Homepage preview shows its unsaved card metadata and localized title/summary through the real homepage. Publication state is preserved, so a draft remains absent from public selection until explicitly published. The MDX visual renderer accepts safe static blocks; executable expressions, imports and active HTML are reported as unsupported and remain in Source.
 
-Duplicate JSON field names are ambiguous and rejected; choose the intended value explicitly. Import previews apply the selected Append/Update operation in memory, preserving other collection records.
+Duplicate JSON field names are ambiguous and rejected; choose the intended value explicitly. Preview renders the edited full-file array without persistence.

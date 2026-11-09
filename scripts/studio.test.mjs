@@ -65,7 +65,7 @@ test('real API collection create/save/reload/import/delete preserves revisions a
   let entity = (await get('resource?resource=experience')).entity;
   assert.deepEqual(entity.value, []);
   const arraySave = await post('save-resource', {resource:'experience',value:[],expectedRevision:entity.revision});
-  assert.equal(arraySave.status,400); assert.match(arraySave.data.error,/select one record/);
+  assert.equal(arraySave.status,200); assert.deepEqual(arraySave.data.entity.value,[]);
   const first = resourceTemplate('experience','first'); first.extra = {keep:'unsupported authored data'};
   let response = await post('create-resource',{resource:'experience',value:first,expectedRevision:entity.revision});
   assert.equal(response.status,201); entity=response.data.entity;
@@ -148,3 +148,19 @@ test('transaction failure restores files already replaced', () => {
 });
 
 test('symlink roots and nested paths cannot escape the canonical boundary',()=>{ const target=join(fixture,'link-target');mkdirSync(target);const link=join(fixture,'content','link');symlinkSync(target,link,process.platform==='win32'?'junction':'dir');assert.throws(()=>safePath(join(fixture,'content'),'link','asset.png'),/Symlink/);assert.throws(()=>safePath(link,'asset.png'),/Symlink/);});
+
+test('whole-file saves replace all five collection arrays and reject broken references',async()=>{
+  for(const resource of ['experience','education','certifications','skills','journey']){
+    let entity=(await get('resource?resource='+resource)).entity;
+    const item=resourceTemplate(resource,'file-test-'+resource);
+    let result=await post('save-resource',{resource,value:[...entity.value,item],expectedRevision:entity.revision});assert.equal(result.status,200,resource);
+    entity=result.data.entity;item.locales.en.title='Edited in whole file';
+    result=await post('save-resource',{resource,value:entity.value.map(record=>record.id===item.id?item:record),expectedRevision:entity.revision});assert.equal(result.status,200,resource);
+    entity=result.data.entity;
+    assert.equal((await post('save-resource',{resource,value:[...entity.value,item],expectedRevision:entity.revision})).status,400);
+    result=await post('save-resource',{resource,value:entity.value.filter(record=>record.id!==item.id),expectedRevision:entity.revision});assert.equal(result.status,200,resource);
+    assert.equal((await post('save-resource',{resource,value:{},expectedRevision:result.data.entity.revision})).status,400);
+  }
+  const journey=(await get('resource?resource=journey')).entity;
+  const result=await post('save-resource',{resource:'journey',value:journey.value.filter(record=>record.id!=='linked-journey'),expectedRevision:journey.revision});assert.equal(result.status,400);assert.match(result.data.error,/references missing record/);
+});

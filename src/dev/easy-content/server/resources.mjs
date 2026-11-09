@@ -89,7 +89,6 @@ export function saveResource({ resource, id, value, expectedRevision }) {
   const descriptor = resourceDefinition(resource);
   const file = fileFor(descriptor);
   assertRevision(file, expectedRevision);
-  if (descriptor.kind === 'collection' && !id) throw contentError(resource, 'select one record to save. For arrays use Import and choose Append or Update.');
   const data = candidateSource({ resource, id, value });
   writeTransaction([{ file, source: serialize(data[resource]) }]);
   return readResource({ resource, id });
