@@ -17,8 +17,13 @@ RUN apt-get update \
     && apt-get install --yes --no-install-recommends chromium ca-certificates fonts-liberation \
     && rm -rf /var/lib/apt/lists/*
 
-COPY . .
+COPY --chown=node:node . .
 ENV CHROME_BIN=/usr/bin/chromium
+RUN chown -R node:node /app/node_modules \
+    && mkdir -p /app/.astro /app/dist \
+    && chown -R node:node /app/.astro /app/dist \
+    && chown node:node /app
+USER node
 RUN npm run content:validate \
     && npm run content:check-links \
     && npm run build
