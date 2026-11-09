@@ -1,4 +1,5 @@
-import { cpSync, existsSync, mkdirSync, rmSync } from 'node:fs';
+import { cp, rm } from 'node:fs/promises';
+import { existsSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const root = resolve(process.cwd());
@@ -10,7 +11,7 @@ if (!existsSync(source)) {
   process.exit(0);
 }
 
-rmSync(destination, { recursive: true, force: true });
+await rm(destination, { recursive: true, force: true });
 mkdirSync(destination, { recursive: true });
-cpSync(source, destination, { recursive: true });
+await cp(source, destination, { recursive: true });
 console.log('Published content/media to the generated public media mirror.');
