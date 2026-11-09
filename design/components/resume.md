@@ -13,3 +13,5 @@ The current document layout is intentionally simple and follows the homepage fro
 When generation is enabled, both locales must have a display name, professional title, concise introduction or summary, and at least one usable contact method. Missing required public data fails with an actionable error instead of producing an incomplete PDF.
 
 Staging portability: scripts/chromium.mjs discovers Chrome/Chromium/Edge and supports CHROME_BIN; process calls use argument arrays and pathToFileURL. Printing stages both locales before publishing generated outputs, removes superseded filenames after success and removes generated PDFs when disabled. Enabled generation with a hidden profile fails explicitly. RESUME_KEEP_HTML=1 retains local print HTML for inspection. No browser is installed during npm installation.
+
+Font faces reuse the installed Fontsource 400/700 CSS, including Arabic, Latin and Latin-ext unicode ranges. This removes platform-specific fallback for English and mixed-direction text while keeping fonts local and embedded.
