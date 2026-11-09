@@ -29,6 +29,56 @@ Cold Astro compilation can exceed 30 seconds in disposable Windows fixtures. Bro
 
 The copied prompt includes current resource JSON as data, preserves the verified homepage section map/interview protocol, requests missing schemas instead of guessing and asks for approval before moving on. There is no external AI service or factual-content invention. Native dialogs handle focus containment; English/Persian toolbar labels and the public RTL view were exercised. Manual assistive-technology review beyond browser keyboard controls is not claimed.
 
-Additional security regression: the pre-existing MDX preview evaluator could execute arbitrary JavaScript expressions. A remark AST guard now permits static values and registered safe blocks only, rejects imports/exports and active HTML/URLs, and tests that a malicious expression never runs. The project homepage preview shares prepareEntitySave with Save and skips persistence entirely; an HTTP regression proves source bytes and draft status remain unchanged. Local API suite now contains ten behavior tests. Existing Mermaid rendering and bilingual save suites still pass.
+Additional security regression: the pre-existing MDX preview evaluator could execute arbitrary JavaScript expressions. A remark AST guard now permits static values and registered safe blocks only, rejects imports/exports and active HTML/URLs, and tests that a malicious expression never runs. The project homepage preview shares prepareEntitySave with Save and skips persistence entirely; an HTTP regression proves source bytes and draft status remain unchanged. Local API suite now contains eleven behavior tests. Existing Mermaid rendering and bilingual save suites still pass.
 
-Final Windows Node 22.23.2 run: clean npm ci, content validation, link checks, Astro check, production build, full npm test and both real-browser authoring flows PASS. Added project homepage preview assertions also PASS, and the final API suite has ten passing tests, including real résumé-reference deletion protection. Collection import previews share the same Append/Update candidate calculation as persistence. Duplicate JSON fields are rejected instead of silently retaining the last value. Remote push failed because the saved GitHub credentials are invalid; branches remain local and no PR or remote matrix run is claimed.
+Final Windows Node 22.23.2 run: clean npm ci, content validation, link checks, Astro check, production build, full npm test and both real-browser authoring flows PASS. Added project homepage preview assertions also PASS, and the final API suite has eleven passing tests, including real résumé-reference deletion protection. Collection import previews share the same Append/Update candidate calculation as persistence. Duplicate JSON fields are rejected instead of silently retaining the last value. Remote push failed because the saved GitHub credentials are invalid; branches remain local and no PR or remote matrix run is claimed.
+
+Fixture review: the new API/browser suites now construct schema-validated synthetic owner-neutral JSON and a synthetic landing instead of copying the checked-out owner content. All five structured collections have real API create/edit/reload/delete round-trip coverage. The detached integration intentionally uses a separate copy of the realistic content branch for build/PDF validation only.
+
+## Delivered files
+
+- .agents/skills/portfolio-easy-content/SKILL.md
+- .agents/skills/portfolio-staging-review/SKILL.md
+- .github/workflows/studio.yml
+- AGENTS.md
+- README.fa.md
+- README.md
+- design/architecture/easy-content.md
+- design/components/homepage.md
+- design/reports/2026-11-09-easy-content-staging.md
+- docs/AUTHORING.md
+- docs/STAGING-AUTHORING.md
+- package-lock.json
+- package.json
+- scripts/content-validate.mjs
+- scripts/dev-content.mjs
+- scripts/media-publish.mjs
+- scripts/preview.mjs
+- scripts/process-runner.mjs
+- scripts/studio-ui-test.mjs
+- scripts/studio.test.mjs
+- scripts/verify-build.mjs
+- src/components/layout/Navbar.astro
+- src/components/platform/HomeSurface.astro
+- src/components/sections/Footer.astro
+- src/components/sections/FooterCTA.astro
+- src/components/sections/Values.astro
+- src/dev/easy-content/editor/ai-writing-guide.js
+- src/dev/easy-content/editor/editor-bilingual.html
+- src/dev/easy-content/editor/editor-bilingual.js
+- src/dev/easy-content/editor/editor-delete.js
+- src/dev/easy-content/editor/json-normalize.mjs
+- src/dev/easy-content/editor/preview.astro
+- src/dev/easy-content/editor/studio.html
+- src/dev/easy-content/editor/studio.js
+- src/dev/easy-content/integration/index.mjs
+- src/dev/easy-content/server/adapters-bilingual.mjs
+- src/dev/easy-content/server/middleware.mjs
+- src/dev/easy-content/server/preview-sessions.mjs
+- src/dev/easy-content/server/resource-validation.mjs
+- src/dev/easy-content/server/resources.mjs
+- src/dev/easy-content/server/security.mjs
+- src/dev/easy-content/server/static-mdx-preview.mjs
+- src/layouts/Layout.astro
+- src/utils/portfolio-content.ts
+- src/utils/portfolio-schemas.mjs
