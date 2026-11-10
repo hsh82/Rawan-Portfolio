@@ -5,7 +5,7 @@ import { test } from 'node:test';
 import { parse } from 'yaml';
 
 const root = process.cwd();
-const read = file => readFileSync(`${root}/${file}`, 'utf8');
+const read = file => readFileSync(`${root}/${file}`, 'utf8').replace(/\r\n/g, '\n');
 
 test('Docker distribution files describe separate authoring and production targets', () => {
   const dockerfile = read('setup/Dockerfile');
