@@ -47,6 +47,10 @@ ENV NODE_ENV=development \
 RUN mkdir -p /app/.content-template /app/content /app/public/media /app/.easy-content-trash \
     && cp -a /app/content/. /app/.content-template/ \
     && chown -R node:node /app
+
+# The entrypoint is installed outside the application tree, so install it as
+# root before returning to the unprivileged runtime user.
+USER root
 COPY setup/authoring-entrypoint.mjs /usr/local/bin/rawan-authoring-entrypoint.mjs
 RUN chmod 0755 /usr/local/bin/rawan-authoring-entrypoint.mjs
 

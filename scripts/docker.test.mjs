@@ -15,6 +15,7 @@ test('Docker distribution files describe separate authoring and production targe
   assert.match(dockerfile, /FROM nginxinc\/nginx-unprivileged:1\.27-alpine AS production/);
   assert.match(dockerfile, /RUN npm ci/);
   assert.match(dockerfile, /COPY --from=builder \/app\/dist\//);
+  assert.ok(dockerfile.indexOf('USER root\nCOPY setup/authoring-entrypoint.mjs') < dockerfile.indexOf('USER node\nEXPOSE 4321'));
   assert.doesNotMatch(dockerfile.slice(dockerfile.indexOf('FROM nginxinc')), /node_modules|EASY_CONTENT_MODE/);
 });
 
@@ -60,6 +61,10 @@ test('GHCR workflow only publishes after main or version-tag validation', () => 
   assert.match(workflow, /type=semver,pattern=\{\{version\}\}/);
   assert.match(workflow, /type=raw,value=latest,enable=\{\{is_default_branch\}\}/);
   assert.match(workflow, /docker\/build-push-action@v6/);
+  assert.match(workflow, /aquasecurity\/trivy-action@v0\.36\.0/);
+  assert.doesNotMatch(workflow, /aquasecurity\/trivy-action@0\.28\.0/);
+  assert.equal((workflow.match(/runs-on: ubuntu-24\.04/g) || []).length, 2);
+  assert.doesNotMatch(workflow, /runs-on: ubuntu-latest/);
   assert.match(workflow, /needs: verify/);
   assert.match(workflow, /github\.event_name != 'pull_request'/);
 });
