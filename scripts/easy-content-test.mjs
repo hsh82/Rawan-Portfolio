@@ -4,7 +4,7 @@ import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { normalizeDocumentSource, parseDocument, updateFrontmatter } from '../src/dev/easy-content/server/frontmatter.mjs';
-import { isInside, safePath, safeSlug } from '../src/dev/easy-content/server/security.mjs';
+import { assertLocalRequest, isInside, safePath, safeSlug } from '../src/dev/easy-content/server/security.mjs';
 import { contextForPath, editorContextForPath, readEntity, saveEntity } from '../src/dev/easy-content/server/adapters-bilingual.mjs';
 import { contentActions, editorCapabilities } from '../src/dev/easy-content/context.mjs';
 import { readResource, resourceCatalog } from '../src/dev/easy-content/server/resources.mjs';
@@ -33,6 +33,11 @@ assert.equal(safeSlug(' CI/CD Pipeline '), 'ci-cd-pipeline');
 assert.throws(() => safePath(process.cwd(), '..'), /Unsafe path segment/);
 assert.equal(isInside(process.cwd(), process.cwd()), true);
 assert.equal(isInside(process.cwd(), `${process.cwd()}-outside`), false);
+const dockerRequest = { socket: { remoteAddress: '172.30.0.1' }, headers: { host: 'localhost:1234', origin: 'http://localhost:1234' } };
+assert.throws(() => assertLocalRequest(dockerRequest, {}), /local machine/);
+assert.doesNotThrow(() => assertLocalRequest(dockerRequest, { EASY_CONTENT_DOCKER: 'true', EASY_CONTENT_DOCKER_TRUSTED_REMOTE: '172.30.0.1' }));
+assert.throws(() => assertLocalRequest({ ...dockerRequest, socket: { remoteAddress: '172.30.0.2' } }, { EASY_CONTENT_DOCKER: 'true', EASY_CONTENT_DOCKER_TRUSTED_REMOTE: '172.30.0.1' }), /local machine/);
+assert.throws(() => assertLocalRequest({ ...dockerRequest, headers: { ...dockerRequest.headers, origin: 'https://attacker.example' } }, { EASY_CONTENT_DOCKER: 'true', EASY_CONTENT_DOCKER_TRUSTED_REMOTE: '172.30.0.1' }), /Cross-origin/);
 
 const source = `---\ntitle: "Original title"\ncustom: keep-me\ntags: ["Docker", "CI/CD"]\n---\n\n## Body\n`;
 const parsed = parseDocument(source);

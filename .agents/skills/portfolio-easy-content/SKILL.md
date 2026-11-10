@@ -1,29 +1,16 @@
-# Easy Content Mode
+---
+name: portfolio-easy-content
+description: Maintain the local Studio, structured JSON contracts, collections, live snapshots and bilingual MDX editor.
+---
 
-Use this skill when maintaining the local developer-only content editor under `src/dev/easy-content/`.
+# portfolio-easy-content
 
-## Boundaries
+Read AGENTS.md, design/plan.md and design/architecture/easy-content.md. Sources: src/utils/portfolio-schemas.mjs, portfolio-content.ts, src/dev/easy-content/server/resources.mjs, resource-validation.mjs, security.mjs and editor/studio.js. MDX uses adapters-bilingual.mjs/frontmatter.mjs; it is not JSON.
 
-- This is a local file editor, not a CMS, database, production endpoint, or deployment workflow.
-- Start it with `npm run dev:content`; it sets `EASY_CONTENT_MODE=true` and starts Astro in development mode.
-- The Vite integration uses `apply: 'serve'`, and the launcher is gated by both `import.meta.env.DEV` and the flag. Production builds must not contain the editor, API, token, or write UI.
-- Writes are limited to `content/` and media uploads to `content/media/`. Requests must be local, same-origin, and carry the per-process session token.
-- Save operations use file revisions and atomic or multi-file transactions. A `409` means reload before overwriting an external change.
-- Easy Content never commits, pushes, deploys, deletes, renames, or publishes remotely.
+Career collections use one full-file JSON array editor, like singleton JSON resources. Empty collections open with an unsaved hidden bilingual template inside the JSON buffer. Users add, edit and remove array entries directly, then Save Changes replaces the validated complete file using expectedRevision and atomic writes. There are no record-selection, Add, Delete or import-mode controls in Studio. Preserve schema validation, unique IDs, canonical references and unknown authored fields. Never invent facts or persist the empty-file template automatically. Normalize syntax through editor/json-normalize.mjs.
 
-## Content model
+Unsaved preview uses validated immutable snapshots and the dev-only preview.astro route with the actual HomeSurface composition. It must never write content files. Keep the iframe script-free; do not combine scripts and same-origin privileges. Preserve loopback Host/Origin, session tokens, revision hashes, bounded sessions and transaction rollback. Normal preview is read-only; preview:content is source-backed authoring. Studio JSON has no Publish state. MDX Save Draft, Publish and Unpublish retain separate behavior.
 
-- Home edits are constrained to the localized profile fields exposed by the adapter.
-- Blog landing content lives in `content/blog/{en,fa}/_index.mdx`.
-- A project is one canonical Blog hub at `content/blog/projects/{id}/`: shared card/publication data in `entry.json` and localized overview documents in `en.mdx` and `fa.mdx`. Public URLs still end in `/overview/`.
-- Child articles are inferred from the project folder. The `overview` slug is reserved.
-- Journey creation starts hidden; edit only verified milestone copy.
-- Drafts stay out of the public collections until they are intentionally published through the editor and pass the normal validators.
+Run npm run content:validate, npm run content:check-links, npm run test:studio, npm run test:easy-content, npm run test:easy-content-guide, npm run check, npm run build, npm test and npm run test:studio-ui. The UI suite needs CHROME_BIN or installed Chrome and uses disposable content. Definition of done: real API and browser tests pass for both authoring commands, invalid input preserves last preview with a warning, production contains no editor, and canonical IDs/EN/FA records survive round trips.
 
-## Editor behavior
-
-The editor is a native Astro/DOM implementation because this repository does not ship a full MDX editor dependency. Source mode is authoritative. Visual mode previews common Markdown and becomes read-only when it detects advanced MDX components, preserving those components in source mode. The block menu inserts the existing safe component vocabulary; it does not attempt to edit arbitrary JSX.
-
-Use the Studio at `/dev/content/` for structured site/profile/contact/career JSON. It provides General, English, Persian, and lossless JSON Source views plus a local read-only homepage preview. Use the dedicated document editor for project hubs and MDX articles. Use Media to upload safe image formats to a project-scoped content path. Use Changes to inspect Git status and the Diff mode before saving. Run Validate before review and commit.
-
-After changes, run `npm run content:validate`, `npm run content:check-links`, `npm run test:easy-content`, `npm run check`, `npm run build`, and `npm run test` as appropriate.
+Docker authoring uses the same editor and API through portfolio-docker-release. The host checkout's content directory is canonical; the container's generated public/media mirror is disposable. Never weaken Easy Content security globally to accommodate Docker networking.

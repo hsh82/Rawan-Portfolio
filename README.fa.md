@@ -248,3 +248,21 @@ Terraform را به مهارت‌های زیرساخت اضافه کن.
 - رزومه تولید نمی‌شود: پروفایل را قابل نمایش و résumé را فعال کنید و نصب Chromium را بررسی کنید.
 - مشکل RTL: صفحهٔ فارسی را جداگانه بررسی کنید و URL و code span را LTR نگه دارید.
 - خطای Vercel: ابتدا `npm ci` و `npm run build` را محلی اجرا و Secretها را بررسی کنید.
+
+برای نصب از Node.js نسخهٔ LTS 22 (حداقل 22.12) یا 24.13.1 و بالاتر از شاخهٔ 24 استفاده کنید. دستورهای npm در ویندوز، لینوکس و macOS یکسان هستند. پیش‌نمایش عادی فقط dist را می‌خواند؛ preview:content سرور محلیِ ویرایش از روی منبع است. تولید رزومهٔ فعال به Chrome، Chromium یا Edge نیاز دارد؛ مسیر فایل اجرایی را با CHROME_BIN تعیین کنید. رزومهٔ غیرفعال نیازی به مرورگر ندارد. [راهنمای آمادگی مرحلهٔ آزمایشی](design/STAGING-PLATFORM.fa.md).
+
+در استودیو، آرایهٔ کامل هر فایل JSON را مستقیم ویرایش و ذخیره کنید. نمونهٔ فایل خالی داخل خود JSON نمایش داده می‌شود. پیش‌نمایش به‌صورت پیش‌فرض موبایل است. پیش‌نمایش تغییرات معتبر را پیش از ذخیره نشان می‌دهد؛ برای JSON نامعتبر آخرین نمای معتبر با هشدار حفظ می‌شود. نمای دسکتاپ، موبایل، بزرگ‌نمایی و دو زبان در دسترس است. دستیار نگارش و عملیات بیشتر در نوار بالا هستند. انتشار مخصوص اسناد وبلاگ و پروژه است. [راهنمای کامل نگارش آزمایشی](design/STAGING-AUTHORING.fa.md).
+
+## توزیع‌های Docker
+
+راهنمای کامل و سادهٔ نصب برای Windows PowerShell، Linux، macOS، ویرایش پایدار Easy Content، اجرای نسخهٔ تولیدی و رفع خطاها در [راهنمای Easy Setup](setup/README.md) و [نسخهٔ فارسی](setup/README.fa.md) قرار دارد.
+
+تصویر قابل ویرایش `ghcr.io/hsh82/rawan-easy-content:latest` است و با `setup/docker-compose.yml` در `http://localhost:4321` اجرا می‌شود. فقط پوشهٔ `content/` نسخهٔ محلی به‌صورت bind mount متصل می‌شود؛ بنابراین تغییرات Easy Content روی میزبان برای Git قابل مشاهده است. تصویر تولیدی `ghcr.io/hsh82/rawan-portfolio:latest` با `setup/docker-compose.production.yml` در `http://localhost:8080` اجرا می‌شود و فقط خروجی استاتیک را دارد؛ Easy Content در آن وجود ندارد.
+
+```sh
+docker compose -f setup/docker-compose.yml pull
+docker compose -f setup/docker-compose.yml up -d
+docker compose -f setup/docker-compose.yml logs -f
+```
+
+اتصال `content/` به کانتینر تولیدی سایت تولیدشده را به‌روزرسانی نمی‌کند؛ برای محتوای شخصی باید تصویر جدید را از branch محتوای موردنظر build کنید.

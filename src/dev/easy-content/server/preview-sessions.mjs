@@ -1,6 +1,8 @@
 import { randomBytes } from 'node:crypto';
 
-const sessions = new Map();
+const key = Symbol.for('rawan.easy-content.preview-sessions');
+const sessions = globalThis[key] ||= new Map();
+const MAX_SESSIONS = 80;
 const MAX_AGE = 10 * 60 * 1000;
 
 function purge() {
@@ -10,8 +12,9 @@ function purge() {
 
 export function createPreviewSession(value) {
   purge();
+  if (sessions.size >= MAX_SESSIONS) sessions.delete(sessions.keys().next().value);
   const id = randomBytes(18).toString('base64url');
-  sessions.set(id, { ...value, createdAt: Date.now() });
+  sessions.set(id, { ...structuredClone(value), createdAt: Date.now() });
   return id;
 }
 

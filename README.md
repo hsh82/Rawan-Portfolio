@@ -277,3 +277,21 @@ This project preserves the upstream MIT license and attribution in [LICENSE.md](
 - **Chromium cannot start:** set `CHROME_BIN` or use the supported local sandbox configuration; do not commit generated PDFs as a workaround.
 - **RTL issues:** inspect the Persian route, keep URLs and code spans direction-isolated, and use the shared layout rather than custom document direction.
 - **Vercel failures:** reproduce with `npm ci` and `npm run build`, confirm `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID`, verify the selected branch is `main` or `content/*`, and ensure Vercel Git auto-deployments are disabled.
+
+Staging prerequisites, portable commands, Chromium discovery and verification: [Platform staging](design/STAGING-PLATFORM.md). Node 22.12+ (22 LTS) or 24.13.1+ LTS is required.
+
+Studio staging workflow: [Authoring guide](design/STAGING-AUTHORING.md). Collections support individual records and explicit Append/Update imports, validated unsaved previews, desktop/mobile expansion and toolbar AI assistance.
+
+## Docker distributions
+
+For a beginner-friendly setup with Windows PowerShell, Linux, macOS, persistent Easy Content, production hosting, and troubleshooting, see [setup/README.md](setup/README.md) and [راهنمای فارسی](setup/README.fa.md).
+
+The editable image is `ghcr.io/hsh82/rawan-easy-content:latest` and runs through `setup/docker-compose.yml` at `http://localhost:4321`. It bind-mounts only the checkout's `content/` directory, so Easy Content edits remain visible to Git on the host. The production image is `ghcr.io/hsh82/rawan-portfolio:latest` and runs through `setup/docker-compose.production.yml` at `http://localhost:8080`; it contains only the immutable static build and does not expose Easy Content.
+
+```sh
+docker compose -f setup/docker-compose.yml pull
+docker compose -f setup/docker-compose.yml up -d
+docker compose -f setup/docker-compose.yml logs -f
+```
+
+Use the production Compose file only for a static preview or deployment image. Mounting `content/` into that container does not rebuild the already-generated site; build a new image from the intended content branch instead.

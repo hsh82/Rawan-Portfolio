@@ -1,0 +1,26 @@
+services:
+  portfolio:
+    image: ghcr.io/hsh82/rawan-portfolio:latest
+    build:
+      context: ..
+      dockerfile: setup/Dockerfile
+      target: production
+    pull_policy: missing
+    init: true
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${PORT:-8080}:8080"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m
+      - /var/cache/nginx:rw,noexec,nosuid,size=8m,uid=101,gid=101,mode=700
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--output-document=-", "http://127.0.0.1:8080/healthz"]
+      interval: 10s
+      timeout: 4s
+      start_period: 8s
+      retries: 5

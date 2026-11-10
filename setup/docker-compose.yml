@@ -1,0 +1,39 @@
+services:
+  easy-content:
+    image: ghcr.io/hsh82/rawan-easy-content:latest
+    build:
+      context: ..
+      dockerfile: setup/Dockerfile
+      target: authoring
+    pull_policy: missing
+    init: true
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${EASY_CONTENT_PORT:-4321}:4321"
+    environment:
+      EASY_CONTENT_MODE: "true"
+      EASY_CONTENT_DOCKER: "true"
+      EASY_CONTENT_DOCKER_TRUSTED_REMOTE: "${EASY_CONTENT_DOCKER_GATEWAY:-172.30.0.1}"
+      HOST: "0.0.0.0"
+      PORT: "4321"
+      CHROME_BIN: "/usr/bin/chromium"
+    volumes:
+      - type: bind
+        source: ../content
+        target: /app/content
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4321/__easy-content/api/context?path=/dev/content/').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 4s
+      start_period: 25s
+      retries: 6
+    networks:
+      - authoring
+
+networks:
+  authoring:
+    name: rawan-easy-content
+    ipam:
+      config:
+        - subnet: 172.30.0.0/28
+          gateway: 172.30.0.1
