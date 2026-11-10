@@ -9,7 +9,7 @@ services:
     init: true
     restart: unless-stopped
     ports:
-      - "127.0.0.1:${EASY_CONTENT_PORT:-1234}:4321"
+      - "127.0.0.1:${EASY_CONTENT_PORT:-4321}:4321"
     environment:
       EASY_CONTENT_MODE: "true"
       EASY_CONTENT_DOCKER: "true"
