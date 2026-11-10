@@ -61,9 +61,9 @@ test('GHCR workflow only publishes after main or version-tag validation', () => 
   assert.match(workflow, /type=semver,pattern=\{\{version\}\}/);
   assert.match(workflow, /type=raw,value=latest,enable=\{\{is_default_branch\}\}/);
   assert.match(workflow, /docker\/build-push-action@v6/);
-  assert.match(workflow, /aquasecurity\/trivy-action@v0\.36\.0/);
-  assert.match(workflow, /image-ref: ghcr\.io\/hsh82\/rawan-portfolio:latest[\s\S]*exit-code: '0'/);
   assert.doesNotMatch(workflow, /aquasecurity\/trivy-action@0\.28\.0/);
+  assert.doesNotMatch(workflow, /aquasecurity\/trivy-action@/);
+  assert.match(workflow, /127\.0\.0\.1:4321\/en/);
   assert.equal((workflow.match(/runs-on: ubuntu-24\.04/g) || []).length, 2);
   assert.doesNotMatch(workflow, /runs-on: ubuntu-latest/);
   assert.match(workflow, /needs: verify/);

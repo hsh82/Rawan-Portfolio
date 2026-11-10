@@ -14,12 +14,12 @@ The following checks were run in the Linux Docker environment used for this chec
 - `npm run test:easy-content` — passed, including Docker gateway trust and cross-origin rejection.
 - Authoring target build — passed; local image was approximately 1.81 GB because it includes Node dependencies and Chromium.
 - Production target build — passed; local image was approximately 55.3 MB and contains the generated static site only.
-- Authoring container — passed: healthy on `127.0.0.1:1234`, English/Persian routes, Easy Content context API, content-only persistence, and restart route smoke test.
+- Authoring container — passed: healthy on `127.0.0.1:4321`, English/Persian routes, Easy Content context API, content-only persistence, and restart route smoke test.
 - Production container — passed: healthy on an alternate local port because host port 8080 was already occupied by another service; English/Persian/blog routes, `/healthz`, genuine 404, and absent Easy Content API.
 - Production runtime inspection — passed: UID 101, read-only root filesystem, all capabilities dropped.
 - Personal-content production target — passed after the scoped Chromium build workaround: the `content/hamed-sheikhan` build generated both bilingual résumé PDFs and the container served English, Persian, and project routes with a genuine 404 and no Easy Content API.
 
-Host browser/PDF tests are available when Chrome is installed; cross-platform Windows/macOS runtime validation is not claimed from this Linux run. CI remains responsible for the GitHub-hosted Docker build, registry publication, and its Linux smoke tests.
+Host browser/PDF tests are available when Chrome is installed; cross-platform Windows/macOS runtime validation is not claimed from this Linux run. CI remains responsible for the GitHub-hosted Docker build, registry publication, and its Linux smoke tests. CVE scanning is intentionally not a publication gate for this public static frontend.
 
 ## Operational contract
 

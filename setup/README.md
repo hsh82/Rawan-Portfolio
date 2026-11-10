@@ -278,7 +278,7 @@ The authoring container is not privileged and has no Docker socket or Git creden
 
 ## GHCR publishing
 
-Pull requests run application tests, Docker configuration checks, image builds, vulnerability scanning, and container smoke tests but do not publish `latest`. A successful push to `main` or a `v*.*.*` tag then publishes both images using the GitHub Actions `GITHUB_TOKEN`, SHA tags, and OCI source metadata. The workflow targets `linux/amd64` only until ARM64 is independently validated.
+Pull requests run application tests, Docker configuration checks, image builds, and container smoke tests but do not publish `latest`. A successful push to `main` or a `v*.*.*` tag then publishes both images using the GitHub Actions `GITHUB_TOKEN`, SHA tags, and OCI source metadata. The workflow targets `linux/amd64` only until ARM64 is independently validated.
 
 ## Acceptance limitations
 
