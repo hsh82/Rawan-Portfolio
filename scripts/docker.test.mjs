@@ -52,7 +52,7 @@ test('production server does not provide an SPA fallback or authoring API', () =
 
 test('GHCR workflow only publishes after main or version-tag validation', () => {
   const workflow = read('.github/workflows/docker-publish.yml');
-  assert.match(workflow, /pull_request:/);
+  assert.doesNotMatch(workflow, /^\s*pull_request:\s*$/m);
   assert.match(workflow, /branches: \[main\]/);
   assert.match(workflow, /packages: write/);
   assert.match(workflow, /rawan-easy-content/);

@@ -28,7 +28,7 @@ Read `AGENTS.md`, `design/plan.md`, `design/architecture/easy-content.md`, `desi
 
 ## Release workflow
 
-- Pull requests build, scan, and smoke-test both targets but never publish `latest`.
+- A push to `main` after merge builds and smoke-tests both targets before publishing; pull requests do not run this Docker workflow.
 - Successful `main` builds publish both exact repositories with `latest` and a long SHA tag.
 - `v*.*.*` tags publish immutable version tags; they do not move `latest` unless the tag is also the repository default branch event.
 - Use GitHub Actions `GITHUB_TOKEN` with `contents: read` and `packages: write`.
