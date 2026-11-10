@@ -257,7 +257,7 @@ Terraform را به مهارت‌های زیرساخت اضافه کن.
 
 راهنمای کامل و سادهٔ نصب برای Windows PowerShell، Linux، macOS، ویرایش پایدار Easy Content، اجرای نسخهٔ تولیدی و رفع خطاها در [راهنمای Easy Setup](setup/README.md) و [نسخهٔ فارسی](setup/README.fa.md) قرار دارد.
 
-تصویر قابل ویرایش `ghcr.io/hsh82/rawan-easy-content:latest` است و با `setup/docker-compose.yml` در `http://localhost:1234` اجرا می‌شود. فقط پوشهٔ `content/` نسخهٔ محلی به‌صورت bind mount متصل می‌شود؛ بنابراین تغییرات Easy Content روی میزبان برای Git قابل مشاهده است. تصویر تولیدی `ghcr.io/hsh82/rawan-portfolio:latest` با `setup/docker-compose.production.yml` در `http://localhost:8080` اجرا می‌شود و فقط خروجی استاتیک را دارد؛ Easy Content در آن وجود ندارد.
+تصویر قابل ویرایش `ghcr.io/hsh82/rawan-easy-content:latest` است و با `setup/docker-compose.yml` در `http://localhost:4321` اجرا می‌شود. فقط پوشهٔ `content/` نسخهٔ محلی به‌صورت bind mount متصل می‌شود؛ بنابراین تغییرات Easy Content روی میزبان برای Git قابل مشاهده است. تصویر تولیدی `ghcr.io/hsh82/rawan-portfolio:latest` با `setup/docker-compose.production.yml` در `http://localhost:8080` اجرا می‌شود و فقط خروجی استاتیک را دارد؛ Easy Content در آن وجود ندارد.
 
 ```sh
 docker compose -f setup/docker-compose.yml pull
