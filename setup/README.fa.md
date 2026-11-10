@@ -175,6 +175,6 @@ builder برای checkoutهایی که résumé فعال دارند Chromium ر�
 
 Easy Content همچنان session token، Host/Origin همسان، محدودیت body، safe path، symlink check، atomic write و revision check را اعمال می‌کند. Compose فقط روی `127.0.0.1` publish می‌کند و تنها gateway ثابت شبکهٔ اختصاصی Docker را trusted می‌کند؛ آدرس‌های دیگر رد می‌شوند. کانتینر authoring privileged نیست و Docker socket یا Git credentials ندارد. production قابلیت‌ها را حذف و filesystem را read-only می‌کند.
 
-Pull requestها image را build و smoke-test می‌کنند ولی `latest` را منتشر نمی‌کنند. Push موفق به `main` یا tag نسخه‌ای `v*.*.*` هر دو image را با `GITHUB_TOKEN`، SHA tag و OCI source metadata در GHCR منتشر می‌کند. فعلاً فقط `linux/amd64` هدف است.
+CI معمولی روی pull requestها تست‌های برنامه را اجرا می‌کند. بررسی و انتشار Docker پس از push به `main`، از جمله merge شدن یک pull request، یا برای tag نسخه‌ای `v*.*.*` اجرا می‌شود. اجرای موفق هر دو image را با `GITHUB_TOKEN`، SHA tag و OCI source metadata در GHCR منتشر می‌کند. فعلاً فقط `linux/amd64` هدف است.
 
 CI اجرای Linux را validate می‌کند. اجرای Windows Docker Desktop با WSL 2 و macOS Docker Desktop باید دستی با دستورات بالا آزمایش و جداگانه ثبت شود؛ موفقیت CI لینوکس به‌تنهایی شواهد اجرای آن سیستم‌ها نیست.

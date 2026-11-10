@@ -16,7 +16,7 @@ The images are published as:
 - `ghcr.io/hsh82/rawan-easy-content`
 - `ghcr.io/hsh82/rawan-portfolio`
 
-The `main` branch receives `latest` plus an immutable `sha-<commit>` tag after verification. A Git tag such as `v1.4.0` receives the `v1.4.0`, `1.4.0`, and `1.4` tags plus its immutable SHA tag. Pull requests build and smoke-test both targets but never publish.
+The `main` branch receives `latest` plus an immutable `sha-<commit>` tag after verification. A Git tag such as `v1.4.0` receives the `v1.4.0`, `1.4.0`, and `1.4` tags plus its immutable SHA tag. Docker verification and publication run after a push to `main` (including a merged pull request), not on pull requests themselves.
 
 ## Content persistence
 
