@@ -286,7 +286,7 @@ Studio staging workflow: [Authoring guide](design/STAGING-AUTHORING.md). Collect
 
 For a beginner-friendly setup with Windows PowerShell, Linux, macOS, persistent Easy Content, production hosting, and troubleshooting, see [setup/README.md](setup/README.md) and [راهنمای فارسی](setup/README.fa.md).
 
-The editable image is `ghcr.io/hsh82/rawan-easy-content:latest` and runs through `setup/docker-compose.yml` at `http://localhost:1234`. It bind-mounts only the checkout's `content/` directory, so Easy Content edits remain visible to Git on the host. The production image is `ghcr.io/hsh82/rawan-portfolio:latest` and runs through `setup/docker-compose.production.yml` at `http://localhost:8080`; it contains only the immutable static build and does not expose Easy Content.
+The editable image is `ghcr.io/hsh82/rawan-easy-content:latest` and runs through `setup/docker-compose.yml` at `http://localhost:4321`. It bind-mounts only the checkout's `content/` directory, so Easy Content edits remain visible to Git on the host. The production image is `ghcr.io/hsh82/rawan-portfolio:latest` and runs through `setup/docker-compose.production.yml` at `http://localhost:8080`; it contains only the immutable static build and does not expose Easy Content.
 
 ```sh
 docker compose -f setup/docker-compose.yml pull

@@ -2,7 +2,7 @@
 
 This repository has two Docker distributions:
 
-- **Easy Content**: an editable local authoring environment at `http://localhost:1234`.
+- **Easy Content**: an editable local authoring environment at `http://localhost:4321`.
 - **Production**: a small immutable static website at `http://localhost:8080`.
 
 Docker supplies the application. Your cloned checkout supplies the version-controlled `content/` directory. The editor never commits, pushes, or receives Git credentials.
@@ -31,7 +31,7 @@ docker compose -f setup/docker-compose.yml exec -T easy-content npm run content:
 docker compose -f setup/docker-compose.yml exec -T easy-content npm run content:check-links
 ```
 
-Open `http://localhost:1234/en/`, `http://localhost:1234/fa/`, or `http://localhost:1234/dev/content/`.
+Open `http://localhost:4321/en/`, `http://localhost:4321/fa/`, or `http://localhost:4321/dev/content/`.
 
 Useful commands:
 
@@ -72,7 +72,7 @@ An empty bind-mounted content directory is initialized once from the image's imm
    ```powershell
    docker compose -f setup/docker-compose.yml pull
    docker compose -f setup/docker-compose.yml up -d
-   Start-Process http://localhost:1234/dev/content/
+   Start-Process http://localhost:4321/dev/content/
    ```
 
 6. Edit English/Persian homepage, structured records, projects, media, and MDX. Files are saved under the checkout's `content\` folder.
@@ -105,7 +105,7 @@ docker compose -f setup/docker-compose.yml pull
 docker compose -f setup/docker-compose.yml up -d
 ```
 
-On macOS use `open http://localhost:1234/dev/content/`; on Linux use `xdg-open http://localhost:1234/dev/content/` when available. On Linux, the image runs as the standard Node user, so checkout content files must be writable by the container user (normally UID 1000). If a checkout was created by root, repair ownership on the host before authoring; do not run the container privileged.
+On macOS use `open http://localhost:4321/dev/content/`; on Linux use `xdg-open http://localhost:4321/dev/content/` when available. On Linux, the image runs as the standard Node user, so checkout content files must be writable by the container user (normally UID 1000). If a checkout was created by root, repair ownership on the host before authoring; do not run the container privileged.
 
 ## Method C — Production static hosting
 
@@ -170,7 +170,7 @@ Résumé generation is disabled in the owner-neutral template. When enabled in a
 ```sh
 git switch -c content/my-portfolio
 docker compose -f setup/docker-compose.yml up -d
-# edit through http://localhost:1234/dev/content/
+# edit through http://localhost:4321/dev/content/
 git status --short
 git diff -- content
 npm run content:validate
@@ -195,7 +195,7 @@ The builder installs Chromium and its sandbox helper so a checkout with enabled 
 
 ## Troubleshooting
 
-### Port 1234 or 8080 is already in use
+### Port 4321 or 8080 is already in use
 
 ```sh
 docker compose -f setup/docker-compose.yml down
@@ -203,7 +203,7 @@ EASY_CONTENT_PORT=1235 docker compose -f setup/docker-compose.yml up -d
 PORT=8081 docker compose -f setup/docker-compose.production.yml up -d
 ```
 
-On PowerShell use `Get-NetTCPConnection -LocalPort 1234` and `Get-Process -Id <OwningProcess>`.
+On PowerShell use `Get-NetTCPConnection -LocalPort 4321` and `Get-Process -Id <OwningProcess>`.
 
 ### Docker Desktop is not running or WSL reports an error
 
@@ -278,7 +278,7 @@ The authoring container is not privileged and has no Docker socket or Git creden
 
 ## GHCR publishing
 
-Pull requests run application tests, Docker configuration checks, image builds, vulnerability scanning, and container smoke tests but do not publish `latest`. A successful push to `main` or a `v*.*.*` tag then publishes both images using the GitHub Actions `GITHUB_TOKEN`, SHA tags, and OCI source metadata. The workflow targets `linux/amd64` only until ARM64 is independently validated.
+Pull requests run application tests, Docker configuration checks, image builds, and container smoke tests but do not publish `latest`. A successful push to `main` or a `v*.*.*` tag then publishes both images using the GitHub Actions `GITHUB_TOKEN`, SHA tags, and OCI source metadata. The workflow targets `linux/amd64` only until ARM64 is independently validated.
 
 ## Acceptance limitations
 

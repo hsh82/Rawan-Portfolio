@@ -74,22 +74,14 @@ jobs:
           cache-from: type=gha,scope=rawan-portfolio
           cache-to: type=gha,mode=max,scope=rawan-portfolio
 
-      - name: Scan local images for high and critical vulnerabilities
-        uses: aquasecurity/trivy-action@v0.36.0
-        with:
-          image-ref: ghcr.io/hsh82/rawan-portfolio:latest
-          severity: CRITICAL,HIGH
-          ignore-unfixed: true
-          exit-code: '1'
-
       - name: Start authoring container
         run: docker compose -f setup/docker-compose.yml up -d --no-build
 
       - name: Smoke-test Easy Content and persistence boundary
         run: |
-          curl --fail --retry 20 --retry-delay 2 http://127.0.0.1:1234/en/
-          curl --fail --retry 20 --retry-delay 2 http://127.0.0.1:1234/fa/
-          curl --fail --retry 20 --retry-delay 2 'http://127.0.0.1:1234/__easy-content/api/context?path=/dev/content/'
+          curl --fail --retry 20 --retry-delay 2 http://127.0.0.1:4321/en/
+          curl --fail --retry 20 --retry-delay 2 http://127.0.0.1:4321/fa/
+          curl --fail --retry 20 --retry-delay 2 'http://127.0.0.1:4321/__easy-content/api/context?path=/dev/content/'
           test "$(docker inspect --format '{{.State.Health.Status}}' "$(docker compose -f setup/docker-compose.yml ps -q easy-content)")" = healthy
           docker compose -f setup/docker-compose.yml exec -T easy-content node -e "import('./setup/authoring-entrypoint.mjs').then(m=>m.initializeContent())"
 

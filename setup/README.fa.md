@@ -2,7 +2,7 @@
 
 این مخزن دو توزیع Docker دارد:
 
-- **Easy Content**: محیط ویرایش محلی در `http://localhost:1234`
+- **Easy Content**: محیط ویرایش محلی در `http://localhost:4321`
 - **Production**: سایت استاتیک و غیرقابل‌تغییر در `http://localhost:8080`
 
 Docker برنامه را فراهم می‌کند و checkout محلی شما پوشهٔ version-controlled به نام `content/` را فراهم می‌کند. ویرایشگر هرگز commit، push یا اعتبار Git را دریافت نمی‌کند.
@@ -18,7 +18,7 @@ docker compose -f setup/docker-compose.yml pull
 docker compose -f setup/docker-compose.yml up -d
 ```
 
-سپس `http://localhost:1234/fa/`، `http://localhost:1234/en/` یا `http://localhost:1234/dev/content/` را باز کنید.
+سپس `http://localhost:4321/fa/`، `http://localhost:4321/en/` یا `http://localhost:4321/dev/content/` را باز کنید.
 
 ```sh
 docker compose -f setup/docker-compose.yml ps
@@ -47,7 +47,7 @@ docker compose -f setup/docker-compose.yml down
    git switch content/hamed-sheikhan
    docker compose -f setup/docker-compose.yml pull
    docker compose -f setup/docker-compose.yml up -d
-   Start-Process http://localhost:1234/dev/content/
+   Start-Process http://localhost:4321/dev/content/
    ```
 
 4. فایل‌های ذخیره‌شده در پوشهٔ `content\` checkout هستند. بررسی Git روی میزبان انجام می‌شود:
@@ -75,7 +75,7 @@ docker compose -f setup/docker-compose.yml pull
 docker compose -f setup/docker-compose.yml up -d
 ```
 
-در macOS `open http://localhost:1234/dev/content/` و در Linux `xdg-open` را اجرا کنید. در Linux فایل‌های `content/` باید برای کاربر کانتینر قابل نوشتن باشند؛ کانتینر privileged اجرا نکنید.
+در macOS `open http://localhost:4321/dev/content/` و در Linux `xdg-open` را اجرا کنید. در Linux فایل‌های `content/` باید برای کاربر کانتینر قابل نوشتن باشند؛ کانتینر privileged اجرا نکنید.
 
 ## روش C — سایت استاتیک تولیدی
 
@@ -129,7 +129,7 @@ npm run preview
 ```sh
 git switch -c content/my-portfolio
 docker compose -f setup/docker-compose.yml up -d
-# ویرایش در http://localhost:1234/dev/content/
+# ویرایش در http://localhost:4321/dev/content/
 git status --short
 git diff -- content
 npm run content:validate
@@ -152,7 +152,7 @@ builder برای checkoutهایی که résumé فعال دارند Chromium ر�
 
 ## رفع خطاهای رایج
 
-- **پورت 1234 یا 8080 اشغال است:** با `EASY_CONTENT_PORT=1235` یا `PORT=8081` پورت میزبان را تغییر دهید. در PowerShell از `Get-NetTCPConnection -LocalPort 1234` استفاده کنید.
+- **پورت 4321 یا 8080 اشغال است:** با `EASY_CONTENT_PORT=1235` یا `PORT=8081` پورت میزبان را تغییر دهید. در PowerShell از `Get-NetTCPConnection -LocalPort 4321` استفاده کنید.
 - **Docker Desktop/WSL آماده نیست:** Docker Desktop را اجرا کنید، `docker version` را بررسی و WSL 2 integration را فعال کنید.
 - **محتوا خالی یا ناقص است:** `docker compose ... logs easy-content` و `ls -la content` را ببینید. فایل‌های موجود هرگز overwrite نمی‌شوند.
 - **Permission denied:** مالکیت و دسترسی فایل‌های `content/` روی میزبان Linux را اصلاح کنید؛ `--privileged` استفاده نکنید.
@@ -175,6 +175,6 @@ builder برای checkoutهایی که résumé فعال دارند Chromium ر�
 
 Easy Content همچنان session token، Host/Origin همسان، محدودیت body، safe path، symlink check، atomic write و revision check را اعمال می‌کند. Compose فقط روی `127.0.0.1` publish می‌کند و تنها gateway ثابت شبکهٔ اختصاصی Docker را trusted می‌کند؛ آدرس‌های دیگر رد می‌شوند. کانتینر authoring privileged نیست و Docker socket یا Git credentials ندارد. production قابلیت‌ها را حذف و filesystem را read-only می‌کند.
 
-Pull requestها image را build، scan و smoke-test می‌کنند ولی `latest` را منتشر نمی‌کنند. Push موفق به `main` یا tag نسخه‌ای `v*.*.*` هر دو image را با `GITHUB_TOKEN`، SHA tag و OCI source metadata در GHCR منتشر می‌کند. فعلاً فقط `linux/amd64` هدف است.
+Pull requestها image را build و smoke-test می‌کنند ولی `latest` را منتشر نمی‌کنند. Push موفق به `main` یا tag نسخه‌ای `v*.*.*` هر دو image را با `GITHUB_TOKEN`، SHA tag و OCI source metadata در GHCR منتشر می‌کند. فعلاً فقط `linux/amd64` هدف است.
 
 CI اجرای Linux را validate می‌کند. اجرای Windows Docker Desktop با WSL 2 و macOS Docker Desktop باید دستی با دستورات بالا آزمایش و جداگانه ثبت شود؛ موفقیت CI لینوکس به‌تنهایی شواهد اجرای آن سیستم‌ها نیست.
