@@ -74,18 +74,17 @@ jobs:
           cache-to: type=gha,mode=max,scope=rawan-portfolio
 
       - name: Start authoring container
-        run: docker compose -f setup/docker-compose.yml up -d --no-build
+        run: docker compose -f setup/docker-compose.yml up -d --no-build --wait --wait-timeout 180
 
       - name: Smoke-test Easy Content and persistence boundary
         run: |
-          curl --fail --retry 20 --retry-delay 2 http://127.0.0.1:4321/en/
-          curl --fail --retry 20 --retry-delay 2 http://127.0.0.1:4321/fa/
-          curl --fail --retry 20 --retry-delay 2 'http://127.0.0.1:4321/__easy-content/api/context?path=/dev/content/'
-          test "$(docker inspect --format '{{.State.Health.Status}}' "$(docker compose -f setup/docker-compose.yml ps -q easy-content)")" = healthy
+          curl --fail --retry 5 --retry-all-errors --retry-delay 2 http://127.0.0.1:4321/en/
+          curl --fail --retry 5 --retry-all-errors --retry-delay 2 http://127.0.0.1:4321/fa/
+          curl --fail --retry 5 --retry-all-errors --retry-delay 2 'http://127.0.0.1:4321/__easy-content/api/context?path=/dev/content/'
           docker compose -f setup/docker-compose.yml exec -T easy-content node -e "import('./setup/authoring-entrypoint.mjs').then(m=>m.initializeContent())"
 
       - name: Start production container
-        run: docker compose -f setup/docker-compose.production.yml up -d --no-build
+        run: docker compose -f setup/docker-compose.production.yml up -d --no-build --wait --wait-timeout 180
 
       - name: Smoke-test immutable production site
         run: |

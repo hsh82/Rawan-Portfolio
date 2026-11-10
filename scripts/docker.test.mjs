@@ -64,6 +64,9 @@ test('GHCR workflow only publishes after main or version-tag validation', () => 
   assert.doesNotMatch(workflow, /aquasecurity\/trivy-action@0\.28\.0/);
   assert.doesNotMatch(workflow, /aquasecurity\/trivy-action@/);
   assert.match(workflow, /127\.0\.0\.1:4321\/en/);
+  assert.match(workflow, /docker compose -f setup\/docker-compose\.yml up -d --no-build --wait --wait-timeout 180/);
+  assert.match(workflow, /--retry-all-errors/);
+  assert.doesNotMatch(workflow, /docker inspect --format .*Health\.Status/);
   assert.equal((workflow.match(/runs-on: ubuntu-24\.04/g) || []).length, 2);
   assert.doesNotMatch(workflow, /runs-on: ubuntu-latest/);
   assert.match(workflow, /needs: verify/);
