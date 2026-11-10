@@ -14,11 +14,11 @@ import favicon from '../assets/favicon.png';
 import Analytics from '@vercel/analytics/astro';
 import ContentActionBar from '../dev/easy-content/editor/ContentActionBar.astro';
 interface ContentContext { type: 'home' | 'blog' | 'project' | 'article'; locale: Locale; projectId?: string; articleId?: string; title?: string; projectTitle?: string; }
-interface Props { title?: string; description?: string; lang?: Locale; translationId?: string; alternates?: Partial<Record<Locale, string>>; type?: 'website' | 'article'; image?: string; published?: Date; updated?: Date; contentContext?: ContentContext; }
+interface Props { title?: string; description?: string; lang?: Locale; translationId?: string; alternates?: Partial<Record<Locale, string>>; type?: 'website' | 'article'; image?: string; published?: Date; updated?: Date; contentContext?: ContentContext; data?: any; preview?: boolean; }
 const lang = localeOf(Astro.props.lang || Astro.currentLocale);
-const siteCopy: any = portfolio().site.locales[lang];
+const siteCopy: any = (Astro.props.data || portfolio()).site.locales[lang];
 const { title = siteCopy.title, description = siteCopy.description, type = 'website', image, published, updated } = Astro.props;
-const easyContentEnabled = import.meta.env.DEV && import.meta.env.EASY_CONTENT_MODE === 'true';
+const easyContentEnabled = !Astro.props.preview && import.meta.env.DEV && import.meta.env.EASY_CONTENT_MODE === 'true';
 const base = Astro.site || new URL('https://example.invalid/');
 const canonical = new URL(Astro.url.pathname, base).href;
 const alternates = Astro.props.alternates || { en: Astro.url.pathname.replace(/^\/(en|fa)\//, '/en/'), fa: Astro.url.pathname.replace(/^\/(en|fa)\//, '/fa/') };
@@ -46,15 +46,15 @@ const alternates = Astro.props.alternates || { en: Astro.url.pathname.replace(/^
     {published && <meta property="article:published_time" content={published.toISOString()} />}
     {updated && <meta property="article:modified_time" content={updated.toISOString()} />}
     <script is:inline>try{const stored=localStorage.getItem('theme');if(stored==='dark'||(!stored&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')}catch{}</script>
-    <Analytics />
+    {!Astro.props.preview && <Analytics />}
   </head>
   <body class="bg-white text-secondary dark:bg-neutral-dark dark:text-white transition-colors duration-300">
     <a class="skip-link" href="#main-content">{lang === 'fa' ? 'رفتن به محتوا' : 'Skip to content'}</a>
     <div class="flex min-h-screen flex-col">
-      <Navbar lang={lang} translationId={Astro.props.translationId} />
+      <Navbar preview={Astro.props.preview} data={Astro.props.data} lang={lang} translationId={Astro.props.translationId} />
       {easyContentEnabled && Astro.props.contentContext && <ContentActionBar context={Astro.props.contentContext} />}
       <main id="main-content" class="min-w-0 flex-grow"><slot /></main>
-      <Footer lang={lang} />
+      <Footer data={Astro.props.data} lang={lang} />
     </div>
   </body>
 </html>

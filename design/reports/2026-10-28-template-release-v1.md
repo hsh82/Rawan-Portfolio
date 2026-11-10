@@ -42,7 +42,7 @@ Personal articles, project directories, profile assets, generated résumé PDFs,
 
 ## Documentation and skills
 
-The English README now documents the actual stack, setup, content schemas, skills, journey, projects, nested MDX blog, localization, résumé generation, Agent Skills, Vercel deployment, validation, licensing, troubleshooting, upstream badges, and a linked preview image. `README.fa.md` provides a complete Persian guide covering setup, content, skills, blog, résumé, deployment, and Agent Skills. `AGENTS.md`, all repository-local portfolio skills, `design/`, and `docs/AUTHORING.md` remain present and generic. The README preserves upstream Nicremo attribution and the existing MIT license.
+The English README now documents the actual stack, setup, content schemas, skills, journey, projects, nested MDX blog, localization, résumé generation, Agent Skills, Vercel deployment, validation, licensing, troubleshooting, upstream badges, and a linked preview image. `README.fa.md` provides a complete Persian guide covering setup, content, skills, blog, résumé, deployment, and Agent Skills. `AGENTS.md`, all repository-local portfolio skills, `design/`, and `design/AUTHORING.md` remain present and generic. The README preserves upstream Nicremo attribution and the existing MIT license.
 
 ## Validation
 

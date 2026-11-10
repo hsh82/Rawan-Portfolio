@@ -67,3 +67,5 @@ The filename, `slug`, and final URL segment must match. `category` and `subcateg
 Set `draft: true` to omit content from public pages, sitemap, RSS, and Pagefind. Optional local covers can sit beside the MDX file with `cover: ./cover.svg` and a locale-specific `coverAlt`. Shared public images use paths such as `![Diagram](/images/pipeline.svg)` or `<Figure src="/images/pipeline.svg" alt="Pipeline" caption="Example pipeline" />`. Put downloadable PDFs under `public/docs/` and use `<AttachmentDownload />`.
 
 Fenced `bash`, `ts`, `yaml`, and other code blocks receive Shiki highlighting and copy controls. Markdown tables, task lists, footnotes, math, blockquotes, headings/anchors, callouts, Mermaid, Markmap, Tabs, and collapsible details remain supported by the existing reader. Use headings from H2 onward because the reader supplies the article H1 and table of contents.
+
+Detailed Studio collections, JSON normalization, preview controls and toolbar actions: [Staging authoring](STAGING-AUTHORING.md).
