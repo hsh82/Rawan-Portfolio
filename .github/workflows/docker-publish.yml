@@ -18,7 +18,7 @@ env:
 jobs:
   verify:
     name: Verify Docker distributions
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out source
         uses: actions/checkout@v4
@@ -75,7 +75,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=rawan-portfolio
 
       - name: Scan local images for high and critical vulnerabilities
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ghcr.io/hsh82/rawan-portfolio:latest
           severity: CRITICAL,HIGH
@@ -118,7 +118,7 @@ jobs:
     if: >-
       github.event_name != 'pull_request' &&
       (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       packages: write
