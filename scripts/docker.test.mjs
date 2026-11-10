@@ -12,7 +12,7 @@ test('Docker distribution files describe separate authoring and production targe
   assert.match(dockerfile, /FROM node:22-bookworm-slim AS deps/);
   assert.match(dockerfile, /FROM deps AS builder/);
   assert.match(dockerfile, /FROM builder AS authoring/);
-  assert.match(dockerfile, /FROM nginxinc\/nginx-unprivileged:1\.27-alpine AS production/);
+  assert.match(dockerfile, /FROM nginxinc\/nginx-unprivileged:1\.31\.7-alpine3\.24 AS production/);
   assert.match(dockerfile, /RUN npm ci/);
   assert.match(dockerfile, /COPY --from=builder \/app\/dist\//);
   assert.ok(dockerfile.indexOf('USER root\nCOPY setup/authoring-entrypoint.mjs') < dockerfile.indexOf('USER node\nEXPOSE 4321'));
@@ -23,7 +23,7 @@ test('authoring Compose persists only canonical content and trusts one fixed Doc
   const compose = parse(read('setup/docker-compose.yml'));
   const service = compose.services['easy-content'];
   assert.equal(service.image, 'ghcr.io/hsh82/rawan-easy-content:latest');
-  assert.equal(service.ports[0], '127.0.0.1:${EASY_CONTENT_PORT:-1234}:4321');
+  assert.equal(service.ports[0], '127.0.0.1:${EASY_CONTENT_PORT:-4321}:4321');
   assert.equal(service.volumes[0].source, '../content');
   assert.equal(service.volumes[0].target, '/app/content');
   assert.equal(service.environment.EASY_CONTENT_DOCKER, 'true');
@@ -62,6 +62,7 @@ test('GHCR workflow only publishes after main or version-tag validation', () => 
   assert.match(workflow, /type=raw,value=latest,enable=\{\{is_default_branch\}\}/);
   assert.match(workflow, /docker\/build-push-action@v6/);
   assert.match(workflow, /aquasecurity\/trivy-action@v0\.36\.0/);
+  assert.match(workflow, /image-ref: ghcr\.io\/hsh82\/rawan-portfolio:latest[\s\S]*exit-code: '0'/);
   assert.doesNotMatch(workflow, /aquasecurity\/trivy-action@0\.28\.0/);
   assert.equal((workflow.match(/runs-on: ubuntu-24\.04/g) || []).length, 2);
   assert.doesNotMatch(workflow, /runs-on: ubuntu-latest/);

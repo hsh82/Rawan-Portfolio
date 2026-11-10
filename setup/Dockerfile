@@ -60,7 +60,7 @@ HEALTHCHECK --interval=10s --timeout=4s --start-period=25s --retries=6 \
   CMD ["node", "-e", "fetch('http://127.0.0.1:4321/__easy-content/api/context?path=/dev/content/').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
 ENTRYPOINT ["node", "/usr/local/bin/rawan-authoring-entrypoint.mjs"]
 
-FROM nginxinc/nginx-unprivileged:1.27-alpine AS production
+FROM nginxinc/nginx-unprivileged:1.31.7-alpine3.24 AS production
 
 COPY setup/nginx.conf /etc/nginx/nginx.conf
 COPY --from=builder /app/dist/ /usr/share/nginx/html/
